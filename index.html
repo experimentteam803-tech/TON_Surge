@@ -43,7 +43,9 @@
             'star-spin': 'starSpin 24s linear infinite',
             'float-slow': 'floatSlow 3.5s ease-in-out infinite',
             'diamond-pulse': 'diamondPulse 2.8s ease-in-out infinite alternate',
-            'watermark-pulse': 'watermarkPulse 4s ease-in-out infinite alternate'
+            'watermark-pulse': 'watermarkPulse 4s ease-in-out infinite alternate',
+            'nebula-drift': 'nebulaDrift 18s ease-in-out infinite alternate',
+            'cyber-scan': 'cyberScan 4s linear infinite'
           },
           keyframes: {
             starSpin: {
@@ -61,6 +63,15 @@
             watermarkPulse: {
               '0%': { opacity: '0.08', transform: 'scale(0.96)' },
               '100%': { opacity: '0.22', transform: 'scale(1.05)' }
+            },
+            nebulaDrift: {
+              '0%': { transform: 'translate(0px, 0px) scale(1)' },
+              '50%': { transform: 'translate(-20px, 15px) scale(1.12)' },
+              '100%': { transform: 'translate(25px, -18px) scale(1.05)' }
+            },
+            cyberScan: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(1000%)' }
             }
           }
         }
@@ -203,12 +214,39 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+
+    /* Dedicated Animated Game Background Elements */
+    .game-cosmic-bg {
+      background: 
+        radial-gradient(ellipse at top left, rgba(0, 152, 234, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.20) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%),
+        #03060C;
+    }
+
+    .cyber-grid-overlay {
+      background-size: 36px 36px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    }
   </style>
 </head>
 <body class="flex justify-center items-center h-full w-full">
 
   <!-- Mobile Viewport Frame -->
   <div id="appContainer" class="w-full max-w-md h-full bg-mesh-radial flex flex-col justify-between relative shadow-2xl overflow-hidden border-x border-slate-900/60">
+
+    <!-- ADMIN REMOTE ANNOUNCEMENT BANNER (TRIGGERED DYNAMICALLY) -->
+    <div id="remoteAnnouncementBanner" class="hidden flex-none bg-gradient-to-r from-amber-500/20 via-ton/20 to-amber-500/20 border-b border-amber-500/30 px-3 py-1 flex items-center justify-between text-[10px] text-amber-300 font-bold z-50">
+      <div class="flex items-center space-x-1.5 truncate">
+        <i class="fa-solid fa-bullhorn text-[9px] animate-pulse"></i>
+        <span id="announcementText" class="truncate">Network Settlement Node: Live</span>
+      </div>
+      <button onclick="document.getElementById('remoteAnnouncementBanner').classList.add('hidden')" class="text-slate-400 hover:text-white ml-2">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
 
     <!-- FIXED TOP HEADER (WITH AUTO-POPULATED TELEGRAM USER PROFILE) -->
     <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/10 flex items-center justify-between z-40">
@@ -355,10 +393,10 @@
             </div>
             <div>
               <h4 class="text-xs font-bold text-white">24/7 Official Support Desk</h4>
-              <p class="text-[10px] text-slate-400">Telegram Direct Support: <span class="text-sky-300 font-bold font-mono-num">24/7</span></p>
+              <p class="text-[10px] text-slate-400">Telegram Direct Support: <span id="supportHandleLabel" class="text-sky-300 font-bold font-mono-num">@PayZoteam</span></p>
             </div>
           </div>
-          <button onclick="window.open('https://t.me/PayZoteam', '_blank')" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
+          <button id="btnChatSupportTile" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
             Chat
           </button>
         </div>
@@ -414,21 +452,24 @@
             <span class="text-[10px] text-slate-500 font-mono-num">Realtime Records</span>
           </div>
           <div id="homeHistoryList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
-            <!-- Dynamically populated via JS -->
+            <!-- Populated via JS (Starts empty: No fake demo transactions) -->
           </div>
         </div>
       </section>
 
-      <!-- ================= 2. SURVIVAL GAME TAB ================= -->
+      <!-- ================= 2. SURVIVAL GAME TAB (WITH PREMIER ANIMATED CYBER BACKGROUND) ================= -->
       <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-3 hidden relative">
-        <!-- GAME BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
-        <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <img 
-            src="https://i.postimg.cc/hGk04882/IMG-20261028-163330.jpg" 
-            alt="Game Background" 
-            class="w-full h-full object-cover opacity-100" 
-            onerror="this.style.display='none'"
-          />
+        
+        <!-- ULTRA-PREMIUM DYNAMIC ANIMATED BACKGROUND (IMAGE REMOVED AS REQUESTED) -->
+        <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden game-cosmic-bg">
+          <!-- Drifting Cosmic Mesh Glow -->
+          <div class="absolute -top-10 -left-10 w-72 h-72 rounded-full bg-cyan-500/20 blur-3xl animate-nebula-drift pointer-events-none"></div>
+          <div class="absolute -bottom-10 -right-10 w-80 h-80 rounded-full bg-amber-500/15 blur-3xl animate-nebula-drift pointer-events-none" style="animation-delay: -6s;"></div>
+          <div class="absolute top-1/3 left-1/4 w-60 h-60 rounded-full bg-purple-600/15 blur-3xl animate-nebula-drift pointer-events-none" style="animation-delay: -12s;"></div>
+          <!-- Perspective Cyber Matrix Grid -->
+          <div class="absolute inset-0 cyber-grid-overlay opacity-60"></div>
+          <!-- Scanning Cyber Ray -->
+          <div class="absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent animate-cyber-scan pointer-events-none"></div>
         </div>
 
         <div class="relative z-10 space-y-3">
@@ -455,7 +496,7 @@
 
           <!-- CANVAS ARENA WITH GLOWING NEON CYBER BORDER -->
           <div class="neon-cyber-frame rounded-3xl overflow-hidden shadow-2xl relative">
-            <div class="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-slate-950/75 backdrop-blur-sm">
+            <div class="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-slate-950/80 backdrop-blur-sm">
               <canvas id="gameCanvas" class="w-full h-full"></canvas>
 
               <!-- 1. Start Lobby Overlay -->
@@ -470,8 +511,8 @@
                 <h3 class="text-base font-black text-white">60s TON Diamond Survival</h3>
                 <p class="text-[11px] text-slate-300 mt-1 max-w-xs leading-relaxed">
                   Catch falling diamonds to harvest direct TON!
-                  <br/><span class="text-ton font-bold">Blue Diamond (+0.00002 TON)</span> 
-                  <br/><span class="text-amber-400 font-bold">Golden Diamond (+0.00005 TON)</span>
+                  <br/><span class="text-ton font-bold">Blue Diamond (+<span id="labelBlueDiamondTon">0.00002</span> TON)</span> 
+                  <br/><span class="text-amber-400 font-bold">Golden Diamond (+<span id="labelGoldDiamondTon">0.00005</span> TON)</span>
                 </p>
 
                 <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-2.5 my-3 text-[10px] text-red-300 text-left max-w-xs space-y-1">
@@ -541,7 +582,7 @@
         </div>
       </section>
 
-      <!-- ================= 3. SYNDICATE (REFERRAL) TAB ================= -->
+      <!-- ================= 3. SYNDICATE (REFERRAL) TAB (NO FAKE / DEMO DATA) ================= -->
       <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
         <!-- REFERRAL BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
@@ -572,7 +613,7 @@
                 <span class="text-[9px] font-bold text-slate-300 uppercase">Standard Invite</span>
                 <i class="fa-regular fa-user text-slate-400 text-xs"></i>
               </div>
-              <p class="text-base font-black text-white font-mono-num">+0.002 TON</p>
+              <p id="labelNormalRefTon" class="text-base font-black text-white font-mono-num">+0.002 TON</p>
               <p class="text-[9px] text-slate-300 leading-tight">Instant direct credit when friend completes 1st round</p>
             </div>
 
@@ -584,7 +625,7 @@
                 </span>
                 <span class="text-[8px] bg-amber-400/30 text-amber-200 px-1 py-0.2 rounded font-bold">VIP</span>
               </div>
-              <p class="text-base font-black text-amber-300 font-mono-num">+0.005 TON</p>
+              <p id="labelPremiumRefTon" class="text-base font-black text-amber-300 font-mono-num">+0.005 TON</p>
               <p class="text-[9px] text-amber-200/90 leading-tight">Instant direct credit for Telegram Premium members</p>
             </div>
           </div>
@@ -597,32 +638,32 @@
             <div class="space-y-1.5 text-[10px]">
               <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
                 <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">1</span>
-                <p class="text-slate-200"><strong class="text-white">Copy & Share Link:</strong> Copy your exclusive Syndicate Protocol invite link and share it across groups or social contacts.</p>
+                <p class="text-slate-200"><strong class="text-white">Copy & Share Link:</strong> Copy your unique referral protocol link and invite contacts or post in Telegram communities.</p>
               </div>
               <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
                 <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">2</span>
-                <p class="text-slate-200"><strong class="text-white">Friend Completes 60s Run:</strong> As soon as your friend opens the bot and finishes their first 60-second survival round.</p>
+                <p class="text-slate-200"><strong class="text-white">Friend Completes 60s Run:</strong> When your friend opens TON Rush Elite and survives their first 60-second survival round.</p>
               </div>
               <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
                 <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">3</span>
-                <p class="text-slate-200"><strong class="text-white">Instant Vault Settlement:</strong> Receive <strong class="text-ton">0.002 TON</strong> for standard users or <strong class="text-amber-300">0.005 TON</strong> for TG Premium accounts directly into your Vault.</p>
+                <p class="text-slate-200"><strong class="text-white">Direct TON Credit:</strong> <span class="text-ton font-bold">+0.002 TON</span> for standard members or <span class="text-amber-300 font-bold">+0.005 TON</span> for TG Premium users is credited instantly to your Vault.</p>
               </div>
             </div>
           </div>
 
-          <!-- Referral Stats Overview -->
+          <!-- Referral Stats Overview (REAL STATS - ZERO FAKE DATA) -->
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="glass-elite-card p-2 rounded-xl border border-white/10">
               <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
-              <span id="statRefTotal" class="text-xs font-black text-white font-mono-num">2</span>
+              <span id="statRefTotal" class="text-xs font-black text-white font-mono-num">0</span>
             </div>
             <div class="glass-elite-card p-2 rounded-xl border border-white/10">
               <span class="text-[8px] text-amber-300 uppercase font-bold block">Premium</span>
-              <span id="statRefPremium" class="text-xs font-black text-amber-300 font-mono-num">1</span>
+              <span id="statRefPremium" class="text-xs font-black text-amber-300 font-mono-num">0</span>
             </div>
             <div class="glass-elite-card p-2 rounded-xl border border-white/10">
               <span class="text-[8px] text-ton uppercase font-bold block">Ref Earned</span>
-              <span id="statRefTon" class="text-xs font-black text-cyan-glow font-mono-num">0.0070 TON</span>
+              <span id="statRefTon" class="text-xs font-black text-cyan-glow font-mono-num">0.0000 TON</span>
             </div>
           </div>
 
@@ -638,11 +679,11 @@
             </button>
           </div>
 
-          <!-- Referral Ledger -->
+          <!-- Referral Ledger (Clean Empty State: No Fake Users) -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
             <div class="flex items-center justify-between border-b border-white/10 pb-1">
               <h4 class="text-xs font-black uppercase text-slate-300">Verified Referral Ledger</h4>
-              <span class="text-[9px] text-slate-400 font-mono-num">Direct TON Credited</span>
+              <span class="text-[9px] text-slate-400 font-mono-num">Realtime Recruits</span>
             </div>
             <div id="referralHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1">
               <!-- Dynamically populated via JS -->
@@ -689,7 +730,7 @@
           <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-slate-200">Request Cashout</span>
-              <span class="text-[9px] text-slate-400">Min: <strong class="text-white font-mono-num">0.010 TON</strong></span>
+              <span class="text-[9px] text-slate-400">Min: <strong id="labelMinWithdraw" class="text-white font-mono-num">0.010 TON</strong></span>
             </div>
 
             <div class="space-y-1">
@@ -711,7 +752,7 @@
             <!-- Fee Table -->
             <div class="bg-slate-900/75 rounded-xl p-2 text-[10px] space-y-1 border border-white/10">
               <div class="flex justify-between text-slate-400">
-                <span>Platform Fee (2%):</span>
+                <span>Platform Fee (<span id="labelPlatformFee">2</span>%):</span>
                 <span id="withdrawPlatformFeeText" class="font-mono-num text-white">0.000000 TON</span>
               </div>
               <div class="flex justify-between text-slate-400">
@@ -729,7 +770,7 @@
             </button>
           </div>
 
-          <!-- Withdrawal Ledger -->
+          <!-- Withdrawal Ledger (Real Records Only) -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
             <div class="flex items-center justify-between border-b border-white/10 pb-1">
               <h4 class="text-xs font-black uppercase text-slate-300">Settlement Ledger</h4>
@@ -783,9 +824,9 @@
 
     let telegramUser = {
       id: "928172",
-      first_name: "Validator",
+      first_name: "Member",
       last_name: "",
-      username: "validator_718",
+      username: "validator_node",
       photo_url: null,
       is_premium: false
     };
@@ -802,12 +843,12 @@
           console.warn('Telegram WebApp setup warning:', e);
         }
 
-        // 1. Direct fetch from Telegram WebApp initDataUnsafe
+        // Direct fetch from Telegram WebApp initDataUnsafe
         if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
           telegramUser = { ...telegramUser, ...tgApp.initDataUnsafe.user };
           localStorage.setItem('TON_RUSH_TG_USER', JSON.stringify(telegramUser));
         } else if (tgApp.initData) {
-          // 2. Secondary fallback parser for URL encoded initData query string
+          // Secondary fallback parser for URL encoded initData query string
           try {
             const urlParams = new URLSearchParams(tgApp.initData);
             const userJson = urlParams.get('user');
@@ -820,29 +861,35 @@
         }
       }
 
-      // 3. Fallback to cached Telegram profile if exists
+      // Check URL parameters for direct startapp referral
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refParam = urlParams.get('startapp') || urlParams.get('start');
+        if (refParam && refParam.startsWith('ref_')) {
+          const inviterId = refParam.replace('ref_', '');
+          localStorage.setItem('TON_RUSH_INVITED_BY', inviterId);
+        }
+      } catch(e) {}
+
+      // Fallback to cached Telegram profile
       const cached = localStorage.getItem('TON_RUSH_TG_USER');
       if (cached) {
         try { telegramUser = { ...telegramUser, ...JSON.parse(cached) }; } catch(e){}
       }
 
-      // Populate UI with verified Telegram User details
       applyTelegramUserToUI();
     }
 
     function applyTelegramUserToUI() {
-      // Full Name & Username Formatting
       const fullName = (telegramUser.first_name + (telegramUser.last_name ? ' ' + telegramUser.last_name : '')).trim();
       const displayName = telegramUser.username ? `@${telegramUser.username}` : (fullName || `TG_${telegramUser.id}`);
       
       const usernameEl = document.getElementById('headerUsername');
       if (usernameEl) usernameEl.innerText = displayName.toUpperCase();
 
-      // Telegram User ID
       const uidEl = document.getElementById('headerUserId');
       if (uidEl) uidEl.innerText = telegramUser.id;
 
-      // Telegram Profile Photo or Monogram Avatar
       const avatarImg = document.getElementById('headerAvatarImg');
       const monogramFallback = document.getElementById('avatarFallbackMonogram');
 
@@ -859,7 +906,6 @@
         showMonogram(fullName || displayName);
       }
 
-      // Telegram Premium VIP Badge
       const badgeEl = document.getElementById('headerBadge');
       if (badgeEl) {
         if (telegramUser.is_premium) {
@@ -871,7 +917,7 @@
         }
       }
 
-      // Dynamic Referral Link with verified Telegram User ID
+      // Dynamic Referral Link with authenticated Telegram UID
       const refLinkInput = document.getElementById('refShareLink');
       if (refLinkInput) {
         refLinkInput.value = `https://t.me/tonrush_bot?startapp=ref_${telegramUser.id}`;
@@ -890,7 +936,135 @@
     }
 
     /* =======================================================
-       2. AUDIO & TELEGRAM HAPTICS ENGINE
+       2. REMOTE ADMIN CONTROL ENGINE (A TO Z ARCHITECTURE)
+       ======================================================= */
+    // Default system parameters (overridable via remote API or BroadcastChannel)
+    let appConfig = {
+      blueDiamondTon: 0.00002,
+      goldDiamondTon: 0.00005,
+      normalRefTon: 0.002,
+      premiumRefTon: 0.005,
+      minWithdrawTon: 0.010,
+      platformFeePercent: 2,
+      networkFeeTon: 0.005,
+      supportHandle: "@PayZoteam",
+      maintenanceMode: false,
+      announcement: ""
+    };
+
+    // Client State: CLEAN REAL REVENUE & REAL DATA ONLY (No fake demo data)
+    let state = {
+      balanceTon: 0.000000,
+      tonRate: 5.40,
+      energy: 3,
+      maxEnergy: 3,
+      lastDailyClaim: 0,
+      referralStats: {
+        total: 0,
+        premium: 0,
+        tonEarned: 0.0000
+      },
+      ledger: [],
+      referrals: [],
+      withdrawals: []
+    };
+
+    function loadPersistedState() {
+      // 1. Load Remote Admin Config overrides
+      const savedConfig = localStorage.getItem('TON_RUSH_REMOTE_CONFIG_V1');
+      if (savedConfig) {
+        try { appConfig = { ...appConfig, ...JSON.parse(savedConfig) }; } catch(e){}
+      }
+
+      // 2. Load User State
+      const savedState = localStorage.getItem('TON_RUSH_REAL_USER_STATE_V1');
+      if (savedState) {
+        try { state = { ...state, ...JSON.parse(savedState) }; } catch(e){}
+      }
+
+      // Check if user has received a welcome bonus
+      if (!localStorage.getItem('TON_RUSH_WELCOME_CLAIMED')) {
+        state.balanceTon += 0.001000;
+        state.ledger.unshift({
+          desc: "Vault Protocol Initialization",
+          ton: 0.001000,
+          timestamp: Date.now()
+        });
+        localStorage.setItem('TON_RUSH_WELCOME_CLAIMED', 'true');
+        saveState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('TON_RUSH_REAL_USER_STATE_V1', JSON.stringify(state));
+      renderUI();
+    }
+
+    // Remote Admin Live Sync Listener:
+    // Enables an external admin dashboard to control this app in real-time
+    window.addEventListener('message', (event) => {
+      try {
+        if (event.data && event.data.type === 'TON_RUSH_ADMIN_UPDATE') {
+          const { configUpdates, userAdjustments } = event.data;
+          if (configUpdates) {
+            appConfig = { ...appConfig, ...configUpdates };
+            localStorage.setItem('TON_RUSH_REMOTE_CONFIG_V1', JSON.stringify(appConfig));
+          }
+          if (userAdjustments) {
+            if (typeof userAdjustments.addTon === 'number') {
+              state.balanceTon = Math.max(0, state.balanceTon + userAdjustments.addTon);
+              state.ledger.unshift({
+                desc: "Admin Vault Adjustment",
+                ton: userAdjustments.addTon,
+                timestamp: Date.now()
+              });
+            }
+            if (typeof userAdjustments.setEnergy === 'number') {
+              state.energy = Math.max(0, Math.min(state.maxEnergy, userAdjustments.setEnergy));
+            }
+            saveState();
+          }
+          applyAdminConfigToUI();
+          showToast("Remote protocol settings updated!", true);
+        }
+      } catch(e){}
+    });
+
+    // Also support BroadcastChannel for separate Admin tab control
+    try {
+      const adminChannel = new BroadcastChannel('ton_rush_admin_channel');
+      adminChannel.onmessage = (event) => {
+        if (event.data && event.data.type === 'CONFIG_UPDATE') {
+          appConfig = { ...appConfig, ...event.data.payload };
+          localStorage.setItem('TON_RUSH_REMOTE_CONFIG_V1', JSON.stringify(appConfig));
+          applyAdminConfigToUI();
+          showToast("Admin node updated settings", true);
+        }
+      };
+    } catch(e){}
+
+    function applyAdminConfigToUI() {
+      // Dynamic Labels from Admin Config
+      document.getElementById('labelBlueDiamondTon').innerText = appConfig.blueDiamondTon.toFixed(5);
+      document.getElementById('labelGoldDiamondTon').innerText = appConfig.goldDiamondTon.toFixed(5);
+      document.getElementById('labelNormalRefTon').innerText = `+${appConfig.normalRefTon.toFixed(3)} TON`;
+      document.getElementById('labelPremiumRefTon').innerText = `+${appConfig.premiumRefTon.toFixed(3)} TON`;
+      document.getElementById('labelMinWithdraw').innerText = `${appConfig.minWithdrawTon.toFixed(3)} TON`;
+      document.getElementById('labelPlatformFee').innerText = appConfig.platformFeePercent;
+      document.getElementById('supportHandleLabel').innerText = appConfig.supportHandle;
+
+      // Remote Announcement Banner
+      const banner = document.getElementById('remoteAnnouncementBanner');
+      if (appConfig.announcement && appConfig.announcement.trim().length > 0) {
+        document.getElementById('announcementText').innerText = appConfig.announcement;
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    /* =======================================================
+       3. AUDIO & TELEGRAM HAPTICS ENGINE
        ======================================================= */
     let isMuted = false;
     const SFX = {
@@ -936,53 +1110,6 @@
           else if (type === 'error') tgApp.HapticFeedback.notificationOccurred('error');
         }
       } catch (e) {}
-    }
-
-    /* =======================================================
-       3. CLIENT STATE & RULES
-       ======================================================= */
-    const GAME_REWARDS = {
-      blueDiamondTon: 0.00002,
-      goldDiamondTon: 0.00005,
-      normalRefTon: 0.002,
-      premiumRefTon: 0.005,
-      minWithdrawTon: 0.010,
-      platformFeePercent: 2,
-      networkFeeTon: 0.005
-    };
-
-    let state = {
-      balanceTon: 0.000000,
-      tonRate: 5.40,
-      energy: 3,
-      maxEnergy: 3,
-      lastDailyClaim: 0,
-      referralStats: {
-        total: 2,
-        premium: 1,
-        tonEarned: 0.0070
-      },
-      ledger: [
-        { desc: "Welcome Starter Bonus", ton: 0.001000, timestamp: Date.now() - 3600000 },
-        { desc: "Referral Bonus (@alex_web3)", ton: 0.005000, timestamp: Date.now() - 7200000 }
-      ],
-      referrals: [
-        { username: "@alex_web3", isPremium: true, rewardTon: 0.005, timestamp: Date.now() - 7200000 },
-        { username: "@crypto_sam", isPremium: false, rewardTon: 0.002, timestamp: Date.now() - 14400000 }
-      ],
-      withdrawals: []
-    };
-
-    function loadPersistedState() {
-      const savedState = localStorage.getItem('TON_RUSH_CLIENT_STATE_V4');
-      if (savedState) {
-        try { state = { ...state, ...JSON.parse(savedState) }; } catch(e){}
-      }
-    }
-
-    function saveState() {
-      localStorage.setItem('TON_RUSH_CLIENT_STATE_V4', JSON.stringify(state));
-      renderUI();
     }
 
     /* =======================================================
@@ -1070,7 +1197,7 @@
       document.getElementById('headerEnergyText').innerText = `${state.energy}/${state.maxEnergy}`;
       document.getElementById('gameAvailableEnergyText').innerText = state.energy;
 
-      // Referral Stats
+      // Referral Stats (REAL DATA ONLY)
       document.getElementById('statRefTotal').innerText = state.referralStats.total;
       document.getElementById('statRefPremium').innerText = state.referralStats.premium;
       document.getElementById('statRefTon').innerText = `${state.referralStats.tonEarned.toFixed(4)} TON`;
@@ -1091,7 +1218,7 @@
         homeList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-3">No activity recorded yet.</p>`;
       }
 
-      // Referral Ledger
+      // Referral Ledger (Starts Completely Clean - No Fake Users)
       const refList = document.getElementById('referralHistoryList');
       if (state.referrals.length > 0) {
         refList.innerHTML = state.referrals.map(item => `
@@ -1104,10 +1231,16 @@
           </div>
         `).join('');
       } else {
-        refList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No referrals logged yet.</p>`;
+        refList.innerHTML = `
+          <div class="text-center py-4 space-y-1">
+            <i class="fa-solid fa-users text-slate-600 text-lg"></i>
+            <p class="text-[11px] font-bold text-slate-400">No verified recruits yet</p>
+            <p class="text-[9px] text-slate-500">Share your protocol link above to start earning direct TON.</p>
+          </div>
+        `;
       }
 
-      // Withdrawal Ledger
+      // Withdrawal Ledger (Real Records Only)
       const withList = document.getElementById('withdrawalHistoryList');
       if (state.withdrawals.length > 0) {
         withList.innerHTML = state.withdrawals.map(item => `
@@ -1125,6 +1258,8 @@
       } else {
         withList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No settlements recorded yet.</p>`;
       }
+
+      applyAdminConfigToUI();
     }
 
     /* =======================================================
@@ -1191,11 +1326,11 @@
         const rand = Math.random();
         if (rand < 0.65) {
           this.type = 'diamond';
-          this.rewardTon = GAME_REWARDS.blueDiamondTon;
+          this.rewardTon = appConfig.blueDiamondTon;
           this.img = sprites.diamond;
         } else if (rand < 0.80) {
           this.type = 'gold';
-          this.rewardTon = GAME_REWARDS.goldDiamondTon;
+          this.rewardTon = appConfig.goldDiamondTon;
           this.img = sprites.goldDiamond;
         } else {
           this.type = 'bomb';
@@ -1463,11 +1598,10 @@
        8. DOM EVENT BINDINGS & LIFECYCLE
        ======================================================= */
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Load Local State & Auto-populate Telegram SDK profile
       loadPersistedState();
       initTelegramSdkAndAutoFill();
 
-      // 2. Tab Navigation Buttons
+      // Tab navigation
       ['home', 'game', 'referral', 'wallet'].forEach(tab => {
         const btn = document.getElementById(`nav-${tab}`);
         if (btn) btn.addEventListener('click', () => switchTab(tab));
@@ -1476,7 +1610,7 @@
       document.getElementById('btnQuickPlay').addEventListener('click', () => switchTab('game'));
       document.getElementById('btnQuickWithdraw').addEventListener('click', () => switchTab('wallet'));
 
-      // 3. Sound Toggle
+      // Sound Toggle
       document.getElementById('btnSoundToggle').addEventListener('click', () => {
         isMuted = !isMuted;
         document.getElementById('soundIcon').className = isMuted 
@@ -1485,13 +1619,16 @@
         triggerHaptic('light');
       });
 
-      // 4. Customer Support Link (@PayZoteam)
-      document.getElementById('btnCustomerSupport').addEventListener('click', () => {
+      // Customer Support Links (@PayZoteam)
+      const openSupport = () => {
         SFX.tap();
-        window.open('https://t.me/PayZoteam', '_blank');
-      });
+        const handle = appConfig.supportHandle.replace('@', '');
+        window.open(`https://t.me/${handle}`, '_blank');
+      };
+      document.getElementById('btnCustomerSupport').addEventListener('click', openSupport);
+      document.getElementById('btnChatSupportTile').addEventListener('click', openSupport);
 
-      // 5. Daily Gift Claim (+0.001 TON)
+      // Daily Gift Claim (+0.001 TON)
       document.getElementById('btnClaimDaily').addEventListener('click', () => {
         SFX.tap();
         const now = Date.now();
@@ -1511,7 +1648,7 @@
         showToast("Claimed Daily Gift: +0.001000 TON!", true);
       });
 
-      // 6. Energy Recharge via Ad
+      // Energy Recharge via Ad
       document.getElementById('btnRechargeEnergyAd').addEventListener('click', () => {
         if (state.energy >= state.maxEnergy) {
           showToast("Energy is already full (3/3).", false);
@@ -1524,7 +1661,7 @@
         });
       });
 
-      // 7. Home Sponsor Stream Ad
+      // Home Sponsor Stream Ad
       document.getElementById('btnWatchSponsorAd').addEventListener('click', () => {
         triggerMonetagAd('home_sponsor', () => {
           const reward = 0.00015;
@@ -1538,7 +1675,7 @@
         });
       });
 
-      // 8. Daily TON Ad
+      // Daily TON Ad
       document.getElementById('btnDailyTonAd').addEventListener('click', () => {
         triggerMonetagAd('daily_ton', () => {
           const reward = 0.00005;
@@ -1552,7 +1689,7 @@
         });
       });
 
-      // 9. Game Action Buttons
+      // Game Buttons
       document.getElementById('btnStartGame').addEventListener('click', startSurvivalRun);
 
       document.getElementById('btnFailTryAgain').addEventListener('click', () => {
@@ -1589,7 +1726,7 @@
         });
       });
 
-      // 10. Referral Actions
+      // Referral Actions (With Dynamic Telegram ID)
       document.getElementById('btnCopyRefLink').addEventListener('click', () => {
         SFX.tap();
         const input = document.getElementById('refShareLink');
@@ -1605,12 +1742,12 @@
         window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
       });
 
-      // 11. Withdrawal Calculator & Request Submission
+      // Withdrawal Calculator & Request Submission
       const amountInput = document.getElementById('withdrawAmountInput');
       function recalculateFees() {
         const amt = parseFloat(amountInput.value) || 0;
-        const platformFee = amt * (GAME_REWARDS.platformFeePercent / 100);
-        const net = Math.max(0, amt - platformFee - GAME_REWARDS.networkFeeTon);
+        const platformFee = amt * (appConfig.platformFeePercent / 100);
+        const net = Math.max(0, amt - platformFee - appConfig.networkFeeTon);
         document.getElementById('withdrawPlatformFeeText').innerText = platformFee.toFixed(6) + ' TON';
         document.getElementById('withdrawNetText').innerText = net.toFixed(6) + ' TON';
       }
@@ -1630,8 +1767,8 @@
           showToast('Please enter a valid TON address.', false);
           return;
         }
-        if (isNaN(amt) || amt < GAME_REWARDS.minWithdrawTon) {
-          showToast(`Minimum withdrawal is ${GAME_REWARDS.minWithdrawTon} TON.`, false);
+        if (isNaN(amt) || amt < appConfig.minWithdrawTon) {
+          showToast(`Minimum withdrawal is ${appConfig.minWithdrawTon} TON.`, false);
           return;
         }
         if (amt > state.balanceTon) {
@@ -1654,7 +1791,7 @@
         showToast("Withdrawal queued for on-chain settlement!", true);
       });
 
-      // 12. TON Connect & Initial Render
+      // TON Connect & Initial Render
       initTonConnect();
       renderUI();
     });
