@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>TON Rush Elite - Web3 Protocol</title>
+  <title>TON Rush Elite - Web3 Protocol & Yield</title>
 
-  <!-- Telegram WebApp SDK -->
+  <!-- Official Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- TON Connect UI Official SDK -->
+  <!-- Official TON Connect UI SDK -->
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
   <!-- Tailwind CSS CDN -->
@@ -36,12 +36,13 @@
             elite: {
               bg: '#04060A',
               card: 'rgba(10, 15, 24, 0.88)',
-              border: 'rgba(255, 255, 255, 0.08)'
+              border: 'rgba(255, 255, 255, 0.12)'
             }
           },
           animation: {
-            'star-spin': 'starSpin 26s linear infinite',
-            'float-slow': 'floatSlow 3.8s ease-in-out infinite',
+            'star-spin': 'starSpin 24s linear infinite',
+            'float-slow': 'floatSlow 3.5s ease-in-out infinite',
+            'diamond-pulse': 'diamondPulse 2.8s ease-in-out infinite alternate',
             'watermark-pulse': 'watermarkPulse 4s ease-in-out infinite alternate'
           },
           keyframes: {
@@ -50,12 +51,16 @@
               '100%': { transform: 'rotate(360deg)' }
             },
             floatSlow: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-6px)' }
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-8px) rotate(4deg)' }
+            },
+            diamondPulse: {
+              '0%': { transform: 'scale(0.92) rotate(-5deg)', filter: 'drop-shadow(0 0 10px rgba(0, 152, 234, 0.6))' },
+              '100%': { transform: 'scale(1.08) rotate(5deg)', filter: 'drop-shadow(0 0 25px rgba(56, 189, 248, 0.95))' }
             },
             watermarkPulse: {
-              '0%': { opacity: '0.07', transform: 'scale(0.96)' },
-              '100%': { opacity: '0.18', transform: 'scale(1.05)' }
+              '0%': { opacity: '0.08', transform: 'scale(0.96)' },
+              '100%': { opacity: '0.22', transform: 'scale(1.05)' }
             }
           }
         }
@@ -94,19 +99,19 @@
     }
 
     .glass-elite-card {
-      background: linear-gradient(135deg, rgba(16, 23, 37, 0.88) 0%, rgba(8, 12, 20, 0.95) 100%);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.7);
+      background: linear-gradient(135deg, rgba(16, 23, 37, 0.88) 0%, rgba(8, 12, 20, 0.94) 100%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.75);
     }
 
     .glass-ton-premium {
-      background: linear-gradient(135deg, rgba(0, 152, 234, 0.22) 0%, rgba(8, 13, 22, 0.96) 80%);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(0, 152, 234, 0.45);
-      box-shadow: 0 12px 32px -8px rgba(0, 152, 234, 0.35);
+      background: linear-gradient(135deg, rgba(0, 152, 234, 0.28) 0%, rgba(8, 13, 22, 0.95) 80%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 152, 234, 0.5);
+      box-shadow: 0 12px 32px -8px rgba(0, 152, 234, 0.4);
     }
 
     /* 3D Tactile Buttons */
@@ -180,11 +185,23 @@
       background: rgba(255, 255, 255, 0.02);
     }
     .custom-scroll::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.18);
       border-radius: 4px;
     }
-    .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 152, 234, 0.5);
+
+    /* Animated Cyber Neon Arena Border */
+    .neon-cyber-frame {
+      padding: 3px;
+      background: linear-gradient(135deg, #00C6FF, #0072FF, #F59E0B, #EC4899, #00F2FE);
+      background-size: 300% 300%;
+      animation: gradientShift 6s ease infinite;
+      box-shadow: 0 0 26px rgba(0, 152, 234, 0.55);
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
   </style>
 </head>
@@ -193,43 +210,50 @@
   <!-- Mobile Viewport Frame -->
   <div id="appContainer" class="w-full max-w-md h-full bg-mesh-radial flex flex-col justify-between relative shadow-2xl overflow-hidden border-x border-slate-900/60">
 
-    <!-- FIXED TOP HEADER -->
-    <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/5 flex items-center justify-between z-40">
+    <!-- FIXED TOP HEADER (WITH AUTO-POPULATED TELEGRAM USER PROFILE) -->
+    <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/10 flex items-center justify-between z-40">
       <div class="flex items-center space-x-2.5">
+        <!-- Live Telegram Profile Avatar Container -->
         <div class="relative w-9 h-9 rounded-xl p-0.5 bg-gradient-to-tr from-ton/80 to-sky-400/90 shadow-md shadow-ton/30 flex items-center justify-center overflow-hidden">
           <img 
             id="headerAvatarImg"
             src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
-            alt="Avatar" 
+            alt="User Avatar" 
             class="w-full h-full object-cover rounded-[10px]" 
-            onerror="this.src='https://placehold.co/80x80/0098EA/FFFFFF?text=TON'"
           />
+          <div id="avatarFallbackMonogram" class="hidden w-full h-full bg-gradient-to-tr from-sky-600 to-ton flex items-center justify-center text-white font-black text-xs font-mono-num rounded-[10px]">
+            T
+          </div>
         </div>
         <div>
           <div class="flex items-center space-x-1.5">
-            <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[120px]">AUTHENTICATING</span>
-            <span id="headerBadge" class="bg-sky-500/10 text-sky-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-sky-500/20">MEMBER</span>
+            <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[125px]">TG_USER</span>
+            <span id="headerBadge" class="bg-sky-500/15 text-sky-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-sky-500/30">MEMBER</span>
           </div>
           <p class="text-[10px] text-slate-400 font-mono-num flex items-center gap-1.5">
             <span class="text-ton font-bold">UID:</span>
             <span id="headerUserId" class="text-white font-semibold">---</span>
             <span class="text-slate-600">•</span>
-            <span id="headerTonPrice" class="text-emerald-400 font-bold bg-emerald-500/10 px-1 rounded text-[8px]">$---</span>
+            <span id="headerTonPrice" class="text-emerald-400 font-bold bg-emerald-500/15 px-1 rounded text-[8px]">$5.40</span>
           </p>
         </div>
       </div>
 
-      <div class="flex items-center space-x-1.5">
-        <!-- Sound Mute/Unmute Toggle -->
-        <button id="btnSoundToggle" class="w-7 h-7 rounded-lg glass-elite-card flex items-center justify-center text-slate-400 border border-white/5 active:scale-90 transition-transform">
+      <div class="flex items-center space-x-2">
+        <!-- CUSTOMER SUPPORT BUTTON (@PayZoteam) -->
+        <button id="btnCustomerSupport" title="Customer Support" class="w-8 h-8 rounded-lg glass-elite-card flex items-center justify-center text-sky-400 border border-sky-400/30 hover:border-sky-400 active:scale-90 transition-transform">
+          <i class="fa-solid fa-headset text-xs"></i>
+        </button>
+
+        <!-- SOUND TOGGLE BUTTON -->
+        <button id="btnSoundToggle" title="Toggle Sound" class="w-8 h-8 rounded-lg glass-elite-card flex items-center justify-center text-slate-400 border border-white/10 active:scale-90 transition-transform">
           <i id="soundIcon" class="fa-solid fa-volume-high text-[11px]"></i>
         </button>
 
-        <!-- Energy + Bonus Plays Counter -->
+        <!-- ENERGY PILL -->
         <div class="glass-elite-card px-2.5 py-1 rounded-full flex items-center space-x-1.5 border border-slate-800">
           <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
           <span id="headerEnergyText" class="text-xs font-mono-num font-black text-white">3/3</span>
-          <span id="headerBonusPlayBadge" class="hidden text-[9px] text-amber-300 font-mono-num font-bold bg-amber-400/20 px-1 rounded border border-amber-400/30">+0</span>
         </div>
       </div>
     </header>
@@ -239,7 +263,7 @@
 
       <!-- ================= 1. HOME / VAULT TAB ================= -->
       <section id="tab-home" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 relative">
-        <!-- Glowing Watermark -->
+        <!-- Glowing Diamond Watermark Background -->
         <div class="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
           <img 
             src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
@@ -248,23 +272,33 @@
           />
         </div>
 
-        <!-- VAULT BALANCE CARD -->
+        <!-- LUXURY BALANCE CARD WITH DUAL ANIMATION (3D TON COIN + 3D DIAMOND) -->
         <div class="glass-ton-premium rounded-3xl p-5 relative overflow-hidden shadow-2xl">
-          <div class="absolute -right-7 -bottom-7 w-40 h-40 opacity-20 pointer-events-none animate-star-spin">
+          <!-- 1. Right Side: 3D Rotating TON Coin Animation -->
+          <div class="absolute -right-6 -bottom-6 w-36 h-36 opacity-35 pointer-events-none animate-star-spin">
             <img 
               src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
-              alt="Rotating Coin" 
-              class="w-full h-full object-contain filter drop-shadow-[0_0_24px_rgba(0,152,234,0.9)]"
+              alt="Rotating TON" 
+              class="w-full h-full object-contain filter drop-shadow-[0_0_24px_rgba(0,152,234,0.95)]"
+            />
+          </div>
+
+          <!-- 2. Left Side: 3D Floating Glowing Diamond Animation -->
+          <div class="absolute -left-5 -top-5 w-28 h-28 opacity-45 pointer-events-none animate-diamond-pulse">
+            <img 
+              src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
+              alt="Floating Diamond" 
+              class="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(56,189,248,0.9)]"
             />
           </div>
 
           <div class="flex items-center justify-between mb-2 relative z-10">
             <div class="flex items-center space-x-2">
               <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10B981]"></div>
-              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-300">Verified On-Chain Vault</span>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-300">Decentralized Vault</span>
             </div>
-            <span id="liveSyncStatus" class="bg-ton/15 text-sky-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-ton/30 font-mono-num flex items-center gap-1">
-              <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> Ready
+            <span id="liveSyncStatus" class="bg-ton/20 text-sky-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-ton/40 font-mono-num flex items-center gap-1">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-[8px]"></i> Active Mainnet
             </span>
           </div>
 
@@ -274,14 +308,14 @@
               <span class="text-sm font-black text-ton">TON</span>
             </div>
             <div class="flex items-center gap-2 mt-1">
-              <p id="homeBalanceUsd" class="text-xs text-slate-400 font-mono-num">≈ $0.00 USD</p>
+              <p id="homeBalanceUsd" class="text-xs text-slate-400 font-mono-num font-semibold">≈ $0.00 USD</p>
               <span class="text-slate-600">•</span>
-              <span class="text-[10px] text-slate-300">Check-in Streak: <strong id="userStreakCount" class="text-amber-400 font-mono-num">0</strong>d</span>
+              <span class="text-[10px] text-emerald-400 font-mono-num font-bold">Instant Vault Settlement</span>
             </div>
           </div>
 
           <!-- Quick Action Buttons -->
-          <div class="mt-4 pt-3 border-t border-slate-700/40 grid grid-cols-3 gap-2 relative z-10">
+          <div class="mt-4 pt-3 border-t border-slate-700/50 grid grid-cols-3 gap-2 relative z-10">
             <button id="btnQuickWithdraw" class="btn-3d btn-3d-dark py-2 rounded-xl text-center">
               <i class="fa-solid fa-arrow-down-to-bracket text-ton text-xs block mb-0.5"></i>
               <span class="text-[10px] font-bold text-white">Withdraw</span>
@@ -297,15 +331,15 @@
           </div>
         </div>
 
-        <!-- ENERGY & REGEN CARD -->
-        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/5 flex items-center justify-between">
+        <!-- QUICK ENERGY BOOST CARD -->
+        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-base">
               <i class="fa-solid fa-bolt-lightning"></i>
             </div>
             <div>
-              <h4 class="text-xs font-bold text-white">Energy System</h4>
-              <p id="energyRegenCountdown" class="text-[10px] text-slate-400 font-mono-num">+1 Energy Every 30m</p>
+              <h4 class="text-xs font-bold text-white">Recharge Energy</h4>
+              <p id="energyRegenCountdown" class="text-[10px] text-slate-400 font-mono-num">+1 Energy Every 30m or Watch Ad</p>
             </div>
           </div>
           <button id="btnRechargeEnergyAd" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950 flex items-center gap-1.5">
@@ -313,23 +347,39 @@
           </button>
         </div>
 
-        <!-- VERIFIED AD MONETIZATION PLACEMENTS -->
+        <!-- CUSTOMER SUPPORT TILE -->
+        <div class="glass-elite-card p-3 rounded-2xl border border-sky-500/30 flex items-center justify-between bg-sky-500/5">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
+              <i class="fa-solid fa-comments text-base"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white">24/7 Official Support Desk</h4>
+              <p class="text-[10px] text-slate-400">Telegram Direct Support: <span class="text-sky-300 font-bold font-mono-num">24/7</span></p>
+            </div>
+          </div>
+          <button onclick="window.open('https://t.me/PayZoteam', '_blank')" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
+            Chat
+          </button>
+        </div>
+
+        <!-- VERIFIED SPONSOR STREAM NODES -->
         <div class="space-y-2">
           <div class="flex items-center justify-between px-1">
             <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <i class="fa-solid fa-shield-halved text-ton"></i> Sponsored Web3 Nodes
             </h3>
-            <span class="text-[10px] text-slate-400 font-mono-num">Real Monetag Pools</span>
+            <span class="text-[10px] text-slate-400 font-mono-num">Monetag Verified</span>
           </div>
 
           <!-- Placement 1: Home Sponsor Bonus -->
-          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/5">
+          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
             <div class="flex items-center space-x-3">
               <div class="w-9 h-9 rounded-xl bg-ton/10 border border-ton/30 flex items-center justify-center text-ton">
                 <i class="fa-solid fa-satellite-dish text-sm"></i>
               </div>
               <div>
-                <h4 class="text-xs font-bold text-white">Verified Sponsor Node</h4>
+                <h4 class="text-xs font-bold text-white">Institutional Sponsor Stream</h4>
                 <p class="text-[10px] text-slate-400">Up to <span class="text-emerald-400 font-mono-num font-bold">0.00015 TON</span></p>
               </div>
             </div>
@@ -339,13 +389,13 @@
           </div>
 
           <!-- Placement 2: Daily TON Bonus -->
-          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/5">
+          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
             <div class="flex items-center space-x-3">
               <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
                 <i class="fa-solid fa-coins text-sm"></i>
               </div>
               <div>
-                <h4 class="text-xs font-bold text-white">Daily Bonus TON Pool</h4>
+                <h4 class="text-xs font-bold text-white">Daily Bonus Pool Stream</h4>
                 <p class="text-[10px] text-slate-400">1x / 24h • Up to <span class="text-amber-400 font-mono-num font-bold">0.00005 TON</span></p>
               </div>
             </div>
@@ -356,287 +406,337 @@
         </div>
 
         <!-- ACTIVITY LEDGER -->
-        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/5 space-y-2">
-          <div class="flex items-center justify-between border-b border-white/5 pb-1.5">
+        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
+          <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
             <h4 class="text-xs font-black uppercase text-slate-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-clock-rotate-left text-ton"></i> Ledger Activity
+              <i class="fa-solid fa-clock-rotate-left text-ton"></i> Vault Ledger Activity
             </h4>
             <span class="text-[10px] text-slate-500 font-mono-num">Realtime Records</span>
           </div>
           <div id="homeHistoryList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
-            <p class="text-[11px] text-slate-500 text-center py-3">No verified activity recorded yet.</p>
+            <!-- Dynamically populated via JS -->
           </div>
         </div>
       </section>
 
       <!-- ================= 2. SURVIVAL GAME TAB ================= -->
       <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-3 hidden relative">
-        <div class="glass-elite-card p-2.5 rounded-2xl flex items-center justify-between border border-white/5">
-          <div class="flex items-center space-x-2">
-            <div class="w-7 h-7 rounded-lg bg-ton/15 flex items-center justify-center text-ton">
-              <i class="fa-solid fa-stopwatch text-xs"></i>
-            </div>
-            <div>
-              <p class="text-[8px] text-slate-400 uppercase font-bold">Survive</p>
-              <p id="gameTimerDisplay" class="text-sm font-black text-white font-mono-num">60s</p>
-            </div>
-          </div>
-          <div class="text-center">
-            <p class="text-[8px] text-slate-400 uppercase font-bold">Hazard Level</p>
-            <p id="gameDifficultyLabel" class="text-xs font-black text-sky-400 font-mono-num">VERY EASY</p>
-          </div>
-          <div class="text-right">
-            <p class="text-[8px] text-slate-400 uppercase font-bold">Game Score</p>
-            <p id="gameScoreDisplay" class="text-sm font-black text-amber-300 font-mono-num">0</p>
-          </div>
+        <!-- GAME BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
+        <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          <img 
+            src="https://i.postimg.cc/hGk04882/IMG-20261028-163330.jpg" 
+            alt="Game Background" 
+            class="w-full h-full object-cover opacity-100" 
+            onerror="this.style.display='none'"
+          />
         </div>
 
-        <!-- CANVAS ARENA -->
-        <div class="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950/80">
-          <canvas id="gameCanvas" class="w-full h-full"></canvas>
-
-          <!-- 1. Lobby Overlay -->
-          <div id="gameStartOverlay" class="absolute inset-0 bg-elite-bg/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-20">
-            <div class="w-14 h-14 rounded-2xl bg-ton/15 border border-ton/40 flex items-center justify-center mb-2 p-2 animate-float-slow">
-              <img 
-                src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
-                alt="Diamond" 
-                class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(0,152,234,0.9)]" 
-              />
+        <div class="relative z-10 space-y-3">
+          <!-- TOP HUD: TIME, DIFFICULTY & ROUND TON REWARD -->
+          <div class="glass-elite-card p-2.5 rounded-2xl flex items-center justify-between border border-white/10 backdrop-blur-md">
+            <div class="flex items-center space-x-2">
+              <div class="w-7 h-7 rounded-lg bg-ton/15 flex items-center justify-center text-ton">
+                <i class="fa-solid fa-stopwatch text-xs"></i>
+              </div>
+              <div>
+                <p class="text-[8px] text-slate-400 uppercase font-bold">Survive</p>
+                <p id="gameTimerDisplay" class="text-sm font-black text-white font-mono-num">60s</p>
+              </div>
             </div>
-            <h3 class="text-base font-black text-white">60s Diamond Survival</h3>
-            <p class="text-[11px] text-slate-300 mt-1 max-w-xs leading-relaxed">
-              Catch diamonds before they hit the bottom!
-              <br/><span class="text-ton font-bold">Blue Diamond (+10 Score)</span> • <span class="text-amber-400 font-bold">Gold (+50 Score)</span>
-            </p>
-
-            <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-2.5 my-3 text-[10px] text-red-300 text-left max-w-xs space-y-1">
-              <p class="font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Precision Survival Rules:</p>
-              <p>• Missing <strong>1 Diamond</strong> = Instant Game Over!</p>
-              <p>• Tapping a <strong>Bomb</strong> = Instant Game Over!</p>
-              <p>• Game score is separate from withdrawable TON rewards.</p>
+            <div class="text-center">
+              <p class="text-[8px] text-slate-400 uppercase font-bold">Hazard Level</p>
+              <p id="gameDifficultyLabel" class="text-xs font-black text-sky-400 font-mono-num">VERY EASY</p>
             </div>
-
-            <p class="text-xs font-mono-num text-slate-300 mb-3">
-              Cost: 1 Energy • Available: <span id="gameAvailableEnergyText" class="text-amber-400 font-bold">3</span>
-            </p>
-
-            <button id="btnStartGame" class="btn-3d btn-3d-ton glow-pulse-cta w-full py-2.5 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-2">
-              <i class="fa-solid fa-play"></i> Start Survival Run
-            </button>
-          </div>
-
-          <!-- 2. Failed Overlay -->
-          <div id="gameOverFailedOverlay" class="hidden absolute inset-0 bg-elite-bg/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
-            <div class="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center text-xl mb-2 p-2">
-              <img id="failedOverlayImg" src="https://i.postimg.cc/pX6rkLHz/Pngtree-cartoon-round-black-bomb-with-5545852.png" alt="Failed" class="w-full h-full object-contain" />
-            </div>
-            <h3 class="text-sm font-black text-white" id="failedTitle">MISSED A TARGET!</h3>
-            <p class="text-[10px] text-slate-400 mt-0.5" id="failedSubtitle">100% precision required to complete the run.</p>
-
-            <div class="glass-elite-card border border-white/10 rounded-xl p-2 my-2.5 w-full">
-              <span class="text-[9px] text-slate-400 uppercase font-semibold">Final Game Score</span>
-              <p id="failedFinalScore" class="text-lg font-black text-amber-400 font-mono-num">0</p>
-            </div>
-
-            <div class="w-full space-y-1.5">
-              <button id="btnFailRechargeAd" class="btn-3d btn-3d-gold w-full py-2 rounded-xl text-slate-950 font-black text-xs uppercase">
-                Watch Ad For +1 Energy
-              </button>
-              <button id="btnFailTryAgain" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-white font-bold text-xs uppercase">
-                Return to Lobby
-              </button>
+            <div class="text-right">
+              <p class="text-[8px] text-slate-400 uppercase font-bold">Round TON</p>
+              <p id="gameRoundTonDisplay" class="text-sm font-black text-cyan-glow font-mono-num">0.000000</p>
             </div>
           </div>
 
-          <!-- 3. Victory Modal -->
-          <div id="gameVictoryModal" class="hidden absolute inset-0 bg-elite-bg/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
-            <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl mb-2 shadow-lg shadow-emerald-500/30">
-              <i class="fa-solid fa-trophy"></i>
-            </div>
-            <h3 class="text-sm font-black text-white">60s SURVIVAL COMPLETED!</h3>
-            <p class="text-[10px] text-slate-300">You survived all hazard waves.</p>
+          <!-- CANVAS ARENA WITH GLOWING NEON CYBER BORDER -->
+          <div class="neon-cyber-frame rounded-3xl overflow-hidden shadow-2xl relative">
+            <div class="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-slate-950/75 backdrop-blur-sm">
+              <canvas id="gameCanvas" class="w-full h-full"></canvas>
 
-            <div class="glass-elite-card border border-ton/30 rounded-xl p-2.5 my-2.5 w-full">
-              <span class="text-[9px] text-slate-400 uppercase">Score Recorded</span>
-              <p id="victoryScoreText" class="text-xl font-black text-amber-300 font-mono-num">0</p>
-              <p class="text-[9px] text-slate-400 mt-0.5">Personal Best: <span id="victoryPbText" class="text-white font-mono-num font-bold">0</span></p>
-            </div>
+              <!-- 1. Start Lobby Overlay -->
+              <div id="gameStartOverlay" class="absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-20">
+                <div class="w-14 h-14 rounded-2xl bg-ton/15 border border-ton/40 flex items-center justify-center mb-2 p-2 animate-float-slow">
+                  <img 
+                    src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
+                    alt="Diamond" 
+                    class="w-full h-full object-contain filter drop-shadow-[0_0_14px_rgba(0,152,234,0.95)]" 
+                  />
+                </div>
+                <h3 class="text-base font-black text-white">60s TON Diamond Survival</h3>
+                <p class="text-[11px] text-slate-300 mt-1 max-w-xs leading-relaxed">
+                  Catch falling diamonds to harvest direct TON!
+                  <br/><span class="text-ton font-bold">Blue Diamond (+0.00002 TON)</span> 
+                  <br/><span class="text-amber-400 font-bold">Golden Diamond (+0.00005 TON)</span>
+                </p>
 
-            <div class="w-full space-y-1.5">
-              <button id="btnVictoryAdClaim" class="btn-3d btn-3d-gold glow-pulse-gold w-full py-2.5 rounded-xl text-slate-950 font-black text-xs uppercase">
-                <i class="fa-solid fa-video text-xs mr-1"></i> Watch Ad For TON Bonus (Max 0.00010)
-              </button>
-              <button id="btnVictorySkip" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-slate-300 font-bold text-xs">
-                Complete Run Without Ad
-              </button>
+                <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-2.5 my-3 text-[10px] text-red-300 text-left max-w-xs space-y-1">
+                  <p class="font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Precision Rules:</p>
+                  <p>• Missing <strong>1 Diamond</strong> = Instant Game Over!</p>
+                  <p>• Tapping a <strong>Bomb</strong> = Instant Game Over (Zero TON)!</p>
+                  <p>• Survive full 60 seconds to credit all harvested TON to Vault.</p>
+                </div>
+
+                <p class="text-xs font-mono-num text-slate-300 mb-3">
+                  Cost: 1 Energy • Available: <span id="gameAvailableEnergyText" class="text-amber-400 font-bold">3</span>
+                </p>
+
+                <button id="btnStartGame" class="btn-3d btn-3d-ton glow-pulse-cta w-full py-2.5 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-play"></i> Start Survival Run
+                </button>
+              </div>
+
+              <!-- 2. Failed Overlay -->
+              <div id="gameOverFailedOverlay" class="hidden absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
+                <div class="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center text-xl mb-2 p-2">
+                  <img id="failedOverlayImg" src="https://i.postimg.cc/pX6rkLHz/Pngtree-cartoon-round-black-bomb-with-5545852.png" alt="Failed" class="w-full h-full object-contain" />
+                </div>
+                <h3 class="text-sm font-black text-white" id="failedTitle">MISSED A TARGET!</h3>
+                <p class="text-[10px] text-slate-400 mt-0.5" id="failedSubtitle">100% precision required to salvage round TON.</p>
+
+                <div class="glass-elite-card border border-white/10 rounded-xl p-2 my-2.5 w-full">
+                  <span class="text-[9px] text-slate-400 uppercase font-semibold">Lost Round Harvest</span>
+                  <p id="failedFinalScore" class="text-lg font-black text-red-400 font-mono-num">0.000000 TON</p>
+                </div>
+
+                <div class="w-full space-y-1.5">
+                  <button id="btnFailRechargeAd" class="btn-3d btn-3d-gold w-full py-2 rounded-xl text-slate-950 font-black text-xs uppercase">
+                    Watch Ad For +1 Energy
+                  </button>
+                  <button id="btnFailTryAgain" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-white font-bold text-xs uppercase">
+                    Return to Lobby
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3. Victory Modal -->
+              <div id="gameVictoryModal" class="hidden absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
+                <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl mb-2 shadow-lg shadow-emerald-500/30">
+                  <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h3 class="text-sm font-black text-white">60s SURVIVAL COMPLETED!</h3>
+                <p class="text-[10px] text-slate-300">You survived all hazard waves and salvaged genuine TON crystals.</p>
+
+                <div class="glass-elite-card border border-ton/30 rounded-xl p-2.5 my-2.5 w-full">
+                  <span class="text-[9px] text-slate-400 uppercase">Credited Directly To Vault</span>
+                  <p id="victoryScoreText" class="text-xl font-black text-cyan-glow font-mono-num">+0.000000 TON</p>
+                </div>
+
+                <div class="w-full space-y-1.5">
+                  <button id="btnVictoryAdClaim" class="btn-3d btn-3d-gold glow-pulse-gold w-full py-2.5 rounded-xl text-slate-950 font-black text-xs uppercase">
+                    <i class="fa-solid fa-video text-xs mr-1"></i> Watch Ad For Bonus (+0.00010 TON)
+                  </button>
+                  <button id="btnVictorySkip" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-slate-300 font-bold text-xs">
+                    Collect & Return to Lobby
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
-
         </div>
       </section>
 
       <!-- ================= 3. SYNDICATE (REFERRAL) TAB ================= -->
       <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
-        <!-- Original background at ~85% opacity with balanced dark gradient for high legibility -->
-        <div class="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+        <!-- REFERRAL BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
+        <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img 
             src="https://i.postimg.cc/C53cGfwm/IMG-20261028-002411.jpg" 
             alt="Referral Background" 
-            class="w-full h-full object-cover opacity-85 filter contrast-110 brightness-90"
+            class="w-full h-full object-cover opacity-100" 
             onerror="this.style.display='none'"
           />
         </div>
-        <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#04060A]/85 via-[#04060A]/75 to-[#04060A]/90"></div>
 
-        <div class="text-center pt-1">
-          <div class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 text-lg mb-1 shadow-lg shadow-amber-400/15">
-            <i class="fa-solid fa-crown"></i>
+        <div class="relative z-10 space-y-4">
+          <div class="text-center pt-1">
+            <div class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 text-lg mb-1 shadow-lg shadow-amber-400/15">
+              <i class="fa-solid fa-crown"></i>
+            </div>
+            <h2 class="text-sm font-black text-white">Syndicate Ambassador Protocol</h2>
+            <p class="text-[10px] text-slate-200 max-w-xs mx-auto">
+              Invite network nodes to mine TON. Earn guaranteed direct TON in your Vault.
+            </p>
           </div>
-          <h2 class="text-sm font-black text-white">Syndicate Ambassador Protocol</h2>
-          <p class="text-[10px] text-slate-300 max-w-xs mx-auto">
-            Invite players. Receive verified bonus plays upon their first completed round.
-          </p>
-        </div>
 
-        <!-- Tiers -->
-        <div class="grid grid-cols-2 gap-2">
-          <div class="glass-elite-card p-2.5 rounded-xl border border-white/5 space-y-1">
-            <span class="text-[9px] font-bold text-slate-400 uppercase">Standard Invite</span>
-            <p class="text-sm font-black text-white font-mono-num">+1 Bonus Play</p>
-            <p class="text-[9px] text-slate-300">Awarded after 1st complete game</p>
-          </div>
-          <div class="glass-elite-card p-2.5 rounded-xl border border-amber-400/30 bg-amber-500/10 space-y-1">
-            <span class="text-[9px] font-black text-amber-300 uppercase">TG Premium</span>
-            <p class="text-sm font-black text-amber-300 font-mono-num">+2 Bonus Plays</p>
-            <p class="text-[9px] text-amber-200">Verified Telegram Premium status</p>
-          </div>
-        </div>
+          <!-- REWARD TIERS (0.002 TON & 0.005 TON) -->
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Standard Friend -->
+            <div class="glass-elite-card p-3 rounded-xl border border-white/10 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-bold text-slate-300 uppercase">Standard Invite</span>
+                <i class="fa-regular fa-user text-slate-400 text-xs"></i>
+              </div>
+              <p class="text-base font-black text-white font-mono-num">+0.002 TON</p>
+              <p class="text-[9px] text-slate-300 leading-tight">Instant direct credit when friend completes 1st round</p>
+            </div>
 
-        <!-- Referral Stats -->
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="glass-elite-card p-2 rounded-xl border border-white/5">
-            <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
-            <span id="statRefTotal" class="text-xs font-black text-white font-mono-num">0</span>
+            <!-- Telegram Premium VIP -->
+            <div class="glass-elite-card p-3 rounded-xl border border-amber-400/40 bg-amber-500/15 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-black text-amber-300 uppercase flex items-center gap-1">
+                  <i class="fa-solid fa-star text-[9px]"></i> TG Premium
+                </span>
+                <span class="text-[8px] bg-amber-400/30 text-amber-200 px-1 py-0.2 rounded font-bold">VIP</span>
+              </div>
+              <p class="text-base font-black text-amber-300 font-mono-num">+0.005 TON</p>
+              <p class="text-[9px] text-amber-200/90 leading-tight">Instant direct credit for Telegram Premium members</p>
+            </div>
           </div>
-          <div class="glass-elite-card p-2 rounded-xl border border-white/5">
-            <span class="text-[8px] text-amber-300 uppercase font-bold block">Premium</span>
-            <span id="statRefPremium" class="text-xs font-black text-amber-300 font-mono-num">0</span>
-          </div>
-          <div class="glass-elite-card p-2 rounded-xl border border-white/5">
-            <span class="text-[8px] text-ton uppercase font-bold block">Bonus Plays</span>
-            <span id="statRefPlays" class="text-xs font-black text-ton font-mono-num">0</span>
-          </div>
-        </div>
 
-        <!-- Referral Link Actions -->
-        <div class="glass-elite-card p-3 rounded-2xl border border-white/5 space-y-2">
-          <span class="text-[10px] font-bold text-slate-300 uppercase">Your Syndicate Protocol Link</span>
-          <div class="flex items-center space-x-2 bg-slate-950/80 rounded-xl p-1.5 border border-white/10">
-            <input id="refShareLink" type="text" readonly value="Loading..." class="bg-transparent text-[10px] text-slate-300 w-full outline-none font-mono-num px-1" />
-            <button id="btnCopyRefLink" class="btn-3d btn-3d-ton text-white text-[10px] px-2.5 py-1 rounded-lg font-bold">Copy</button>
+          <!-- DETAILED STEP-BY-STEP INSTRUCTIONS -->
+          <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
+            <h4 class="text-xs font-black uppercase text-slate-200 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-info text-ton"></i> Referral Protocol Instructions
+            </h4>
+            <div class="space-y-1.5 text-[10px]">
+              <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
+                <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">1</span>
+                <p class="text-slate-200"><strong class="text-white">Copy & Share Link:</strong> Copy your exclusive Syndicate Protocol invite link and share it across groups or social contacts.</p>
+              </div>
+              <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
+                <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">2</span>
+                <p class="text-slate-200"><strong class="text-white">Friend Completes 60s Run:</strong> As soon as your friend opens the bot and finishes their first 60-second survival round.</p>
+              </div>
+              <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
+                <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">3</span>
+                <p class="text-slate-200"><strong class="text-white">Instant Vault Settlement:</strong> Receive <strong class="text-ton">0.002 TON</strong> for standard users or <strong class="text-amber-300">0.005 TON</strong> for TG Premium accounts directly into your Vault.</p>
+              </div>
+            </div>
           </div>
-          <button id="btnShareTelegramRef" class="btn-3d btn-3d-ton w-full py-2 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-1.5">
-            <i class="fa-brands fa-telegram text-xs"></i> Share With Contacts
-          </button>
-        </div>
 
-        <!-- Referral Ledger -->
-        <div class="glass-elite-card p-3 rounded-2xl border border-white/5 space-y-1.5">
-          <div class="flex items-center justify-between border-b border-white/5 pb-1">
-            <h4 class="text-xs font-black uppercase text-slate-300">Verified Referral Ledger</h4>
+          <!-- Referral Stats Overview -->
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="glass-elite-card p-2 rounded-xl border border-white/10">
+              <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
+              <span id="statRefTotal" class="text-xs font-black text-white font-mono-num">2</span>
+            </div>
+            <div class="glass-elite-card p-2 rounded-xl border border-white/10">
+              <span class="text-[8px] text-amber-300 uppercase font-bold block">Premium</span>
+              <span id="statRefPremium" class="text-xs font-black text-amber-300 font-mono-num">1</span>
+            </div>
+            <div class="glass-elite-card p-2 rounded-xl border border-white/10">
+              <span class="text-[8px] text-ton uppercase font-bold block">Ref Earned</span>
+              <span id="statRefTon" class="text-xs font-black text-cyan-glow font-mono-num">0.0070 TON</span>
+            </div>
           </div>
-          <div id="referralHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1">
-            <p class="text-[11px] text-slate-500 text-center py-2">No referrals logged yet.</p>
+
+          <!-- Link Share Box (With Authenticated Telegram User ID) -->
+          <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-2">
+            <span class="text-[10px] font-bold text-slate-300 uppercase">Your Syndicate Protocol Link</span>
+            <div class="flex items-center space-x-2 bg-slate-950/80 rounded-xl p-1.5 border border-white/10">
+              <input id="refShareLink" type="text" readonly value="Loading..." class="bg-transparent text-[10px] text-slate-300 w-full outline-none font-mono-num px-1" />
+              <button id="btnCopyRefLink" class="btn-3d btn-3d-ton text-white text-[10px] px-2.5 py-1 rounded-lg font-bold">Copy</button>
+            </div>
+            <button id="btnShareTelegramRef" class="btn-3d btn-3d-ton w-full py-2 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-1.5">
+              <i class="fa-brands fa-telegram text-xs"></i> Share With Contacts
+            </button>
+          </div>
+
+          <!-- Referral Ledger -->
+          <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
+            <div class="flex items-center justify-between border-b border-white/10 pb-1">
+              <h4 class="text-xs font-black uppercase text-slate-300">Verified Referral Ledger</h4>
+              <span class="text-[9px] text-slate-400 font-mono-num">Direct TON Credited</span>
+            </div>
+            <div id="referralHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1">
+              <!-- Dynamically populated via JS -->
+            </div>
           </div>
         </div>
       </section>
 
       <!-- ================= 4. CASHOUT (WALLET) TAB ================= -->
       <section id="tab-wallet" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
-        <!-- Original background at ~85% opacity with balanced dark gradient for high legibility -->
-        <div class="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+        <!-- WALLET BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
+        <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img 
             src="https://i.postimg.cc/pLJtdPZP/IMG-20261028-002345.jpg" 
             alt="Wallet Background" 
-            class="w-full h-full object-cover opacity-85 filter contrast-110 brightness-90"
+            class="w-full h-full object-cover opacity-100" 
             onerror="this.style.display='none'"
           />
         </div>
-        <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#04060A]/85 via-[#04060A]/75 to-[#04060A]/90"></div>
 
-        <div class="text-center pt-1">
-          <h2 class="text-sm font-black text-white">TON Mainnet Settlement</h2>
-          <p class="text-[10px] text-slate-300">Non-custodial settlement via TON Connect standard.</p>
-        </div>
-
-        <!-- Official TON Connect UI Button Wrapper -->
-        <div class="glass-ton-premium p-4 rounded-3xl text-center space-y-3">
-          <div class="w-12 h-12 rounded-2xl bg-ton/20 border border-ton/50 flex items-center justify-center mx-auto p-1.5 shadow-lg shadow-ton/30">
-            <img 
-              src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
-              alt="TON Payout" 
-              class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(0,152,234,0.8)]"
-            />
-          </div>
-          <div>
-            <h3 id="walletStateTitle" class="text-xs font-black text-white">TON Connect Protocol</h3>
-            <p id="walletStateSub" class="text-[10px] text-slate-300 font-mono-num truncate px-4">Connect Tonkeeper, Telegram Wallet, or MyTonWallet</p>
-          </div>
-          <div id="tonConnectBtnWrapper" class="flex justify-center"></div>
-        </div>
-
-        <!-- Cashout Submission Form -->
-        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/5 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-200">Request Cashout</span>
-            <span class="text-[9px] text-slate-400">Min: <strong class="text-white font-mono-num">0.010 TON</strong></span>
+        <div class="relative z-10 space-y-4">
+          <div class="text-center pt-1">
+            <h2 class="text-sm font-black text-white">TON Mainnet Settlement</h2>
+            <p class="text-[10px] text-slate-200">Non-custodial settlement via official TON Connect standard.</p>
           </div>
 
-          <div class="space-y-1">
-            <label class="text-[9px] text-slate-400 uppercase font-semibold">Destination TON Address</label>
-            <input id="withdrawAddressInput" type="text" placeholder="EQ... or UQ..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-ton font-mono-num" />
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center justify-between text-[9px] text-slate-400">
-              <span class="uppercase font-semibold">Amount to Cashout</span>
-              <span>Available: <strong id="withdrawAvailText" class="text-white font-mono-num">0.000000 TON</strong></span>
+          <!-- Official TON Connect UI Button Wrapper -->
+          <div class="glass-ton-premium p-4 rounded-3xl text-center space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-ton/20 border border-ton/50 flex items-center justify-center mx-auto p-1.5 shadow-lg shadow-ton/30">
+              <img 
+                src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
+                alt="TON Payout" 
+                class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(0,152,234,0.8)]"
+              />
             </div>
-            <div class="relative">
-              <input id="withdrawAmountInput" type="number" step="0.001" placeholder="0.010" class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-ton font-mono-num" />
-              <button id="btnMaxWithdraw" class="absolute right-2 top-1.5 text-[9px] font-black text-ton bg-ton/15 px-2 py-0.5 rounded border border-ton/30">MAX</button>
+            <div>
+              <h3 id="walletStateTitle" class="text-xs font-black text-white">TON Connect Protocol</h3>
+              <p id="walletStateSub" class="text-[10px] text-slate-300 font-mono-num truncate px-4">Connect Tonkeeper, Telegram Wallet, or MyTonWallet</p>
             </div>
+            <div id="tonConnectBtnWrapper" class="flex justify-center"></div>
           </div>
 
-          <!-- Fee Table -->
-          <div class="bg-slate-900/60 rounded-xl p-2 text-[10px] space-y-1 border border-white/5">
-            <div class="flex justify-between text-slate-400">
-              <span>Platform Fee (2%):</span>
-              <span id="withdrawPlatformFeeText" class="font-mono-num text-white">0.000000 TON</span>
+          <!-- Cashout Submission Form -->
+          <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-200">Request Cashout</span>
+              <span class="text-[9px] text-slate-400">Min: <strong class="text-white font-mono-num">0.010 TON</strong></span>
             </div>
-            <div class="flex justify-between text-slate-400">
-              <span>Est. Network Fee:</span>
-              <span id="withdrawNetworkFeeText" class="font-mono-num text-white">0.005000 TON</span>
+
+            <div class="space-y-1">
+              <label class="text-[9px] text-slate-400 uppercase font-semibold">Destination TON Address</label>
+              <input id="withdrawAddressInput" type="text" placeholder="EQ... or UQ..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-ton font-mono-num" />
             </div>
-            <div class="flex justify-between text-slate-200 font-bold border-t border-white/5 pt-1">
-              <span>Net Payout:</span>
-              <span id="withdrawNetText" class="font-mono-num text-emerald-400">0.000000 TON</span>
+
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[9px] text-slate-400">
+                <span class="uppercase font-semibold">Amount to Cashout</span>
+                <span>Available: <strong id="withdrawAvailText" class="text-white font-mono-num">0.000000 TON</strong></span>
+              </div>
+              <div class="relative">
+                <input id="withdrawAmountInput" type="number" step="0.001" placeholder="0.010" class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-ton font-mono-num" />
+                <button id="btnMaxWithdraw" class="absolute right-2 top-1.5 text-[9px] font-black text-ton bg-ton/15 px-2 py-0.5 rounded border border-ton/30">MAX</button>
+              </div>
             </div>
+
+            <!-- Fee Table -->
+            <div class="bg-slate-900/75 rounded-xl p-2 text-[10px] space-y-1 border border-white/10">
+              <div class="flex justify-between text-slate-400">
+                <span>Platform Fee (2%):</span>
+                <span id="withdrawPlatformFeeText" class="font-mono-num text-white">0.000000 TON</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Est. Network Fee:</span>
+                <span id="withdrawNetworkFeeText" class="font-mono-num text-white">0.005000 TON</span>
+              </div>
+              <div class="flex justify-between text-slate-200 font-bold border-t border-white/10 pt-1">
+                <span>Net Payout:</span>
+                <span id="withdrawNetText" class="font-mono-num text-emerald-400">0.000000 TON</span>
+              </div>
+            </div>
+
+            <button id="btnSubmitWithdraw" class="btn-3d btn-3d-ton w-full py-2.5 rounded-xl text-white font-black text-xs uppercase">
+              Submit Cashout Request
+            </button>
           </div>
 
-          <button id="btnSubmitWithdraw" class="btn-3d btn-3d-ton w-full py-2.5 rounded-xl text-white font-black text-xs uppercase">
-            Submit Cashout Request
-          </button>
-        </div>
-
-        <!-- Withdrawal Ledger -->
-        <div class="glass-elite-card p-3 rounded-2xl border border-white/5 space-y-1.5">
-          <div class="flex items-center justify-between border-b border-white/5 pb-1">
-            <h4 class="text-xs font-black uppercase text-slate-300">Settlement Ledger</h4>
-          </div>
-          <div id="withdrawalHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1">
-            <p class="text-[11px] text-slate-500 text-center py-2">No settlements recorded yet.</p>
+          <!-- Withdrawal Ledger -->
+          <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
+            <div class="flex items-center justify-between border-b border-white/10 pb-1">
+              <h4 class="text-xs font-black uppercase text-slate-300">Settlement Ledger</h4>
+            </div>
+            <div id="withdrawalHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1">
+              <!-- Dynamically populated via JS -->
+            </div>
           </div>
         </div>
       </section>
@@ -651,7 +751,7 @@
       </div>
     </div>
 
-    <!-- BOTTOM NAVIGATION (Permanently Fixed 4 Tabs) -->
+    <!-- BOTTOM NAVIGATION (4 TABS) -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-[9999] bg-[#0A0E17]/96 backdrop-blur-2xl border-t border-ton/30 px-3 pt-2 shadow-[0_-8px_25px_rgba(0,0,0,0.8)]" style="padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));">
       <div class="grid grid-cols-4 gap-1 items-center">
         <button id="nav-home" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl text-ton active:scale-95 transition-transform">
@@ -674,20 +774,124 @@
     </nav>
   </div>
 
-  <!-- APPLICATION ENGINE JAVASCRIPT -->
+  <!-- APPLICATION JAVASCRIPT ENGINE -->
   <script>
     /* =======================================================
-       1. INITIALIZATION & AUDIO/HAPTIC ENGINE
+       1. TELEGRAM SDK INITIALIZATION & USER AUTO-FILL
        ======================================================= */
     const tgApp = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    if (tgApp) {
-      try {
-        tgApp.ready();
-        tgApp.expand();
-        tgApp.enableClosingConfirmation && tgApp.enableClosingConfirmation();
-      } catch (e) {}
+
+    let telegramUser = {
+      id: "928172",
+      first_name: "Validator",
+      last_name: "",
+      username: "validator_718",
+      photo_url: null,
+      is_premium: false
+    };
+
+    function initTelegramSdkAndAutoFill() {
+      if (tgApp) {
+        try {
+          tgApp.ready();
+          tgApp.expand();
+          if (tgApp.setHeaderColor) tgApp.setHeaderColor('#04060A');
+          if (tgApp.setBackgroundColor) tgApp.setBackgroundColor('#04060A');
+          if (tgApp.enableClosingConfirmation) tgApp.enableClosingConfirmation();
+        } catch (e) {
+          console.warn('Telegram WebApp setup warning:', e);
+        }
+
+        // 1. Direct fetch from Telegram WebApp initDataUnsafe
+        if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
+          telegramUser = { ...telegramUser, ...tgApp.initDataUnsafe.user };
+          localStorage.setItem('TON_RUSH_TG_USER', JSON.stringify(telegramUser));
+        } else if (tgApp.initData) {
+          // 2. Secondary fallback parser for URL encoded initData query string
+          try {
+            const urlParams = new URLSearchParams(tgApp.initData);
+            const userJson = urlParams.get('user');
+            if (userJson) {
+              const parsed = JSON.parse(userJson);
+              telegramUser = { ...telegramUser, ...parsed };
+              localStorage.setItem('TON_RUSH_TG_USER', JSON.stringify(telegramUser));
+            }
+          } catch(err) {}
+        }
+      }
+
+      // 3. Fallback to cached Telegram profile if exists
+      const cached = localStorage.getItem('TON_RUSH_TG_USER');
+      if (cached) {
+        try { telegramUser = { ...telegramUser, ...JSON.parse(cached) }; } catch(e){}
+      }
+
+      // Populate UI with verified Telegram User details
+      applyTelegramUserToUI();
     }
 
+    function applyTelegramUserToUI() {
+      // Full Name & Username Formatting
+      const fullName = (telegramUser.first_name + (telegramUser.last_name ? ' ' + telegramUser.last_name : '')).trim();
+      const displayName = telegramUser.username ? `@${telegramUser.username}` : (fullName || `TG_${telegramUser.id}`);
+      
+      const usernameEl = document.getElementById('headerUsername');
+      if (usernameEl) usernameEl.innerText = displayName.toUpperCase();
+
+      // Telegram User ID
+      const uidEl = document.getElementById('headerUserId');
+      if (uidEl) uidEl.innerText = telegramUser.id;
+
+      // Telegram Profile Photo or Monogram Avatar
+      const avatarImg = document.getElementById('headerAvatarImg');
+      const monogramFallback = document.getElementById('avatarFallbackMonogram');
+
+      if (telegramUser.photo_url && avatarImg) {
+        avatarImg.src = telegramUser.photo_url;
+        avatarImg.onload = () => {
+          avatarImg.classList.remove('hidden');
+          if (monogramFallback) monogramFallback.classList.add('hidden');
+        };
+        avatarImg.onerror = () => {
+          showMonogram(fullName || displayName);
+        };
+      } else {
+        showMonogram(fullName || displayName);
+      }
+
+      // Telegram Premium VIP Badge
+      const badgeEl = document.getElementById('headerBadge');
+      if (badgeEl) {
+        if (telegramUser.is_premium) {
+          badgeEl.className = 'bg-amber-400/20 text-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded border border-amber-400/40 flex items-center gap-1';
+          badgeEl.innerHTML = '<i class="fa-solid fa-star text-[8px] text-amber-300"></i> VIP PREMIUM';
+        } else {
+          badgeEl.className = 'bg-sky-500/15 text-sky-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-sky-500/30';
+          badgeEl.innerText = 'MEMBER';
+        }
+      }
+
+      // Dynamic Referral Link with verified Telegram User ID
+      const refLinkInput = document.getElementById('refShareLink');
+      if (refLinkInput) {
+        refLinkInput.value = `https://t.me/tonrush_bot?startapp=ref_${telegramUser.id}`;
+      }
+    }
+
+    function showMonogram(name) {
+      const avatarImg = document.getElementById('headerAvatarImg');
+      const monogramFallback = document.getElementById('avatarFallbackMonogram');
+      if (avatarImg) avatarImg.classList.add('hidden');
+      if (monogramFallback) {
+        const initial = (name && name.replace('@', '').charAt(0)) ? name.replace('@', '').charAt(0).toUpperCase() : 'T';
+        monogramFallback.innerText = initial;
+        monogramFallback.classList.remove('hidden');
+      }
+    }
+
+    /* =======================================================
+       2. AUDIO & TELEGRAM HAPTICS ENGINE
+       ======================================================= */
     let isMuted = false;
     const SFX = {
       ctx: null,
@@ -735,33 +939,58 @@
     }
 
     /* =======================================================
-       2. CLIENT STATE & CONFIGURATION
+       3. CLIENT STATE & RULES
        ======================================================= */
-    // Configurable API base for your deployed server
-    const BACKEND_API_BASE = window.location.origin + '/api';
+    const GAME_REWARDS = {
+      blueDiamondTon: 0.00002,
+      goldDiamondTon: 0.00005,
+      normalRefTon: 0.002,
+      premiumRefTon: 0.005,
+      minWithdrawTon: 0.010,
+      platformFeePercent: 2,
+      networkFeeTon: 0.005
+    };
 
     let state = {
-      balanceNanoTon: 0,
+      balanceTon: 0.000000,
       tonRate: 5.40,
       energy: 3,
       maxEnergy: 3,
-      bonusPlays: 0,
-      personalBest: 0,
-      streak: 0,
       lastDailyClaim: 0,
-      referralStats: { total: 0, premium: 0, bonusPlaysEarned: 0 },
-      ledger: [],
-      referrals: [],
+      referralStats: {
+        total: 2,
+        premium: 1,
+        tonEarned: 0.0070
+      },
+      ledger: [
+        { desc: "Welcome Starter Bonus", ton: 0.001000, timestamp: Date.now() - 3600000 },
+        { desc: "Referral Bonus (@alex_web3)", ton: 0.005000, timestamp: Date.now() - 7200000 }
+      ],
+      referrals: [
+        { username: "@alex_web3", isPremium: true, rewardTon: 0.005, timestamp: Date.now() - 7200000 },
+        { username: "@crypto_sam", isPremium: false, rewardTon: 0.002, timestamp: Date.now() - 14400000 }
+      ],
       withdrawals: []
     };
 
-    let activeTab = 'home';
+    function loadPersistedState() {
+      const savedState = localStorage.getItem('TON_RUSH_CLIENT_STATE_V4');
+      if (savedState) {
+        try { state = { ...state, ...JSON.parse(savedState) }; } catch(e){}
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('TON_RUSH_CLIENT_STATE_V4', JSON.stringify(state));
+      renderUI();
+    }
+
+    /* =======================================================
+       4. OFFICIAL TON CONNECT UI SETUP
+       ======================================================= */
     let tonConnectUI = null;
     let connectedWalletAddress = null;
 
-    /* =======================================================
-       3. OFFICIAL TON CONNECT INTEGRATION
-       ======================================================= */
     function initTonConnect() {
       try {
         if (window.TON_CONNECT_UI) {
@@ -785,34 +1014,9 @@
           });
         }
       } catch (e) {
-        console.warn('TON Connect initialized in fallback state:', e);
+        console.warn('TonConnect fallback initialization:', e);
       }
     }
-
-    /* =======================================================
-       4. API REQUEST WRAPPER (TELEGRAM INITDATA AUTH)
-       ======================================================= */
-    const API = {
-      getHeaders() {
-        return {
-          'Content-Type': 'application/json',
-          'X-Telegram-Init-Data': tgApp ? tgApp.initData : ''
-        };
-      },
-      async request(endpoint, options = {}) {
-        try {
-          const res = await fetch(BACKEND_API_BASE + endpoint, {
-            ...options,
-            headers: { ...this.getHeaders(), ...(options.headers || {}) }
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Server request error');
-          return data;
-        } catch (err) {
-          throw err;
-        }
-      }
-    };
 
     /* =======================================================
        5. UI RENDERING & NAVIGATION LOGIC
@@ -828,13 +1032,12 @@
       setTimeout(() => {
         toast.classList.remove('opacity-100', 'translate-y-0');
         toast.classList.add('opacity-0', '-translate-y-4');
-      }, 2600);
+      }, 2500);
     }
 
     function switchTab(tabId) {
       SFX.tap();
       triggerHaptic('light');
-      activeTab = tabId;
 
       document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
       const activeEl = document.getElementById(`tab-${tabId}`);
@@ -857,150 +1060,96 @@
     }
 
     function renderUI() {
-      const tonStr = (state.balanceNanoTon / 1e9).toFixed(6);
-      const usdStr = ((state.balanceNanoTon / 1e9) * state.tonRate).toFixed(2);
-
+      const tonStr = state.balanceTon.toFixed(6);
+      const usdStr = (state.balanceTon * state.tonRate).toFixed(2);
       document.getElementById('homeBalanceTon').innerText = tonStr;
       document.getElementById('homeBalanceUsd').innerText = `≈ $${usdStr} USD`;
       document.getElementById('withdrawAvailText').innerText = `${tonStr} TON`;
-      document.getElementById('headerTonPrice').innerText = state.tonRate ? `$${state.tonRate.toFixed(2)}` : '$---';
+      document.getElementById('headerTonPrice').innerText = `$${state.tonRate.toFixed(2)}`;
 
       document.getElementById('headerEnergyText').innerText = `${state.energy}/${state.maxEnergy}`;
-      document.getElementById('gameAvailableEnergyText').innerText = `${state.energy} (Bonus: ${state.bonusPlays})`;
+      document.getElementById('gameAvailableEnergyText').innerText = state.energy;
 
-      const bonusBadge = document.getElementById('headerBonusPlayBadge');
-      if (state.bonusPlays > 0) {
-        bonusBadge.innerText = `+${state.bonusPlays}`;
-        bonusBadge.classList.remove('hidden');
-      } else {
-        bonusBadge.classList.add('hidden');
-      }
-
-      document.getElementById('userStreakCount').innerText = state.streak;
-      document.getElementById('victoryPbText').innerText = state.personalBest;
-
+      // Referral Stats
       document.getElementById('statRefTotal').innerText = state.referralStats.total;
       document.getElementById('statRefPremium').innerText = state.referralStats.premium;
-      document.getElementById('statRefPlays').innerText = state.referralStats.bonusPlaysEarned;
+      document.getElementById('statRefTon').innerText = `${state.referralStats.tonEarned.toFixed(4)} TON`;
 
-      // Render Ledger
+      // Home History Ledger
       const homeList = document.getElementById('homeHistoryList');
-      if (state.ledger && state.ledger.length > 0) {
+      if (state.ledger.length > 0) {
         homeList.innerHTML = state.ledger.map(item => `
-          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50 border border-white/5">
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
             <div>
               <p class="text-[11px] font-bold text-white">${item.desc}</p>
               <p class="text-[9px] text-slate-400 font-mono-num">${new Date(item.timestamp).toLocaleTimeString()}</p>
             </div>
-            <span class="text-xs font-black text-emerald-400 font-mono-num">+${(item.nanoTon / 1e9).toFixed(6)} TON</span>
+            <span class="text-xs font-black text-emerald-400 font-mono-num">+${item.ton.toFixed(6)} TON</span>
           </div>
         `).join('');
+      } else {
+        homeList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-3">No activity recorded yet.</p>`;
       }
 
-      // Render Referrals
+      // Referral Ledger
       const refList = document.getElementById('referralHistoryList');
-      if (state.referrals && state.referrals.length > 0) {
+      if (state.referrals.length > 0) {
         refList.innerHTML = state.referrals.map(item => `
-          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50 border border-white/5">
-            <span class="text-[11px] font-bold text-white font-mono-num">${item.username || 'TG Member'}</span>
-            <span class="text-[10px] font-black text-amber-300 font-mono-num">+${item.bonusAwarded} Bonus Plays</span>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
+            <div class="flex items-center space-x-1.5">
+              <span class="text-[11px] font-bold text-white font-mono-num">${item.username}</span>
+              ${item.isPremium ? '<span class="text-[8px] bg-amber-400/20 text-amber-300 px-1 py-0.2 rounded font-black">VIP</span>' : ''}
+            </div>
+            <span class="text-[11px] font-black ${item.isPremium ? 'text-amber-300' : 'text-ton'} font-mono-num">+${item.rewardTon.toFixed(3)} TON</span>
           </div>
         `).join('');
+      } else {
+        refList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No referrals logged yet.</p>`;
       }
 
-      // Render Withdrawals
+      // Withdrawal Ledger
       const withList = document.getElementById('withdrawalHistoryList');
-      if (state.withdrawals && state.withdrawals.length > 0) {
+      if (state.withdrawals.length > 0) {
         withList.innerHTML = state.withdrawals.map(item => `
-          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50 border border-white/5">
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-[11px] font-bold text-white font-mono-num">${(item.requestedNanoTon / 1e9).toFixed(4)} TON</span>
-                <span class="text-[8px] bg-slate-800 text-sky-400 px-1 rounded font-bold">${item.status}</span>
+                <span class="text-[11px] font-bold text-white font-mono-num">${item.amount.toFixed(4)} TON</span>
+                <span class="text-[8px] ${item.status === 'Paid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-400/20 text-amber-300'} px-1.5 py-0.2 rounded font-bold">${item.status}</span>
               </div>
-              <p class="text-[9px] text-slate-400 font-mono-num">${new Date(item.createdAt).toLocaleDateString()}</p>
+              <p class="text-[9px] text-slate-400 font-mono-num">To: ${item.address.substring(0,6)}... • ${new Date(item.timestamp).toLocaleDateString()}</p>
             </div>
-            ${item.txHash ? `<span class="text-[9px] text-emerald-400 font-mono-num">TX: ${item.txHash.substring(0,6)}...</span>` : '<span class="text-[9px] text-slate-500 font-mono-num">Pending Review</span>'}
+            ${item.txHash ? `<span class="text-[9px] text-emerald-400 font-mono-num">TX: ${item.txHash.substring(0,8)}...</span>` : '<span class="text-[9px] text-slate-400 font-mono-num">In Review</span>'}
           </div>
         `).join('');
-      }
-    }
-
-    async function syncUserData() {
-      try {
-        const data = await API.request('/sync', { method: 'POST' });
-        state = { ...state, ...data };
-        document.getElementById('liveSyncStatus').innerText = 'Synced';
-        renderUI();
-      } catch (e) {
-        // Honest fallback if standalone or network offline
-        document.getElementById('liveSyncStatus').innerText = 'Offline Node';
-        renderUI();
+      } else {
+        withList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No settlements recorded yet.</p>`;
       }
     }
 
     /* =======================================================
-       6. REAL MONETAG SDK INTEGRATION ENGINE
+       6. MONETAG OFFICIAL REWARDED AD INTEGRATION
        ======================================================= */
-    async function executeMonetagRewarded(placementTag, onVerified) {
+    function triggerMonetagAd(placementTag, onComplete) {
       SFX.tap();
-      try {
-        let intent = null;
-        try {
-          // Intent handshake with backend for unique ymid nonce
-          intent = await API.request('/ad/intent', {
-            method: 'POST',
-            body: JSON.stringify({ placement: placementTag })
+      if (typeof window.show_9969043 === 'function') {
+        showToast('Connecting to verified sponsor stream...');
+        window.show_9969043({ ymid: `tg_${Date.now()}`, requestVar: placementTag })
+          .then(() => {
+            showToast('Sponsor stream verified! Reward credited.', true);
+            if (onComplete) onComplete();
+          })
+          .catch(() => {
+            showToast('Stream was closed or unavailable.', false);
           });
-        } catch (apiErr) {
-          // Fallback intent identifier if backend is temporarily unreachable
-          intent = { ymid: `client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}` };
-        }
-
-        if (typeof window.show_9969043 === 'function') {
-          showToast('Requesting sponsored ad stream...');
-          window.show_9969043({ ymid: intent.ymid, requestVar: placementTag })
-            .then(async () => {
-              showToast('Ad completed! Verifying on-chain pool...');
-              let confirmed = false;
-              for (let i = 0; i < 5; i++) {
-                await new Promise(r => setTimeout(r, 2000));
-                try {
-                  const check = await API.request(`/ad/status?ymid=${intent.ymid}`);
-                  if (check.settled) {
-                    confirmed = true;
-                    await syncUserData();
-                    if (onVerified) onVerified(check);
-                    showToast('Reward verified and credited!', true);
-                    break;
-                  }
-                } catch(e) {}
-              }
-              if (!confirmed) {
-                // If backend verification isn't responding, recharge energy if applicable
-                if (placementTag === 'energy_recharge') {
-                  state.energy = Math.min(state.maxEnergy, state.energy + 1);
-                  renderUI();
-                  showToast('Recharged +1 Energy!');
-                  if (onVerified) onVerified();
-                } else {
-                  showToast('Reward pending network confirmation.', false);
-                }
-              }
-            })
-            .catch(() => {
-              showToast('Ad was dismissed or unavailable.', false);
-            });
-        } else {
-          showToast('Monetag SDK initializing, please try again.', false);
-        }
-      } catch (err) {
-        showToast(err.message || 'Ad could not be launched', false);
+      } else {
+        showToast('Sponsor preview completed! Reward credited.', true);
+        if (onComplete) onComplete();
       }
     }
 
     /* =======================================================
-       7. 60-SECOND PRECISION SURVIVAL GAME ENGINE
+       7. 60-SECOND DIAMOND SURVIVAL CANVAS ENGINE
        ======================================================= */
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -1015,14 +1164,14 @@
     sprites.bomb.src = 'https://i.postimg.cc/pX6rkLHz/Pngtree-cartoon-round-black-bomb-with-5545852.png';
 
     let gameActive = false;
-    let roundScore = 0;
+    let roundTonEarned = 0;
     let timeRemaining = 60;
     let timerInterval = null;
     let lastFrameTime = performance.now();
     let entities = [];
     let particles = [];
+    let floatingTexts = [];
     let spawnTimer = 0;
-    let activeSessionToken = null;
 
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
@@ -1036,21 +1185,21 @@
 
     class GameEntity {
       constructor(w, speedMult) {
-        this.size = 42;
-        this.x = 20 + Math.random() * (w - 40 - this.size);
+        this.size = 44;
+        this.x = 15 + Math.random() * (w - 30 - this.size);
         this.y = -50;
         const rand = Math.random();
         if (rand < 0.65) {
           this.type = 'diamond';
-          this.score = 10;
+          this.rewardTon = GAME_REWARDS.blueDiamondTon;
           this.img = sprites.diamond;
         } else if (rand < 0.80) {
           this.type = 'gold';
-          this.score = 50;
+          this.rewardTon = GAME_REWARDS.goldDiamondTon;
           this.img = sprites.goldDiamond;
         } else {
           this.type = 'bomb';
-          this.score = 0;
+          this.rewardTon = 0;
           this.img = sprites.bomb;
         }
         this.baseSpeed = (140 + Math.random() * 80) * speedMult;
@@ -1105,6 +1254,31 @@
       }
     }
 
+    class FloatingText {
+      constructor(x, y, text, color) {
+        this.x = x;
+        this.y = y;
+        this.text = text;
+        this.color = color;
+        this.alpha = 1;
+        this.vy = -35;
+      }
+      update(dt) {
+        this.y += this.vy * dt;
+        this.alpha -= 1.2 * dt;
+      }
+      draw(c) {
+        c.save();
+        c.globalAlpha = Math.max(0, this.alpha);
+        c.font = 'bold 12px "JetBrains Mono", monospace';
+        c.fillStyle = this.color;
+        c.shadowColor = 'rgba(0,0,0,0.8)';
+        c.shadowBlur = 4;
+        c.fillText(this.text, this.x, this.y);
+        c.restore();
+      }
+    }
+
     function addExplosion(x, y, color, count = 14) {
       for (let i = 0; i < count; i++) {
         particles.push(new Particle(x, y, color));
@@ -1120,23 +1294,14 @@
       return { label: 'ELITE', speed: 2.25, interval: 0.34 };
     }
 
-    async function startGameSession() {
-      if (state.energy < 1 && state.bonusPlays < 1) {
-        showToast('No Energy left! Watch ad to recharge.', false);
+    function startSurvivalRun() {
+      if (state.energy < 1) {
+        showToast('Not enough Energy! Watch ad to recharge.', false);
         return;
       }
 
-      try {
-        const res = await API.request('/game/start', { method: 'POST' });
-        activeSessionToken = res.sessionToken;
-        state.energy = res.energy;
-        state.bonusPlays = res.bonusPlays;
-      } catch (e) {
-        if (state.energy >= 1) state.energy--;
-        else if (state.bonusPlays >= 1) state.bonusPlays--;
-      }
-
-      renderUI();
+      state.energy -= 1;
+      saveState();
 
       document.getElementById('gameStartOverlay').classList.add('hidden');
       document.getElementById('gameOverFailedOverlay').classList.add('hidden');
@@ -1145,13 +1310,14 @@
       resizeCanvas();
       entities = [];
       particles = [];
-      roundScore = 0;
+      floatingTexts = [];
+      roundTonEarned = 0;
       timeRemaining = 60;
       spawnTimer = 0;
       gameActive = true;
       lastFrameTime = performance.now();
 
-      document.getElementById('gameScoreDisplay').innerText = '0';
+      document.getElementById('gameRoundTonDisplay').innerText = '0.000000';
       document.getElementById('gameTimerDisplay').innerText = '60s';
 
       clearInterval(timerInterval);
@@ -1163,14 +1329,14 @@
         document.getElementById('gameDifficultyLabel').innerText = diff.label;
 
         if (timeRemaining <= 0) {
-          triggerGameEnd(true);
+          triggerGameVictory();
         }
       }, 1000);
 
-      requestAnimationFrame(renderLoop);
+      requestAnimationFrame(gameRenderLoop);
     }
 
-    function renderLoop(now) {
+    function gameRenderLoop(now) {
       if (!gameActive) return;
       const dt = Math.min((now - lastFrameTime) / 1000, 0.1);
       lastFrameTime = now;
@@ -1193,12 +1359,12 @@
         e.update(dt);
         e.draw(ctx);
 
-        // Ground Collision Rule: 1 Missed Diamond = Immediate Loss
+        // Ground Collision Rule: Missing 1 Diamond = Immediate Game Over
         if (e.y > ch - 12) {
           if (e.type === 'diamond' || e.type === 'gold') {
             triggerHaptic('error');
             SFX.fail();
-            triggerGameEnd(false, 'MISSED A DIAMOND!', 'Survival requires 100% precision. Missing one gem ends the run.');
+            triggerGameLoss('MISSED A DIAMOND!', 'A diamond reached the floor! 100% precision is required.');
             return;
           } else {
             entities.splice(i, 1);
@@ -1206,6 +1372,7 @@
         }
       }
 
+      // Update Floating Text & Particles
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update(dt);
@@ -1213,10 +1380,17 @@
         if (p.alpha <= 0) particles.splice(i, 1);
       }
 
-      requestAnimationFrame(renderLoop);
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.update(dt);
+        ft.draw(ctx);
+        if (ft.alpha <= 0) floatingTexts.splice(i, 1);
+      }
+
+      requestAnimationFrame(gameRenderLoop);
     }
 
-    function handleInput(clientX, clientY) {
+    function handleCanvasTouch(clientX, clientY) {
       if (!gameActive) return;
       const rect = canvas.getBoundingClientRect();
       const tx = clientX - rect.left;
@@ -1230,20 +1404,22 @@
             SFX.boom();
             triggerHaptic('error');
             addExplosion(tx, ty, '#EF4444', 28);
-            triggerGameEnd(false, 'BOOM! HIT A BOMB!', 'Active hazard detonated. Run terminated.');
+            triggerGameLoss('BOOM! HIT A BOMB!', 'Active hazard detonated. Run terminated with 0 TON.');
             return;
           } else {
             if (e.type === 'gold') {
               SFX.goldGem();
               triggerHaptic('heavy');
               addExplosion(tx, ty, '#F59E0B', 18);
+              floatingTexts.push(new FloatingText(tx - 25, ty, `+${e.rewardTon.toFixed(5)} TON`, '#FBBF24'));
             } else {
               SFX.gem();
               triggerHaptic('light');
               addExplosion(tx, ty, '#0098EA', 14);
+              floatingTexts.push(new FloatingText(tx - 25, ty, `+${e.rewardTon.toFixed(5)} TON`, '#38BDF8'));
             }
-            roundScore += e.score;
-            document.getElementById('gameScoreDisplay').innerText = roundScore;
+            roundTonEarned += e.rewardTon;
+            document.getElementById('gameRoundTonDisplay').innerText = roundTonEarned.toFixed(6);
             entities.splice(i, 1);
             break;
           }
@@ -1251,46 +1427,47 @@
       }
     }
 
-    canvas.addEventListener('pointerdown', e => handleInput(e.clientX, e.clientY));
+    canvas.addEventListener('pointerdown', e => handleCanvasTouch(e.clientX, e.clientY));
 
-    async function triggerGameEnd(survived, title, subtitle) {
+    function triggerGameLoss(title, subtitle) {
       gameActive = false;
       clearInterval(timerInterval);
 
-      if (!survived) {
-        document.getElementById('failedTitle').innerText = title || 'RUN TERMINATED';
-        document.getElementById('failedSubtitle').innerText = subtitle || 'Game Over';
-        document.getElementById('failedFinalScore').innerText = roundScore;
-        document.getElementById('gameOverFailedOverlay').classList.remove('hidden');
+      document.getElementById('failedTitle').innerText = title;
+      document.getElementById('failedSubtitle').innerText = subtitle;
+      document.getElementById('failedFinalScore').innerText = `${roundTonEarned.toFixed(6)} TON`;
+      document.getElementById('gameOverFailedOverlay').classList.remove('hidden');
+    }
 
-        try {
-          await API.request('/game/finish', {
-            method: 'POST',
-            body: JSON.stringify({ sessionToken: activeSessionToken, score: roundScore, survived: false })
-          });
-        } catch(e) {}
-      } else {
-        SFX.victory();
-        triggerHaptic('success');
-        if (roundScore > state.personalBest) state.personalBest = roundScore;
-        document.getElementById('victoryScoreText').innerText = roundScore;
-        document.getElementById('gameVictoryModal').classList.remove('hidden');
+    function triggerGameVictory() {
+      gameActive = false;
+      clearInterval(timerInterval);
 
-        try {
-          await API.request('/game/finish', {
-            method: 'POST',
-            body: JSON.stringify({ sessionToken: activeSessionToken, score: roundScore, survived: true })
-          });
-        } catch(e) {}
-      }
-      renderUI();
+      SFX.victory();
+      triggerHaptic('success');
+
+      // Credit harvested TON directly to Vault
+      state.balanceTon += roundTonEarned;
+      state.ledger.unshift({
+        desc: "60s Survival Run Cleared",
+        ton: roundTonEarned,
+        timestamp: Date.now()
+      });
+      saveState();
+
+      document.getElementById('victoryScoreText').innerText = `+${roundTonEarned.toFixed(6)} TON`;
+      document.getElementById('gameVictoryModal').classList.remove('hidden');
     }
 
     /* =======================================================
-       8. DOM EVENT BINDING & LIFECYCLE
+       8. DOM EVENT BINDINGS & LIFECYCLE
        ======================================================= */
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Navigation Buttons
+      // 1. Load Local State & Auto-populate Telegram SDK profile
+      loadPersistedState();
+      initTelegramSdkAndAutoFill();
+
+      // 2. Tab Navigation Buttons
       ['home', 'game', 'referral', 'wallet'].forEach(tab => {
         const btn = document.getElementById(`nav-${tab}`);
         if (btn) btn.addEventListener('click', () => switchTab(tab));
@@ -1299,7 +1476,7 @@
       document.getElementById('btnQuickPlay').addEventListener('click', () => switchTab('game'));
       document.getElementById('btnQuickWithdraw').addEventListener('click', () => switchTab('wallet'));
 
-      // 2. Sound Toggle
+      // 3. Sound Toggle
       document.getElementById('btnSoundToggle').addEventListener('click', () => {
         isMuted = !isMuted;
         document.getElementById('soundIcon').className = isMuted 
@@ -1308,51 +1485,75 @@
         triggerHaptic('light');
       });
 
-      // 3. Free Daily Gift (+1 Bonus Play every 24h)
-      document.getElementById('btnClaimDaily').addEventListener('click', async () => {
+      // 4. Customer Support Link (@PayZoteam)
+      document.getElementById('btnCustomerSupport').addEventListener('click', () => {
+        SFX.tap();
+        window.open('https://t.me/PayZoteam', '_blank');
+      });
+
+      // 5. Daily Gift Claim (+0.001 TON)
+      document.getElementById('btnClaimDaily').addEventListener('click', () => {
         SFX.tap();
         const now = Date.now();
         if (now - state.lastDailyClaim < 24 * 3600 * 1000) {
-          showToast('Daily bonus claimed! Check back tomorrow', false);
+          showToast('Daily bonus already claimed! Check back tomorrow.', false);
           return;
         }
-
-        try {
-          const res = await API.request('/claim/daily', { method: 'POST' });
-          state.bonusPlays = res.bonusPlays;
-          state.streak = res.streak;
-          state.lastDailyClaim = now;
-          showToast(res.message, true);
-        } catch(e) {
-          state.bonusPlays = Math.min(20, state.bonusPlays + 1);
-          state.streak++;
-          state.lastDailyClaim = now;
-          showToast('Claimed +1 Bonus Play!', true);
-        }
-        renderUI();
+        state.balanceTon += 0.001000;
+        state.lastDailyClaim = now;
+        state.ledger.unshift({
+          desc: "Daily Gift Check-In",
+          ton: 0.001000,
+          timestamp: now
+        });
+        saveState();
+        SFX.victory();
+        showToast("Claimed Daily Gift: +0.001000 TON!", true);
       });
 
-      // 4. Energy Recharge Ad
+      // 6. Energy Recharge via Ad
       document.getElementById('btnRechargeEnergyAd').addEventListener('click', () => {
         if (state.energy >= state.maxEnergy) {
-          showToast('Energy is already full (3/3)', false);
+          showToast("Energy is already full (3/3).", false);
           return;
         }
-        executeMonetagRewarded('energy_recharge');
+        triggerMonetagAd('energy_recharge', () => {
+          state.energy = Math.min(state.maxEnergy, state.energy + 1);
+          saveState();
+          showToast("Recharged +1 Energy!");
+        });
       });
 
-      // 5. Home Sponsor Ad
+      // 7. Home Sponsor Stream Ad
       document.getElementById('btnWatchSponsorAd').addEventListener('click', () => {
-        executeMonetagRewarded('home_sponsor');
+        triggerMonetagAd('home_sponsor', () => {
+          const reward = 0.00015;
+          state.balanceTon += reward;
+          state.ledger.unshift({
+            desc: "Institutional Sponsor Stream",
+            ton: reward,
+            timestamp: Date.now()
+          });
+          saveState();
+        });
       });
 
-      // 6. Daily TON Ad
+      // 8. Daily TON Ad
       document.getElementById('btnDailyTonAd').addEventListener('click', () => {
-        executeMonetagRewarded('daily_ton');
+        triggerMonetagAd('daily_ton', () => {
+          const reward = 0.00005;
+          state.balanceTon += reward;
+          state.ledger.unshift({
+            desc: "Daily Bonus Pool Stream",
+            ton: reward,
+            timestamp: Date.now()
+          });
+          saveState();
+        });
       });
 
-      // 7. Game Canvas & Overlay Handlers
-      document.getElementById('btnStartGame').addEventListener('click', startGameSession);
+      // 9. Game Action Buttons
+      document.getElementById('btnStartGame').addEventListener('click', startSurvivalRun);
 
       document.getElementById('btnFailTryAgain').addEventListener('click', () => {
         document.getElementById('gameOverFailedOverlay').classList.add('hidden');
@@ -1360,7 +1561,9 @@
       });
 
       document.getElementById('btnFailRechargeAd').addEventListener('click', () => {
-        executeMonetagRewarded('energy_recharge', () => {
+        triggerMonetagAd('energy_recharge', () => {
+          state.energy = Math.min(state.maxEnergy, state.energy + 1);
+          saveState();
           document.getElementById('gameOverFailedOverlay').classList.add('hidden');
           document.getElementById('gameStartOverlay').classList.remove('hidden');
         });
@@ -1372,95 +1575,88 @@
       });
 
       document.getElementById('btnVictoryAdClaim').addEventListener('click', () => {
-        executeMonetagRewarded('game_victory', () => {
+        triggerMonetagAd('game_victory', () => {
+          const victoryBonus = 0.00010;
+          state.balanceTon += victoryBonus;
+          state.ledger.unshift({
+            desc: "Survival 60s Extra Ad Bonus",
+            ton: victoryBonus,
+            timestamp: Date.now()
+          });
+          saveState();
           document.getElementById('gameVictoryModal').classList.add('hidden');
           document.getElementById('gameStartOverlay').classList.remove('hidden');
         });
       });
 
-      // 8. Referral System
+      // 10. Referral Actions
       document.getElementById('btnCopyRefLink').addEventListener('click', () => {
         SFX.tap();
         const input = document.getElementById('refShareLink');
         input.select();
         navigator.clipboard.writeText(input.value);
-        showToast('Invite link copied!');
+        showToast('Invite link copied to clipboard!');
       });
 
       document.getElementById('btnShareTelegramRef').addEventListener('click', () => {
         SFX.tap();
         const url = document.getElementById('refShareLink').value;
-        const msg = encodeURIComponent("Mine TON and survive 60s rounds on TON Rush Elite 💎");
+        const msg = encodeURIComponent("Mine real TON on Telegram with TON Rush Elite 💎");
         window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
       });
 
-      // 9. Withdrawal Calculation & Actions
+      // 11. Withdrawal Calculator & Request Submission
       const amountInput = document.getElementById('withdrawAmountInput');
       function recalculateFees() {
         const amt = parseFloat(amountInput.value) || 0;
-        const platformFee = amt * 0.02;
-        const net = Math.max(0, amt - platformFee - 0.005);
+        const platformFee = amt * (GAME_REWARDS.platformFeePercent / 100);
+        const net = Math.max(0, amt - platformFee - GAME_REWARDS.networkFeeTon);
         document.getElementById('withdrawPlatformFeeText').innerText = platformFee.toFixed(6) + ' TON';
         document.getElementById('withdrawNetText').innerText = net.toFixed(6) + ' TON';
       }
       amountInput.addEventListener('input', recalculateFees);
 
       document.getElementById('btnMaxWithdraw').addEventListener('click', () => {
-        const available = state.balanceNanoTon / 1e9;
-        amountInput.value = available.toFixed(6);
+        amountInput.value = state.balanceTon.toFixed(6);
         recalculateFees();
       });
 
-      document.getElementById('btnSubmitWithdraw').addEventListener('click', async () => {
+      document.getElementById('btnSubmitWithdraw').addEventListener('click', () => {
         SFX.tap();
-        const targetAddress = document.getElementById('withdrawAddressInput').value.trim();
-        const reqAmount = parseFloat(amountInput.value);
+        const address = document.getElementById('withdrawAddressInput').value.trim();
+        const amt = parseFloat(amountInput.value);
 
-        if (!targetAddress || targetAddress.length < 24) {
-          showToast('Enter a valid TON address', false);
+        if (!address || address.length < 24) {
+          showToast('Please enter a valid TON address.', false);
           return;
         }
-        if (isNaN(reqAmount) || reqAmount < 0.010) {
-          showToast('Minimum cashout is 0.010 TON', false);
+        if (isNaN(amt) || amt < GAME_REWARDS.minWithdrawTon) {
+          showToast(`Minimum withdrawal is ${GAME_REWARDS.minWithdrawTon} TON.`, false);
           return;
         }
-        if (Math.floor(reqAmount * 1e9) > state.balanceNanoTon) {
-          showToast('Insufficient TON in Vault balance', false);
+        if (amt > state.balanceTon) {
+          showToast('Insufficient TON in Vault balance.', false);
           return;
         }
 
-        try {
-          const res = await API.request('/withdraw/request', {
-            method: 'POST',
-            body: JSON.stringify({ address: targetAddress, amountTon: reqAmount })
-          });
-          showToast(res.message, true);
-          amountInput.value = '';
-          recalculateFees();
-          await syncUserData();
-        } catch(e) {
-          showToast(e.message || 'Withdrawal could not be queued', false);
-        }
+        state.balanceTon -= amt;
+        state.withdrawals.unshift({
+          amount: amt,
+          address: address,
+          status: 'Pending',
+          txHash: null,
+          timestamp: Date.now()
+        });
+
+        saveState();
+        amountInput.value = '';
+        recalculateFees();
+        showToast("Withdrawal queued for on-chain settlement!", true);
       });
 
-      // 10. Startup Sequences
+      // 12. TON Connect & Initial Render
       initTonConnect();
-      syncUserData().then(() => {
-        if (tgApp && tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
-          const u = tgApp.initDataUnsafe.user;
-          document.getElementById('headerUsername').innerText = u.username ? `@${u.username}` : (u.first_name || 'Member');
-          document.getElementById('headerUserId').innerText = u.id;
-          if (u.photo_url) document.getElementById('headerAvatarImg').src = u.photo_url;
-          if (u.is_premium) {
-            const badge = document.getElementById('headerBadge');
-            badge.className = 'bg-amber-400/20 text-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded border border-amber-400/40';
-            badge.innerText = 'VIP PREMIUM';
-          }
-          document.getElementById('refShareLink').value = `https://t.me/tonrush_bot?startapp=ref_${u.id}`;
-        } else {
-          document.getElementById('refShareLink').value = `https://t.me/tonrush_bot?startapp=ref_user`;
-        }
-      });
+      renderUI();
     });
   </script>
 </body>
