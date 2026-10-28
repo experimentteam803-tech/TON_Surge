@@ -1736,21 +1736,21 @@
       });
 
       document.getElementById('btnShareTelegramRef').addEventListener('click', () => {
-        SFX.tap();
-        const url = document.getElementById('refShareLink').value;
-        const msg = encodeURIComponent("⚡ I'm officially inviting you to join the TON Surge Protocol!
+  SFX.tap();
+  const url = document.getElementById('refShareLink').value;
+  const msg = encodeURIComponent(`⚡ I'm officially inviting you to join the TON Surge Protocol!
 
 Mine real TON tokens directly inside Telegram. Zero deposit required, zero gas fees.
 
 💎 What you unlock instantly:
-• +0.005 TON Welcome Airdrop (+0.050 TON for TG Premium)
+• +0.002 TON Starter Reward (+0.005 TON for TG Premium)
 • 3/3 Full Energy nodes for the 60s Survival Rush arcade
 • Fast on-chain withdrawals to your TON wallet
 
-Launch your node and claim your starter balance here");
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
-      });
+Launch your node and claim your starter balance here:`);
 
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
+});
       // Withdrawal Calculator & Request Submission
       const amountInput = document.getElementById('withdrawAmountInput');
       function recalculateFees() {
