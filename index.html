@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>TON Rush Elite - Web3 Protocol & Yield</title>
+  <title>TON Surge - Web3 Protocol & Yield</title>
 
   <!-- Official Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -215,7 +215,7 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* Dedicated Animated Game Background Elements */
+    /* Dedicated Animated Game Background */
     .game-cosmic-bg {
       background: 
         radial-gradient(ellipse at top left, rgba(0, 152, 234, 0.25) 0%, transparent 50%),
@@ -237,7 +237,7 @@
   <!-- Mobile Viewport Frame -->
   <div id="appContainer" class="w-full max-w-md h-full bg-mesh-radial flex flex-col justify-between relative shadow-2xl overflow-hidden border-x border-slate-900/60">
 
-    <!-- ADMIN REMOTE ANNOUNCEMENT BANNER (TRIGGERED DYNAMICALLY) -->
+    <!-- ADMIN REMOTE ANNOUNCEMENT BANNER -->
     <div id="remoteAnnouncementBanner" class="hidden flex-none bg-gradient-to-r from-amber-500/20 via-ton/20 to-amber-500/20 border-b border-amber-500/30 px-3 py-1 flex items-center justify-between text-[10px] text-amber-300 font-bold z-50">
       <div class="flex items-center space-x-1.5 truncate">
         <i class="fa-solid fa-bullhorn text-[9px] animate-pulse"></i>
@@ -248,7 +248,7 @@
       </button>
     </div>
 
-    <!-- FIXED TOP HEADER (WITH AUTO-POPULATED TELEGRAM USER PROFILE) -->
+    <!-- FIXED TOP HEADER -->
     <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/10 flex items-center justify-between z-40">
       <div class="flex items-center space-x-2.5">
         <!-- Live Telegram Profile Avatar Container -->
@@ -265,7 +265,7 @@
         </div>
         <div>
           <div class="flex items-center space-x-1.5">
-            <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[125px]">TG_USER</span>
+            <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[125px]">AUTHENTICATING</span>
             <span id="headerBadge" class="bg-sky-500/15 text-sky-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-sky-500/30">MEMBER</span>
           </div>
           <p class="text-[10px] text-slate-400 font-mono-num flex items-center gap-1.5">
@@ -336,17 +336,17 @@
               <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-300">Decentralized Vault</span>
             </div>
             <span id="liveSyncStatus" class="bg-ton/20 text-sky-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-ton/40 font-mono-num flex items-center gap-1">
-              <i class="fa-solid fa-circle-check text-emerald-400 text-[8px]"></i> Active Mainnet
+              <i class="fa-solid fa-cloud-arrow-up text-emerald-400 text-[8px]"></i> Cloud Synced
             </span>
           </div>
 
           <div class="my-2 relative z-10">
             <div class="flex items-baseline space-x-2">
-              <span id="homeBalanceTon" class="text-3xl font-black text-white font-mono-num tracking-tight text-cyan-glow">0.000000</span>
+              <span id="homeBalanceTon" class="text-3xl font-black text-white font-mono-num tracking-tight text-cyan-glow">0.001000</span>
               <span class="text-sm font-black text-ton">TON</span>
             </div>
             <div class="flex items-center gap-2 mt-1">
-              <p id="homeBalanceUsd" class="text-xs text-slate-400 font-mono-num font-semibold">≈ $0.00 USD</p>
+              <p id="homeBalanceUsd" class="text-xs text-slate-400 font-mono-num font-semibold">≈ $0.01 USD</p>
               <span class="text-slate-600">•</span>
               <span class="text-[10px] text-emerald-400 font-mono-num font-bold">Instant Vault Settlement</span>
             </div>
@@ -452,23 +452,20 @@
             <span class="text-[10px] text-slate-500 font-mono-num">Realtime Records</span>
           </div>
           <div id="homeHistoryList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
-            <!-- Populated via JS (Starts empty: No fake demo transactions) -->
+            <!-- Dynamically populated via JS -->
           </div>
         </div>
       </section>
 
-      <!-- ================= 2. SURVIVAL GAME TAB (WITH PREMIER ANIMATED CYBER BACKGROUND) ================= -->
+      <!-- ================= 2. SURVIVAL GAME TAB ================= -->
       <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-3 hidden relative">
         
-        <!-- ULTRA-PREMIUM DYNAMIC ANIMATED BACKGROUND (IMAGE REMOVED AS REQUESTED) -->
+        <!-- ULTRA-PREMIUM DYNAMIC ANIMATED BACKGROUND -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden game-cosmic-bg">
-          <!-- Drifting Cosmic Mesh Glow -->
           <div class="absolute -top-10 -left-10 w-72 h-72 rounded-full bg-cyan-500/20 blur-3xl animate-nebula-drift pointer-events-none"></div>
           <div class="absolute -bottom-10 -right-10 w-80 h-80 rounded-full bg-amber-500/15 blur-3xl animate-nebula-drift pointer-events-none" style="animation-delay: -6s;"></div>
           <div class="absolute top-1/3 left-1/4 w-60 h-60 rounded-full bg-purple-600/15 blur-3xl animate-nebula-drift pointer-events-none" style="animation-delay: -12s;"></div>
-          <!-- Perspective Cyber Matrix Grid -->
           <div class="absolute inset-0 cyber-grid-overlay opacity-60"></div>
-          <!-- Scanning Cyber Ray -->
           <div class="absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent animate-cyber-scan pointer-events-none"></div>
         </div>
 
@@ -582,7 +579,7 @@
         </div>
       </section>
 
-      <!-- ================= 3. SYNDICATE (REFERRAL) TAB (NO FAKE / DEMO DATA) ================= -->
+      <!-- ================= 3. SYNDICATE (REFERRAL) TAB ================= -->
       <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
         <!-- REFERRAL BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
@@ -642,16 +639,16 @@
               </div>
               <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
                 <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">2</span>
-                <p class="text-slate-200"><strong class="text-white">Friend Completes 60s Run:</strong> When your friend opens TON Rush Elite and survives their first 60-second survival round.</p>
+                <p class="text-slate-200"><strong class="text-white">Friend Completes 60s Run:</strong> When your friend opens TON Surge and survives their first 60-second survival round.</p>
               </div>
               <div class="flex items-start gap-2 bg-slate-900/75 p-2 rounded-xl border border-white/10">
                 <span class="w-4 h-4 rounded-full bg-ton/20 text-ton font-bold flex items-center justify-center flex-none text-[9px]">3</span>
-                <p class="text-slate-200"><strong class="text-white">Direct TON Credit:</strong> <span class="text-ton font-bold">+0.002 TON</span> for standard members or <span class="text-amber-300 font-bold">+0.005 TON</span> for TG Premium users is credited instantly to your Vault.</p>
+                <p class="text-slate-200"><strong class="text-white">Instant Vault Settlement:</strong> Receive <span class="text-ton font-bold">+0.002 TON</span> for standard members or <span class="text-amber-300 font-bold">+0.005 TON</span> for TG Premium users directly into your Vault.</p>
               </div>
             </div>
           </div>
 
-          <!-- Referral Stats Overview (REAL STATS - ZERO FAKE DATA) -->
+          <!-- Referral Stats Overview (REAL STATS ONLY) -->
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="glass-elite-card p-2 rounded-xl border border-white/10">
               <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
@@ -667,19 +664,19 @@
             </div>
           </div>
 
-          <!-- Link Share Box (With Authenticated Telegram User ID) -->
+          <!-- Link Share Box -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-2">
-            <span class="text-[10px] font-bold text-slate-300 uppercase">Your Syndicate Protocol Link</span>
+            <span class="text-[10px] font-bold text-slate-300 uppercase">Your Personal Invite Link:</span>
             <div class="flex items-center space-x-2 bg-slate-950/80 rounded-xl p-1.5 border border-white/10">
               <input id="refShareLink" type="text" readonly value="Loading..." class="bg-transparent text-[10px] text-slate-300 w-full outline-none font-mono-num px-1" />
               <button id="btnCopyRefLink" class="btn-3d btn-3d-ton text-white text-[10px] px-2.5 py-1 rounded-lg font-bold">Copy</button>
             </div>
-            <button id="btnShareTelegramRef" class="btn-3d btn-3d-ton w-full py-2 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-1.5">
-              <i class="fa-brands fa-telegram text-xs"></i> Share With Contacts
+            <button id="btnShareTelegramRef" class="btn-3d btn-3d-ton w-full py-2.5 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-1.5">
+              <i class="fa-brands fa-telegram text-xs"></i> Invite Friends Now
             </button>
           </div>
 
-          <!-- Referral Ledger (Clean Empty State: No Fake Users) -->
+          <!-- Referral Ledger (Clean Empty State) -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
             <div class="flex items-center justify-between border-b border-white/10 pb-1">
               <h4 class="text-xs font-black uppercase text-slate-300">Verified Referral Ledger</h4>
@@ -770,7 +767,7 @@
             </button>
           </div>
 
-          <!-- Withdrawal Ledger (Real Records Only) -->
+          <!-- Withdrawal Ledger -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
             <div class="flex items-center justify-between border-b border-white/10 pb-1">
               <h4 class="text-xs font-black uppercase text-slate-300">Settlement Ledger</h4>
@@ -784,7 +781,7 @@
 
     </main>
 
-    <!-- FLOATING TOAST -->
+    <!-- FLOATING TOAST NOTIFICATION -->
     <div id="toastNotification" class="fixed top-12 left-1/2 -translate-x-1/2 max-w-xs w-full px-4 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
       <div class="glass-elite-card border border-ton/50 px-3.5 py-2 rounded-2xl text-center shadow-2xl flex items-center justify-center gap-2">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
@@ -818,18 +815,55 @@
   <!-- APPLICATION JAVASCRIPT ENGINE -->
   <script>
     /* =======================================================
-       1. TELEGRAM SDK INITIALIZATION & USER AUTO-FILL
+       1. FIREBASE REALTIME CLOUD SYNC CONFIGURATION
        ======================================================= */
-    const tgApp = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    const FIREBASE_DB_URL = "https://gift-code-wellcome-default-rtdb.firebaseio.com";
+
+    // Application Parameters
+    let appConfig = {
+      blueDiamondTon: 0.00002,
+      goldDiamondTon: 0.00005,
+      normalRefTon: 0.002,
+      premiumRefTon: 0.005,
+      minWithdrawTon: 0.010,
+      platformFeePercent: 2,
+      networkFeeTon: 0.005,
+      supportHandle: "@PayZoteam",
+      announcement: ""
+    };
+
+    // Real User State
+    let state = {
+      balanceTon: 0.001000,
+      tonRate: 5.40,
+      energy: 3,
+      maxEnergy: 3,
+      lastDailyClaim: 0,
+      referralStats: {
+        total: 0,
+        premium: 0,
+        tonEarned: 0.0000
+      },
+      ledger: [
+        { desc: "Vault Protocol Initialization", ton: 0.001000, timestamp: Date.now() }
+      ],
+      referrals: [],
+      withdrawals: []
+    };
 
     let telegramUser = {
-      id: "928172",
-      first_name: "Member",
+      id: "8075561163",
+      first_name: "Agent",
       last_name: "",
       username: "validator_node",
       photo_url: null,
       is_premium: false
     };
+
+    /* =======================================================
+       2. TELEGRAM SDK INITIALIZATION & AUTO-FILL
+       ======================================================= */
+    const tgApp = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
     function initTelegramSdkAndAutoFill() {
       if (tgApp) {
@@ -839,40 +873,35 @@
           if (tgApp.setHeaderColor) tgApp.setHeaderColor('#04060A');
           if (tgApp.setBackgroundColor) tgApp.setBackgroundColor('#04060A');
           if (tgApp.enableClosingConfirmation) tgApp.enableClosingConfirmation();
-        } catch (e) {
-          console.warn('Telegram WebApp setup warning:', e);
-        }
+        } catch (e) {}
 
         // Direct fetch from Telegram WebApp initDataUnsafe
         if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
           telegramUser = { ...telegramUser, ...tgApp.initDataUnsafe.user };
-          localStorage.setItem('TON_RUSH_TG_USER', JSON.stringify(telegramUser));
+          localStorage.setItem('TON_SURGE_TG_USER', JSON.stringify(telegramUser));
         } else if (tgApp.initData) {
-          // Secondary fallback parser for URL encoded initData query string
           try {
             const urlParams = new URLSearchParams(tgApp.initData);
             const userJson = urlParams.get('user');
             if (userJson) {
-              const parsed = JSON.parse(userJson);
-              telegramUser = { ...telegramUser, ...parsed };
-              localStorage.setItem('TON_RUSH_TG_USER', JSON.stringify(telegramUser));
+              telegramUser = { ...telegramUser, ...JSON.parse(userJson) };
+              localStorage.setItem('TON_SURGE_TG_USER', JSON.stringify(telegramUser));
             }
           } catch(err) {}
         }
       }
 
-      // Check URL parameters for direct startapp referral
+      // Check URL parameters for direct start referral
       try {
         const urlParams = new URLSearchParams(window.location.search);
-        const refParam = urlParams.get('startapp') || urlParams.get('start');
-        if (refParam && refParam.startsWith('ref_')) {
-          const inviterId = refParam.replace('ref_', '');
-          localStorage.setItem('TON_RUSH_INVITED_BY', inviterId);
+        const refParam = urlParams.get('start') || urlParams.get('startapp');
+        if (refParam) {
+          localStorage.setItem('TON_SURGE_INVITED_BY', refParam.replace('ref_', ''));
         }
       } catch(e) {}
 
       // Fallback to cached Telegram profile
-      const cached = localStorage.getItem('TON_RUSH_TG_USER');
+      const cached = localStorage.getItem('TON_SURGE_TG_USER');
       if (cached) {
         try { telegramUser = { ...telegramUser, ...JSON.parse(cached) }; } catch(e){}
       }
@@ -917,7 +946,7 @@
         }
       }
 
-      // Dynamic Referral Link with authenticated Telegram UID
+      // Dynamic Referral Link: Opens bot chat with /start USER_ID
       const refLinkInput = document.getElementById('refShareLink');
       if (refLinkInput) {
         refLinkInput.value = `https://t.me/ton_surge_bot?start=${telegramUser.id}`;
@@ -936,115 +965,109 @@
     }
 
     /* =======================================================
-       2. REMOTE ADMIN CONTROL ENGINE (A TO Z ARCHITECTURE)
+       3. REALTIME FIREBASE SYNC ENGINE
        ======================================================= */
-    // Default system parameters (overridable via remote API or BroadcastChannel)
-    let appConfig = {
-      blueDiamondTon: 0.00002,
-      goldDiamondTon: 0.00005,
-      normalRefTon: 0.002,
-      premiumRefTon: 0.005,
-      minWithdrawTon: 0.010,
-      platformFeePercent: 2,
-      networkFeeTon: 0.005,
-      supportHandle: "@PayZoteam",
-      maintenanceMode: false,
-      announcement: ""
-    };
+    async function syncUserWithFirebase() {
+      if (!telegramUser || !telegramUser.id) return;
+      const userNode = `tg_${telegramUser.id}`;
 
-    // Client State: CLEAN REAL REVENUE & REAL DATA ONLY (No fake demo data)
-    let state = {
-      balanceTon: 0.000000,
-      tonRate: 5.40,
-      energy: 3,
-      maxEnergy: 3,
-      lastDailyClaim: 0,
-      referralStats: {
-        total: 0,
-        premium: 0,
-        tonEarned: 0.0000
-      },
-      ledger: [],
-      referrals: [],
-      withdrawals: []
-    };
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/users/${userNode}.json`);
+        const cloudData = await res.json();
 
-    function loadPersistedState() {
-      // 1. Load Remote Admin Config overrides
-      const savedConfig = localStorage.getItem('TON_RUSH_REMOTE_CONFIG_V1');
-      if (savedConfig) {
-        try { appConfig = { ...appConfig, ...JSON.parse(savedConfig) }; } catch(e){}
+        if (cloudData) {
+          state.balanceTon = typeof cloudData.balanceTon === 'number' ? cloudData.balanceTon : state.balanceTon;
+          state.energy = typeof cloudData.energy === 'number' ? cloudData.energy : state.energy;
+          if (cloudData.referralStats) state.referralStats = cloudData.referralStats;
+          if (cloudData.ledger && Array.isArray(cloudData.ledger)) state.ledger = cloudData.ledger;
+          if (cloudData.withdrawals && Array.isArray(cloudData.withdrawals)) state.withdrawals = cloudData.withdrawals;
+          document.getElementById('liveSyncStatus').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-[8px]"></i> Cloud Synced';
+        } else {
+          // New User Starter Credit
+          state.balanceTon = 0.001000;
+          state.ledger = [{
+            desc: "Vault Protocol Initialization",
+            ton: 0.001000,
+            timestamp: Date.now()
+          }];
+        }
+
+        renderUI();
+        await pushUserToFirebase();
+      } catch (err) {
+        console.warn("Firebase sync fallback:", err);
       }
+    }
 
-      // 2. Load User State
-      const savedState = localStorage.getItem('TON_RUSH_REAL_USER_STATE_V1');
-      if (savedState) {
-        try { state = { ...state, ...JSON.parse(savedState) }; } catch(e){}
-      }
+    async function pushUserToFirebase() {
+      if (!telegramUser || !telegramUser.id) return;
+      const userNode = `tg_${telegramUser.id}`;
 
-      // Check if user has received a welcome bonus
-      if (!localStorage.getItem('TON_RUSH_WELCOME_CLAIMED')) {
-        state.balanceTon += 0.001000;
-        state.ledger.unshift({
-          desc: "Vault Protocol Initialization",
-          ton: 0.001000,
-          timestamp: Date.now()
+      const payload = {
+        id: String(telegramUser.id),
+        username: telegramUser.username ? `@${telegramUser.username}` : (telegramUser.first_name || 'Member'),
+        first_name: telegramUser.first_name || '',
+        photo_url: telegramUser.photo_url || null,
+        is_premium: Boolean(telegramUser.is_premium),
+        balanceTon: state.balanceTon,
+        balanceNanoTon: Math.floor(state.balanceTon * 1e9),
+        energy: state.energy,
+        referralStats: state.referralStats,
+        withdrawals: state.withdrawals || [],
+        ledger: (state.ledger || []).slice(0, 15),
+        lastActive: Date.now()
+      };
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}/users/${userNode}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
-        localStorage.setItem('TON_RUSH_WELCOME_CLAIMED', 'true');
-        saveState();
-      }
+      } catch (e) {}
     }
 
     function saveState() {
-      localStorage.setItem('TON_RUSH_REAL_USER_STATE_V1', JSON.stringify(state));
+      localStorage.setItem('TON_SURGE_REAL_USER_STATE_V2', JSON.stringify(state));
       renderUI();
+      pushUserToFirebase(); // Realtime cloud database write
     }
 
-    // Remote Admin Live Sync Listener:
-    // Enables an external admin dashboard to control this app in real-time
-    window.addEventListener('message', (event) => {
-      try {
-        if (event.data && event.data.type === 'TON_RUSH_ADMIN_UPDATE') {
-          const { configUpdates, userAdjustments } = event.data;
-          if (configUpdates) {
-            appConfig = { ...appConfig, ...configUpdates };
-            localStorage.setItem('TON_RUSH_REMOTE_CONFIG_V1', JSON.stringify(appConfig));
-          }
-          if (userAdjustments) {
-            if (typeof userAdjustments.addTon === 'number') {
-              state.balanceTon = Math.max(0, state.balanceTon + userAdjustments.addTon);
-              state.ledger.unshift({
-                desc: "Admin Vault Adjustment",
-                ton: userAdjustments.addTon,
-                timestamp: Date.now()
-              });
-            }
-            if (typeof userAdjustments.setEnergy === 'number') {
-              state.energy = Math.max(0, Math.min(state.maxEnergy, userAdjustments.setEnergy));
-            }
-            saveState();
-          }
-          applyAdminConfigToUI();
-          showToast("Remote protocol settings updated!", true);
-        }
-      } catch(e){}
-    });
+    function loadPersistedState() {
+      const savedState = localStorage.getItem('TON_SURGE_REAL_USER_STATE_V2');
+      if (savedState) {
+        try { state = { ...state, ...JSON.parse(savedState) }; } catch(e){}
+      }
+    }
 
-    // Also support BroadcastChannel for separate Admin tab control
+    /* Live Admin Remote Broadcast Listener */
     try {
       const adminChannel = new BroadcastChannel('ton_rush_admin_channel');
       adminChannel.onmessage = (event) => {
         if (event.data && event.data.type === 'CONFIG_UPDATE') {
           appConfig = { ...appConfig, ...event.data.payload };
-          localStorage.setItem('TON_RUSH_REMOTE_CONFIG_V1', JSON.stringify(appConfig));
           applyAdminConfigToUI();
-          showToast("Admin node updated settings", true);
+          showToast("Remote protocol settings updated!", true);
+        } else if (event.data && event.data.type === 'USER_ADJUST') {
+          if (event.data.payload.uid === `tg_${telegramUser.id}`) {
+            if (typeof event.data.payload.addTon === 'number') {
+              state.balanceTon = Math.max(0, state.balanceTon + event.data.payload.addTon);
+              state.ledger.unshift({
+                desc: "Admin Vault Adjustment",
+                ton: event.data.payload.addTon,
+                timestamp: Date.now()
+              });
+            }
+            if (typeof event.data.payload.setEnergy === 'number') {
+              state.energy = event.data.payload.setEnergy;
+            }
+            saveState();
+          }
         }
       };
     } catch(e){}
 
     function applyAdminConfigToUI() {
-      // Dynamic Labels from Admin Config
       document.getElementById('labelBlueDiamondTon').innerText = appConfig.blueDiamondTon.toFixed(5);
       document.getElementById('labelGoldDiamondTon').innerText = appConfig.goldDiamondTon.toFixed(5);
       document.getElementById('labelNormalRefTon').innerText = `+${appConfig.normalRefTon.toFixed(3)} TON`;
@@ -1053,7 +1076,6 @@
       document.getElementById('labelPlatformFee').innerText = appConfig.platformFeePercent;
       document.getElementById('supportHandleLabel').innerText = appConfig.supportHandle;
 
-      // Remote Announcement Banner
       const banner = document.getElementById('remoteAnnouncementBanner');
       if (appConfig.announcement && appConfig.announcement.trim().length > 0) {
         document.getElementById('announcementText').innerText = appConfig.announcement;
@@ -1064,7 +1086,7 @@
     }
 
     /* =======================================================
-       3. AUDIO & TELEGRAM HAPTICS ENGINE
+       4. AUDIO & TELEGRAM HAPTICS ENGINE
        ======================================================= */
     let isMuted = false;
     const SFX = {
@@ -1113,7 +1135,7 @@
     }
 
     /* =======================================================
-       4. OFFICIAL TON CONNECT UI SETUP
+       5. OFFICIAL TON CONNECT UI SETUP
        ======================================================= */
     let tonConnectUI = null;
     let connectedWalletAddress = null;
@@ -1140,13 +1162,11 @@
             }
           });
         }
-      } catch (e) {
-        console.warn('TonConnect fallback initialization:', e);
-      }
+      } catch (e) {}
     }
 
     /* =======================================================
-       5. UI RENDERING & NAVIGATION LOGIC
+       6. UI RENDERING & NAVIGATION LOGIC
        ======================================================= */
     function showToast(msg, isSuccess = true) {
       const toast = document.getElementById('toastNotification');
@@ -1197,7 +1217,7 @@
       document.getElementById('headerEnergyText').innerText = `${state.energy}/${state.maxEnergy}`;
       document.getElementById('gameAvailableEnergyText').innerText = state.energy;
 
-      // Referral Stats (REAL DATA ONLY)
+      // Real Referral Stats
       document.getElementById('statRefTotal').innerText = state.referralStats.total;
       document.getElementById('statRefPremium').innerText = state.referralStats.premium;
       document.getElementById('statRefTon').innerText = `${state.referralStats.tonEarned.toFixed(4)} TON`;
@@ -1218,7 +1238,7 @@
         homeList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-3">No activity recorded yet.</p>`;
       }
 
-      // Referral Ledger (Starts Completely Clean - No Fake Users)
+      // Referral Ledger (Real Records Only)
       const refList = document.getElementById('referralHistoryList');
       if (state.referrals.length > 0) {
         refList.innerHTML = state.referrals.map(item => `
@@ -1235,12 +1255,12 @@
           <div class="text-center py-4 space-y-1">
             <i class="fa-solid fa-users text-slate-600 text-lg"></i>
             <p class="text-[11px] font-bold text-slate-400">No verified recruits yet</p>
-            <p class="text-[9px] text-slate-500">Share your protocol link above to start earning direct TON.</p>
+            <p class="text-[9px] text-slate-500">Share your invite link above to start earning direct TON.</p>
           </div>
         `;
       }
 
-      // Withdrawal Ledger (Real Records Only)
+      // Withdrawal Ledger
       const withList = document.getElementById('withdrawalHistoryList');
       if (state.withdrawals.length > 0) {
         withList.innerHTML = state.withdrawals.map(item => `
@@ -1263,7 +1283,7 @@
     }
 
     /* =======================================================
-       6. MONETAG OFFICIAL REWARDED AD INTEGRATION
+       7. MONETAG OFFICIAL REWARDED AD INTEGRATION
        ======================================================= */
     function triggerMonetagAd(placementTag, onComplete) {
       SFX.tap();
@@ -1284,7 +1304,7 @@
     }
 
     /* =======================================================
-       7. 60-SECOND DIAMOND SURVIVAL CANVAS ENGINE
+       8. 60-SECOND DIAMOND SURVIVAL CANVAS ENGINE
        ======================================================= */
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -1494,7 +1514,6 @@
         e.update(dt);
         e.draw(ctx);
 
-        // Ground Collision Rule: Missing 1 Diamond = Immediate Game Over
         if (e.y > ch - 12) {
           if (e.type === 'diamond' || e.type === 'gold') {
             triggerHaptic('error');
@@ -1507,7 +1526,6 @@
         }
       }
 
-      // Update Floating Text & Particles
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update(dt);
@@ -1581,7 +1599,6 @@
       SFX.victory();
       triggerHaptic('success');
 
-      // Credit harvested TON directly to Vault
       state.balanceTon += roundTonEarned;
       state.ledger.unshift({
         desc: "60s Survival Run Cleared",
@@ -1595,11 +1612,12 @@
     }
 
     /* =======================================================
-       8. DOM EVENT BINDINGS & LIFECYCLE
+       9. DOM EVENT BINDINGS & LIFECYCLE
        ======================================================= */
     document.addEventListener('DOMContentLoaded', () => {
       loadPersistedState();
       initTelegramSdkAndAutoFill();
+      syncUserWithFirebase(); // Realtime cloud synchronization on launch
 
       // Tab navigation
       ['home', 'game', 'referral', 'wallet'].forEach(tab => {
@@ -1619,7 +1637,7 @@
         triggerHaptic('light');
       });
 
-      // Customer Support Links (@PayZoteam)
+      // Customer Support Link (@PayZoteam)
       const openSupport = () => {
         SFX.tap();
         const handle = appConfig.supportHandle.replace('@', '');
@@ -1726,7 +1744,7 @@
         });
       });
 
-      // Referral Actions (With Dynamic Telegram ID)
+      // Referral Actions (Copy & Direct Invite Button)
       document.getElementById('btnCopyRefLink').addEventListener('click', () => {
         SFX.tap();
         const input = document.getElementById('refShareLink');
@@ -1736,21 +1754,22 @@
       });
 
       document.getElementById('btnShareTelegramRef').addEventListener('click', () => {
-  SFX.tap();
-  const url = document.getElementById('refShareLink').value;
-  const msg = encodeURIComponent(`⚡ I'm officially inviting you to join the TON Surge Protocol!
+        SFX.tap();
+        const url = document.getElementById('refShareLink').value;
+        const msg = encodeURIComponent(`⚡ I'm officially inviting you to join the TON Surge Protocol!
 
 Mine real TON tokens directly inside Telegram. Zero deposit required, zero gas fees.
 
 💎 What you unlock instantly:
-• +0.005 TON Welcome Airdrop (+0.050 TON for TG Premium)
+• +0.002 TON Starter Reward (+0.005 TON for TG Premium)
 • 3/3 Full Energy nodes for the 60s Survival Rush arcade
 • Fast on-chain withdrawals to your TON wallet
 
 Launch your node and claim your starter balance here:`);
 
-  window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
-});
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
+      });
+
       // Withdrawal Calculator & Request Submission
       const amountInput = document.getElementById('withdrawAmountInput');
       function recalculateFees() {
@@ -1800,7 +1819,7 @@ Launch your node and claim your starter balance here:`);
         showToast("Withdrawal queued for on-chain settlement!", true);
       });
 
-      // TON Connect & Initial Render
+      // TON Connect Initialization & Render
       initTonConnect();
       renderUI();
     });
