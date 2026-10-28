@@ -920,7 +920,7 @@
       // Dynamic Referral Link with authenticated Telegram UID
       const refLinkInput = document.getElementById('refShareLink');
       if (refLinkInput) {
-        refLinkInput.value = `https://t.me/tonrush_bot?startapp=ref_${telegramUser.id}`;
+        refLinkInput.value = `https://t.me/ton_surge_bot/open?startapp=ref_${telegramUser.id}`;
       }
     }
 
@@ -1738,7 +1738,17 @@
       document.getElementById('btnShareTelegramRef').addEventListener('click', () => {
         SFX.tap();
         const url = document.getElementById('refShareLink').value;
-        const msg = encodeURIComponent("Mine real TON on Telegram with TON Rush Elite 💎");
+        const msg = encodeURIComponent("⚡ I'm officially inviting you to join the TON Surge Protocol!
+
+Mine real TON tokens directly inside Telegram. Zero deposit required, zero gas fees.
+
+💎 What you unlock instantly:
+• +0.005 TON Welcome Airdrop (+0.050 TON for TG Premium)
+• 3/3 Full Energy nodes for the 60s Survival Rush arcade
+• Fast on-chain withdrawals to your TON wallet
+
+Launch your node and claim your starter balance here:
+");
         window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
       });
 
