@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>TON Rush Elite - Web3 Protocol</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- TON Connect UI Official SDK -->
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Monetag Official SDK -->
+  <script src="//libtl.com/sdk.js" data-zone="9969043" data-sdk="show_9969043"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ton: {
+              DEFAULT: '#0098EA',
+              light: '#38bdf8',
+              glow: 'rgba(0, 152, 234, 0.45)',
+              gold: '#F59E0B',
+              dark: '#006fa8'
+            },
+            elite: {
+              bg: '#04060A',
+              card: 'rgba(10, 15, 24, 0.88)',
+              border: 'rgba(255, 255, 255, 0.08)'
+            }
+          },
+          animation: {
+            'star-spin': 'starSpin 26s linear infinite',
+            'float-slow': 'floatSlow 3.8s ease-in-out infinite',
+            'watermark-pulse': 'watermarkPulse 4s ease-in-out infinite alternate'
+          },
+          keyframes: {
+            starSpin: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' }
+            },
+            floatSlow: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-6px)' }
+            },
+            watermarkPulse: {
+              '0%': { opacity: '0.07', transform: 'scale(0.96)' },
+              '100%': { opacity: '0.18', transform: 'scale(1.05)' }
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap');
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background-color: #030508;
+      color: #E2E8F0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .bg-mesh-radial {
+      background: 
+        radial-gradient(circle at 15% 10%, rgba(0, 152, 234, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+        #04060A;
+    }
+
+    .glass-elite-card {
+      background: linear-gradient(135deg, rgba(16, 23, 37, 0.88) 0%, rgba(8, 12, 20, 0.95) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.7);
+    }
+
+    .glass-ton-premium {
+      background: linear-gradient(135deg, rgba(0, 152, 234, 0.22) 0%, rgba(8, 13, 22, 0.96) 80%);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(0, 152, 234, 0.45);
+      box-shadow: 0 12px 32px -8px rgba(0, 152, 234, 0.35);
+    }
+
+    /* 3D Tactile Buttons */
+    .btn-3d {
+      transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .btn-3d:active {
+      transform: translateY(2px);
+    }
+
+    .btn-3d-ton {
+      background: linear-gradient(180deg, #00A6FF 0%, #0087D1 100%);
+      border-bottom: 3.5px solid #005F94;
+      box-shadow: 0 4px 14px rgba(0, 152, 234, 0.35);
+    }
+    .btn-3d-ton:active {
+      border-bottom-width: 1px;
+    }
+
+    .btn-3d-gold {
+      background: linear-gradient(180deg, #FBBF24 0%, #D97706 100%);
+      border-bottom: 3.5px solid #92400E;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+    }
+    .btn-3d-gold:active {
+      border-bottom-width: 1px;
+    }
+
+    .btn-3d-dark {
+      background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+      border-bottom: 3.5px solid #020617;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+    .btn-3d-dark:active {
+      border-bottom-width: 1px;
+    }
+
+    .glow-pulse-cta {
+      animation: neonPulse 2.2s infinite alternate;
+    }
+    .glow-pulse-gold {
+      animation: goldPulse 2s infinite alternate;
+    }
+
+    @keyframes neonPulse {
+      0% { box-shadow: 0 0 10px rgba(0, 152, 234, 0.4); }
+      100% { box-shadow: 0 0 22px rgba(0, 152, 234, 0.85); }
+    }
+    @keyframes goldPulse {
+      0% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+      100% { box-shadow: 0 0 24px rgba(245, 158, 11, 0.85); }
+    }
+
+    .text-cyan-glow {
+      background: linear-gradient(135deg, #FFFFFF 0%, #38BDF8 55%, #0098EA 100%);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    #gameCanvas {
+      touch-action: none;
+      cursor: crosshair;
+      background: transparent;
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 152, 234, 0.5);
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center h-full w-full">
+
+  <!-- Mobile Viewport Frame -->
+  <div id="appContainer" class="w-full max-w-md h-full bg-mesh-radial flex flex-col justify-between relative shadow-2xl overflow-hidden border-x border-slate-900/60">
+
+    <!-- FIXED TOP HEADER -->
+    <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/5 flex items-center justify-between z-40">
+      <div class="flex items-center space-x-2.5">
+        <div class="relative w-9 h-9 rounded-xl p-0.5 bg-gradient-to-tr from-ton/80 to-sky-400/90 shadow-md shadow-ton/30 flex items-center justify-center overflow-hidden">
+          <img 
+            id="headerAvatarImg"
+            src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
+            alt="Avatar" 
+            class="w-full h-full object-cover rounded-[10px]" 
+            onerror="this.src='https://placehold.co/80x80/0098EA/FFFFFF?text=TON'"
+          />
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[120px]">AUTHENTICATING</span>
+            <span id="headerBadge" class="bg-sky-500/10 text-sky-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-sky-500/20">MEMBER</span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-mono-num flex items-center gap-1.5">
+            <span class="text-ton font-bold">UID:</span>
+            <span id="headerUserId" class="text-white font-semibold">---</span>
+            <span class="text-slate-600">•</span>
+            <span id="headerTonPrice" class="text-emerald-400 font-bold bg-emerald-500/10 px-1 rounded text-[8px]">$---</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-1.5">
+        <!-- Sound Mute/Unmute Toggle -->
+        <button id="btnSoundToggle" class="w-7 h-7 rounded-lg glass-elite-card flex items-center justify-center text-slate-400 border border-white/5 active:scale-90 transition-transform">
+          <i id="soundIcon" class="fa-solid fa-volume-high text-[11px]"></i>
+        </button>
+
+        <!-- Energy + Bonus Plays Counter -->
+        <div class="glass-elite-card px-2.5 py-1 rounded-full flex items-center space-x-1.5 border border-slate-800">
+          <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
+          <span id="headerEnergyText" class="text-xs font-mono-num font-black text-white">3/3</span>
+          <span id="headerBonusPlayBadge" class="hidden text-[9px] text-amber-300 font-mono-num font-bold bg-amber-400/20 px-1 rounded border border-amber-400/30">+0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN SCROLLABLE VIEWPORTS -->
+    <main class="flex-1 overflow-hidden relative">
+
+      <!-- ================= 1. HOME / VAULT TAB ================= -->
+      <section id="tab-home" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 relative">
+        <!-- Glowing Watermark -->
+        <div class="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
+          <img 
+            src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
+            alt="Watermark" 
+            class="w-72 h-72 object-contain opacity-10 animate-watermark-pulse filter blur-[1px] drop-shadow-[0_0_40px_rgba(0,152,234,0.4)]"
+          />
+        </div>
+
+        <!-- VAULT BALANCE CARD -->
+        <div class="glass-ton-premium rounded-3xl p-5 relative overflow-hidden shadow-2xl">
+          <div class="absolute -right-7 -bottom-7 w-40 h-40 opacity-20 pointer-events-none animate-star-spin">
+            <img 
+              src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
+              alt="Rotating Coin" 
+              class="w-full h-full object-contain filter drop-shadow-[0_0_24px_rgba(0,152,234,0.9)]"
+            />
+          </div>
+
+          <div class="flex items-center justify-between mb-2 relative z-10">
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10B981]"></div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-300">Verified On-Chain Vault</span>
+            </div>
+            <span id="liveSyncStatus" class="bg-ton/15 text-sky-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-ton/30 font-mono-num flex items-center gap-1">
+              <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> Ready
+            </span>
+          </div>
+
+          <div class="my-2 relative z-10">
+            <div class="flex items-baseline space-x-2">
+              <span id="homeBalanceTon" class="text-3xl font-black text-white font-mono-num tracking-tight text-cyan-glow">0.000000</span>
+              <span class="text-sm font-black text-ton">TON</span>
+            </div>
+            <div class="flex items-center gap-2 mt-1">
+              <p id="homeBalanceUsd" class="text-xs text-slate-400 font-mono-num">≈ $0.00 USD</p>
+              <span class="text-slate-600">•</span>
+              <span class="text-[10px] text-slate-300">Check-in Streak: <strong id="userStreakCount" class="text-amber-400 font-mono-num">0</strong>d</span>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="mt-4 pt-3 border-t border-slate-700/40 grid grid-cols-3 gap-2 relative z-10">
+            <button id="btnQuickWithdraw" class="btn-3d btn-3d-dark py-2 rounded-xl text-center">
+              <i class="fa-solid fa-arrow-down-to-bracket text-ton text-xs block mb-0.5"></i>
+              <span class="text-[10px] font-bold text-white">Withdraw</span>
+            </button>
+            <button id="btnClaimDaily" class="btn-3d btn-3d-dark py-2 rounded-xl text-center border-amber-500/20">
+              <i class="fa-solid fa-gift text-amber-400 text-xs block mb-0.5"></i>
+              <span class="text-[10px] font-black text-amber-300">Daily Gift</span>
+            </button>
+            <button id="btnQuickPlay" class="btn-3d btn-3d-ton glow-pulse-cta py-2 rounded-xl text-center">
+              <i class="fa-solid fa-gamepad text-white text-xs block mb-0.5"></i>
+              <span class="text-[10px] font-black text-white">Play Survival</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ENERGY & REGEN CARD -->
+        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/5 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-base">
+              <i class="fa-solid fa-bolt-lightning"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white">Energy System</h4>
+              <p id="energyRegenCountdown" class="text-[10px] text-slate-400 font-mono-num">+1 Energy Every 30m</p>
+            </div>
+          </div>
+          <button id="btnRechargeEnergyAd" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950 flex items-center gap-1.5">
+            <i class="fa-solid fa-play text-[9px]"></i> Watch (+1 E)
+          </button>
+        </div>
+
+        <!-- VERIFIED AD MONETIZATION PLACEMENTS -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-shield-halved text-ton"></i> Sponsored Web3 Nodes
+            </h3>
+            <span class="text-[10px] text-slate-400 font-mono-num">Real Monetag Pools</span>
+          </div>
+
+          <!-- Placement 1: Home Sponsor Bonus -->
+          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/5">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-ton/10 border border-ton/30 flex items-center justify-center text-ton">
+                <i class="fa-solid fa-satellite-dish text-sm"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">Verified Sponsor Node</h4>
+                <p class="text-[10px] text-slate-400">Up to <span class="text-emerald-400 font-mono-num font-bold">0.00015 TON</span></p>
+              </div>
+            </div>
+            <button id="btnWatchSponsorAd" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
+              Engage
+            </button>
+          </div>
+
+          <!-- Placement 2: Daily TON Bonus -->
+          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/5">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <i class="fa-solid fa-coins text-sm"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">Daily Bonus TON Pool</h4>
+                <p class="text-[10px] text-slate-400">1x / 24h • Up to <span class="text-amber-400 font-mono-num font-bold">0.00005 TON</span></p>
+              </div>
+            </div>
+            <button id="btnDailyTonAd" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950">
+              Claim
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTIVITY LEDGER -->
+        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/5 space-y-2">
+          <div class="flex items-center justify-between border-b border-white/5 pb-1.5">
+            <h4 class="text-xs font-black uppercase text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-clock-rotate-left text-ton"></i> Ledger Activity
+            </h4>
+            <span class="text-[10px] text-slate-500 font-mono-num">Realtime Records</span>
+          </div>
+          <div id="homeHistoryList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
+            <p class="text-[11px] text-slate-500 text-center py-3">No verified activity recorded yet.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. SURVIVAL GAME TAB ================= -->
+      <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-3 hidden relative">
+        <div class="glass-elite-card p-2.5 rounded-2xl flex items-center justify-between border border-white/5">
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-ton/15 flex items-center justify-center text-ton">
+              <i class="fa-solid fa-stopwatch text-xs"></i>
+            </div>
+            <div>
+              <p class="text-[8px] text-slate-400 uppercase font-bold">Survive</p>
+              <p id="gameTimerDisplay" class="text-sm font-black text-white font-mono-num">60s</p>
+            </div>
+          </div>
+          <div class="text-center">
+            <p class="text-[8px] text-slate-400 uppercase font-bold">Hazard Level</p>
+            <p id="gameDifficultyLabel" class="text-xs font-black text-sky-400 font-mono-num">VERY EASY</p>
+          </div>
+          <div class="text-right">
+            <p class="text-[8px] text-slate-400 uppercase font-bold">Game Score</p>
+            <p id="gameScoreDisplay" class="text-sm font-black text-amber-300 font-mono-num">0</p>
+          </div>
+        </div>
+
+        <!-- CANVAS ARENA -->
+        <div class="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950/80">
+          <canvas id="gameCanvas" class="w-full h-full"></canvas>
+
+          <!-- 1. Lobby Overlay -->
+          <div id="gameStartOverlay" class="absolute inset-0 bg-elite-bg/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-20">
+            <div class="w-14 h-14 rounded-2xl bg-ton/15 border border-ton/40 flex items-center justify-center mb-2 p-2 animate-float-slow">
+              <img 
+                src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
+                alt="Diamond" 
+                class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(0,152,234,0.9)]" 
+              />
+            </div>
+            <h3 class="text-base font-black text-white">60s Diamond Survival</h3>
+            <p class="text-[11px] text-slate-300 mt-1 max-w-xs leading-relaxed">
+              Catch diamonds before they hit the bottom!
+              <br/><span class="text-ton font-bold">Blue Diamond (+10 Score)</span> • <span class="text-amber-400 font-bold">Gold (+50 Score)</span>
+            </p>
+
+            <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-2.5 my-3 text-[10px] text-red-300 text-left max-w-xs space-y-1">
+              <p class="font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Precision Survival Rules:</p>
+              <p>• Missing <strong>1 Diamond</strong> = Instant Game Over!</p>
+              <p>• Tapping a <strong>Bomb</strong> = Instant Game Over!</p>
+              <p>• Game score is separate from withdrawable TON rewards.</p>
+            </div>
+
+            <p class="text-xs font-mono-num text-slate-300 mb-3">
+              Cost: 1 Energy • Available: <span id="gameAvailableEnergyText" class="text-amber-400 font-bold">3</span>
+            </p>
+
+            <button id="btnStartGame" class="btn-3d btn-3d-ton glow-pulse-cta w-full py-2.5 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-2">
+              <i class="fa-solid fa-play"></i> Start Survival Run
+            </button>
+          </div>
+
+          <!-- 2. Failed Overlay -->
+          <div id="gameOverFailedOverlay" class="hidden absolute inset-0 bg-elite-bg/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
+            <div class="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center text-xl mb-2 p-2">
+              <img id="failedOverlayImg" src="https://i.postimg.cc/pX6rkLHz/Pngtree-cartoon-round-black-bomb-with-5545852.png" alt="Failed" class="w-full h-full object-contain" />
+            </div>
+            <h3 class="text-sm font-black text-white" id="failedTitle">MISSED A TARGET!</h3>
+            <p class="text-[10px] text-slate-400 mt-0.5" id="failedSubtitle">100% precision required to complete the run.</p>
+
+            <div class="glass-elite-card border border-white/10 rounded-xl p-2 my-2.5 w-full">
+              <span class="text-[9px] text-slate-400 uppercase font-semibold">Final Game Score</span>
+              <p id="failedFinalScore" class="text-lg font-black text-amber-400 font-mono-num">0</p>
+            </div>
+
+            <div class="w-full space-y-1.5">
+              <button id="btnFailRechargeAd" class="btn-3d btn-3d-gold w-full py-2 rounded-xl text-slate-950 font-black text-xs uppercase">
+                Watch Ad For +1 Energy
+              </button>
+              <button id="btnFailTryAgain" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-white font-bold text-xs uppercase">
+                Return to Lobby
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Victory Modal -->
+          <div id="gameVictoryModal" class="hidden absolute inset-0 bg-elite-bg/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
+            <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl mb-2 shadow-lg shadow-emerald-500/30">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h3 class="text-sm font-black text-white">60s SURVIVAL COMPLETED!</h3>
+            <p class="text-[10px] text-slate-300">You survived all hazard waves.</p>
+
+            <div class="glass-elite-card border border-ton/30 rounded-xl p-2.5 my-2.5 w-full">
+              <span class="text-[9px] text-slate-400 uppercase">Score Recorded</span>
+              <p id="victoryScoreText" class="text-xl font-black text-amber-300 font-mono-num">0</p>
+              <p class="text-[9px] text-slate-400 mt-0.5">Personal Best: <span id="victoryPbText" class="text-white font-mono-num font-bold">0</span></p>
+            </div>
+
+            <div class="w-full space-y-1.5">
+              <button id="btnVictoryAdClaim" class="btn-3d btn-3d-gold glow-pulse-gold w-full py-2.5 rounded-xl text-slate-950 font-black text-xs uppercase">
+                <i class="fa-solid fa-video text-xs mr-1"></i> Watch Ad For TON Bonus (Max 0.00010)
+              </button>
+              <button id="btnVictorySkip" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-slate-300 font-bold text-xs">
+                Complete Run Without Ad
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= 3. SYNDICATE (REFERRAL) TAB ================= -->
+      <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
+        <!-- Original background at ~85% opacity with balanced dark gradient for high legibility -->
+        <div class="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+          <img 
+            src="https://i.postimg.cc/C53cGfwm/IMG-20261028-002411.jpg" 
+            alt="Referral Background" 
+            class="w-full h-full object-cover opacity-85 filter contrast-110 brightness-90"
+            onerror="this.style.display='none'"
+          />
+        </div>
+        <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#04060A]/85 via-[#04060A]/75 to-[#04060A]/90"></div>
+
+        <div class="text-center pt-1">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 text-lg mb-1 shadow-lg shadow-amber-400/15">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <h2 class="text-sm font-black text-white">Syndicate Ambassador Protocol</h2>
+          <p class="text-[10px] text-slate-300 max-w-xs mx-auto">
+            Invite players. Receive verified bonus plays upon their first completed round.
+          </p>
+        </div>
+
+        <!-- Tiers -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="glass-elite-card p-2.5 rounded-xl border border-white/5 space-y-1">
+            <span class="text-[9px] font-bold text-slate-400 uppercase">Standard Invite</span>
+            <p class="text-sm font-black text-white font-mono-num">+1 Bonus Play</p>
+            <p class="text-[9px] text-slate-300">Awarded after 1st complete game</p>
+          </div>
+          <div class="glass-elite-card p-2.5 rounded-xl border border-amber-400/30 bg-amber-500/10 space-y-1">
+            <span class="text-[9px] font-black text-amber-300 uppercase">TG Premium</span>
+            <p class="text-sm font-black text-amber-300 font-mono-num">+2 Bonus Plays</p>
+            <p class="text-[9px] text-amber-200">Verified Telegram Premium status</p>
+          </div>
+        </div>
+
+        <!-- Referral Stats -->
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="glass-elite-card p-2 rounded-xl border border-white/5">
+            <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
+            <span id="statRefTotal" class="text-xs font-black text-white font-mono-num">0</span>
+          </div>
+          <div class="glass-elite-card p-2 rounded-xl border border-white/5">
+            <span class="text-[8px] text-amber-300 uppercase font-bold block">Premium</span>
+            <span id="statRefPremium" class="text-xs font-black text-amber-300 font-mono-num">0</span>
+          </div>
+          <div class="glass-elite-card p-2 rounded-xl border border-white/5">
+            <span class="text-[8px] text-ton uppercase font-bold block">Bonus Plays</span>
+            <span id="statRefPlays" class="text-xs font-black text-ton font-mono-num">0</span>
+          </div>
+        </div>
+
+        <!-- Referral Link Actions -->
+        <div class="glass-elite-card p-3 rounded-2xl border border-white/5 space-y-2">
+          <span class="text-[10px] font-bold text-slate-300 uppercase">Your Syndicate Protocol Link</span>
+          <div class="flex items-center space-x-2 bg-slate-950/80 rounded-xl p-1.5 border border-white/10">
+            <input id="refShareLink" type="text" readonly value="Loading..." class="bg-transparent text-[10px] text-slate-300 w-full outline-none font-mono-num px-1" />
+            <button id="btnCopyRefLink" class="btn-3d btn-3d-ton text-white text-[10px] px-2.5 py-1 rounded-lg font-bold">Copy</button>
+          </div>
+          <button id="btnShareTelegramRef" class="btn-3d btn-3d-ton w-full py-2 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-1.5">
+            <i class="fa-brands fa-telegram text-xs"></i> Share With Contacts
+          </button>
+        </div>
+
+        <!-- Referral Ledger -->
+        <div class="glass-elite-card p-3 rounded-2xl border border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between border-b border-white/5 pb-1">
+            <h4 class="text-xs font-black uppercase text-slate-300">Verified Referral Ledger</h4>
+          </div>
+          <div id="referralHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1">
+            <p class="text-[11px] text-slate-500 text-center py-2">No referrals logged yet.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. CASHOUT (WALLET) TAB ================= -->
+      <section id="tab-wallet" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
+        <!-- Original background at ~85% opacity with balanced dark gradient for high legibility -->
+        <div class="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+          <img 
+            src="https://i.postimg.cc/pLJtdPZP/IMG-20261028-002345.jpg" 
+            alt="Wallet Background" 
+            class="w-full h-full object-cover opacity-85 filter contrast-110 brightness-90"
+            onerror="this.style.display='none'"
+          />
+        </div>
+        <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#04060A]/85 via-[#04060A]/75 to-[#04060A]/90"></div>
+
+        <div class="text-center pt-1">
+          <h2 class="text-sm font-black text-white">TON Mainnet Settlement</h2>
+          <p class="text-[10px] text-slate-300">Non-custodial settlement via TON Connect standard.</p>
+        </div>
+
+        <!-- Official TON Connect UI Button Wrapper -->
+        <div class="glass-ton-premium p-4 rounded-3xl text-center space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-ton/20 border border-ton/50 flex items-center justify-center mx-auto p-1.5 shadow-lg shadow-ton/30">
+            <img 
+              src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
+              alt="TON Payout" 
+              class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(0,152,234,0.8)]"
+            />
+          </div>
+          <div>
+            <h3 id="walletStateTitle" class="text-xs font-black text-white">TON Connect Protocol</h3>
+            <p id="walletStateSub" class="text-[10px] text-slate-300 font-mono-num truncate px-4">Connect Tonkeeper, Telegram Wallet, or MyTonWallet</p>
+          </div>
+          <div id="tonConnectBtnWrapper" class="flex justify-center"></div>
+        </div>
+
+        <!-- Cashout Submission Form -->
+        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-200">Request Cashout</span>
+            <span class="text-[9px] text-slate-400">Min: <strong class="text-white font-mono-num">0.010 TON</strong></span>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[9px] text-slate-400 uppercase font-semibold">Destination TON Address</label>
+            <input id="withdrawAddressInput" type="text" placeholder="EQ... or UQ..." class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-ton font-mono-num" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[9px] text-slate-400">
+              <span class="uppercase font-semibold">Amount to Cashout</span>
+              <span>Available: <strong id="withdrawAvailText" class="text-white font-mono-num">0.000000 TON</strong></span>
+            </div>
+            <div class="relative">
+              <input id="withdrawAmountInput" type="number" step="0.001" placeholder="0.010" class="w-full bg-slate-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-600 outline-none focus:border-ton font-mono-num" />
+              <button id="btnMaxWithdraw" class="absolute right-2 top-1.5 text-[9px] font-black text-ton bg-ton/15 px-2 py-0.5 rounded border border-ton/30">MAX</button>
+            </div>
+          </div>
+
+          <!-- Fee Table -->
+          <div class="bg-slate-900/60 rounded-xl p-2 text-[10px] space-y-1 border border-white/5">
+            <div class="flex justify-between text-slate-400">
+              <span>Platform Fee (2%):</span>
+              <span id="withdrawPlatformFeeText" class="font-mono-num text-white">0.000000 TON</span>
+            </div>
+            <div class="flex justify-between text-slate-400">
+              <span>Est. Network Fee:</span>
+              <span id="withdrawNetworkFeeText" class="font-mono-num text-white">0.005000 TON</span>
+            </div>
+            <div class="flex justify-between text-slate-200 font-bold border-t border-white/5 pt-1">
+              <span>Net Payout:</span>
+              <span id="withdrawNetText" class="font-mono-num text-emerald-400">0.000000 TON</span>
+            </div>
+          </div>
+
+          <button id="btnSubmitWithdraw" class="btn-3d btn-3d-ton w-full py-2.5 rounded-xl text-white font-black text-xs uppercase">
+            Submit Cashout Request
+          </button>
+        </div>
+
+        <!-- Withdrawal Ledger -->
+        <div class="glass-elite-card p-3 rounded-2xl border border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between border-b border-white/5 pb-1">
+            <h4 class="text-xs font-black uppercase text-slate-300">Settlement Ledger</h4>
+          </div>
+          <div id="withdrawalHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1">
+            <p class="text-[11px] text-slate-500 text-center py-2">No settlements recorded yet.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FLOATING TOAST -->
+    <div id="toastNotification" class="fixed top-12 left-1/2 -translate-x-1/2 max-w-xs w-full px-4 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
+      <div class="glass-elite-card border border-ton/50 px-3.5 py-2 rounded-2xl text-center shadow-2xl flex items-center justify-center gap-2">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
+        <span id="toastMsg" class="text-xs font-bold text-white">Notice</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION (Permanently Fixed 4 Tabs) -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-[9999] bg-[#0A0E17]/96 backdrop-blur-2xl border-t border-ton/30 px-3 pt-2 shadow-[0_-8px_25px_rgba(0,0,0,0.8)]" style="padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));">
+      <div class="grid grid-cols-4 gap-1 items-center">
+        <button id="nav-home" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl text-ton active:scale-95 transition-transform">
+          <i class="fa-solid fa-vault text-base mb-0.5"></i>
+          <span class="text-[9px] font-black uppercase">Vault</span>
+        </button>
+        <button id="nav-game" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl text-slate-400 active:scale-95 transition-transform">
+          <i class="fa-solid fa-gamepad text-base mb-0.5"></i>
+          <span class="text-[9px] font-black uppercase">Survival</span>
+        </button>
+        <button id="nav-referral" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl text-slate-400 active:scale-95 transition-transform">
+          <i class="fa-solid fa-users-viewfinder text-base mb-0.5"></i>
+          <span class="text-[9px] font-black uppercase">Syndicate</span>
+        </button>
+        <button id="nav-wallet" class="nav-btn flex flex-col items-center justify-center py-1 rounded-xl text-slate-400 active:scale-95 transition-transform">
+          <i class="fa-solid fa-wallet text-base mb-0.5"></i>
+          <span class="text-[9px] font-black uppercase">Cashout</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- APPLICATION ENGINE JAVASCRIPT -->
+  <script>
+    /* =======================================================
+       1. INITIALIZATION & AUDIO/HAPTIC ENGINE
+       ======================================================= */
+    const tgApp = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tgApp) {
+      try {
+        tgApp.ready();
+        tgApp.expand();
+        tgApp.enableClosingConfirmation && tgApp.enableClosingConfirmation();
+      } catch (e) {}
+    }
+
+    let isMuted = false;
+    const SFX = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) this.ctx = new AC();
+        }
+      },
+      playTone(freq, type, duration, vol = 0.1) {
+        if (isMuted) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      },
+      tap() { this.playTone(800, 'sine', 0.04, 0.05); },
+      gem() { this.playTone(600, 'triangle', 0.08, 0.12); },
+      goldGem() { this.playTone(950, 'triangle', 0.12, 0.15); },
+      boom() { this.playTone(100, 'sawtooth', 0.3, 0.2); },
+      fail() { this.playTone(180, 'sawtooth', 0.2, 0.15); },
+      victory() { this.playTone(523, 'triangle', 0.1, 0.1); }
+    };
+
+    function triggerHaptic(type = 'light') {
+      try {
+        if (tgApp && tgApp.HapticFeedback) {
+          if (type === 'light') tgApp.HapticFeedback.impactOccurred('light');
+          else if (type === 'medium') tgApp.HapticFeedback.impactOccurred('medium');
+          else if (type === 'heavy') tgApp.HapticFeedback.impactOccurred('heavy');
+          else if (type === 'success') tgApp.HapticFeedback.notificationOccurred('success');
+          else if (type === 'error') tgApp.HapticFeedback.notificationOccurred('error');
+        }
+      } catch (e) {}
+    }
+
+    /* =======================================================
+       2. CLIENT STATE & CONFIGURATION
+       ======================================================= */
+    // Configurable API base for your deployed server
+    const BACKEND_API_BASE = window.location.origin + '/api';
+
+    let state = {
+      balanceNanoTon: 0,
+      tonRate: 5.40,
+      energy: 3,
+      maxEnergy: 3,
+      bonusPlays: 0,
+      personalBest: 0,
+      streak: 0,
+      lastDailyClaim: 0,
+      referralStats: { total: 0, premium: 0, bonusPlaysEarned: 0 },
+      ledger: [],
+      referrals: [],
+      withdrawals: []
+    };
+
+    let activeTab = 'home';
+    let tonConnectUI = null;
+    let connectedWalletAddress = null;
+
+    /* =======================================================
+       3. OFFICIAL TON CONNECT INTEGRATION
+       ======================================================= */
+    function initTonConnect() {
+      try {
+        if (window.TON_CONNECT_UI) {
+          tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+            buttonRootId: 'tonConnectBtnWrapper'
+          });
+
+          tonConnectUI.onStatusChange(wallet => {
+            if (wallet) {
+              connectedWalletAddress = wallet.account.address;
+              document.getElementById('walletStateTitle').innerText = 'Wallet Connected';
+              document.getElementById('walletStateSub').innerText = connectedWalletAddress;
+              document.getElementById('withdrawAddressInput').value = connectedWalletAddress;
+              triggerHaptic('success');
+            } else {
+              connectedWalletAddress = null;
+              document.getElementById('walletStateTitle').innerText = 'TON Connect Protocol';
+              document.getElementById('walletStateSub').innerText = 'Connect Tonkeeper, Telegram Wallet, or MyTonWallet';
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('TON Connect initialized in fallback state:', e);
+      }
+    }
+
+    /* =======================================================
+       4. API REQUEST WRAPPER (TELEGRAM INITDATA AUTH)
+       ======================================================= */
+    const API = {
+      getHeaders() {
+        return {
+          'Content-Type': 'application/json',
+          'X-Telegram-Init-Data': tgApp ? tgApp.initData : ''
+        };
+      },
+      async request(endpoint, options = {}) {
+        try {
+          const res = await fetch(BACKEND_API_BASE + endpoint, {
+            ...options,
+            headers: { ...this.getHeaders(), ...(options.headers || {}) }
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Server request error');
+          return data;
+        } catch (err) {
+          throw err;
+        }
+      }
+    };
+
+    /* =======================================================
+       5. UI RENDERING & NAVIGATION LOGIC
+       ======================================================= */
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMsg').innerText = msg;
+      document.getElementById('toastIcon').className = isSuccess 
+        ? 'fa-solid fa-circle-check text-emerald-400 text-xs' 
+        : 'fa-solid fa-triangle-exclamation text-amber-400 text-xs';
+      toast.classList.remove('opacity-0', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-4');
+      }, 2600);
+    }
+
+    function switchTab(tabId) {
+      SFX.tap();
+      triggerHaptic('light');
+      activeTab = tabId;
+
+      document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
+      const activeEl = document.getElementById(`tab-${tabId}`);
+      if (activeEl) activeEl.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-ton', 'text-amber-400', 'text-emerald-400');
+        btn.classList.add('text-slate-400');
+      });
+
+      const navBtn = document.getElementById(`nav-${tabId}`);
+      if (navBtn) {
+        navBtn.classList.remove('text-slate-400');
+        if (tabId === 'referral') navBtn.classList.add('text-amber-400');
+        else if (tabId === 'wallet') navBtn.classList.add('text-emerald-400');
+        else navBtn.classList.add('text-ton');
+      }
+
+      if (tabId === 'game') resizeCanvas();
+    }
+
+    function renderUI() {
+      const tonStr = (state.balanceNanoTon / 1e9).toFixed(6);
+      const usdStr = ((state.balanceNanoTon / 1e9) * state.tonRate).toFixed(2);
+
+      document.getElementById('homeBalanceTon').innerText = tonStr;
+      document.getElementById('homeBalanceUsd').innerText = `≈ $${usdStr} USD`;
+      document.getElementById('withdrawAvailText').innerText = `${tonStr} TON`;
+      document.getElementById('headerTonPrice').innerText = state.tonRate ? `$${state.tonRate.toFixed(2)}` : '$---';
+
+      document.getElementById('headerEnergyText').innerText = `${state.energy}/${state.maxEnergy}`;
+      document.getElementById('gameAvailableEnergyText').innerText = `${state.energy} (Bonus: ${state.bonusPlays})`;
+
+      const bonusBadge = document.getElementById('headerBonusPlayBadge');
+      if (state.bonusPlays > 0) {
+        bonusBadge.innerText = `+${state.bonusPlays}`;
+        bonusBadge.classList.remove('hidden');
+      } else {
+        bonusBadge.classList.add('hidden');
+      }
+
+      document.getElementById('userStreakCount').innerText = state.streak;
+      document.getElementById('victoryPbText').innerText = state.personalBest;
+
+      document.getElementById('statRefTotal').innerText = state.referralStats.total;
+      document.getElementById('statRefPremium').innerText = state.referralStats.premium;
+      document.getElementById('statRefPlays').innerText = state.referralStats.bonusPlaysEarned;
+
+      // Render Ledger
+      const homeList = document.getElementById('homeHistoryList');
+      if (state.ledger && state.ledger.length > 0) {
+        homeList.innerHTML = state.ledger.map(item => `
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50 border border-white/5">
+            <div>
+              <p class="text-[11px] font-bold text-white">${item.desc}</p>
+              <p class="text-[9px] text-slate-400 font-mono-num">${new Date(item.timestamp).toLocaleTimeString()}</p>
+            </div>
+            <span class="text-xs font-black text-emerald-400 font-mono-num">+${(item.nanoTon / 1e9).toFixed(6)} TON</span>
+          </div>
+        `).join('');
+      }
+
+      // Render Referrals
+      const refList = document.getElementById('referralHistoryList');
+      if (state.referrals && state.referrals.length > 0) {
+        refList.innerHTML = state.referrals.map(item => `
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50 border border-white/5">
+            <span class="text-[11px] font-bold text-white font-mono-num">${item.username || 'TG Member'}</span>
+            <span class="text-[10px] font-black text-amber-300 font-mono-num">+${item.bonusAwarded} Bonus Plays</span>
+          </div>
+        `).join('');
+      }
+
+      // Render Withdrawals
+      const withList = document.getElementById('withdrawalHistoryList');
+      if (state.withdrawals && state.withdrawals.length > 0) {
+        withList.innerHTML = state.withdrawals.map(item => `
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50 border border-white/5">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] font-bold text-white font-mono-num">${(item.requestedNanoTon / 1e9).toFixed(4)} TON</span>
+                <span class="text-[8px] bg-slate-800 text-sky-400 px-1 rounded font-bold">${item.status}</span>
+              </div>
+              <p class="text-[9px] text-slate-400 font-mono-num">${new Date(item.createdAt).toLocaleDateString()}</p>
+            </div>
+            ${item.txHash ? `<span class="text-[9px] text-emerald-400 font-mono-num">TX: ${item.txHash.substring(0,6)}...</span>` : '<span class="text-[9px] text-slate-500 font-mono-num">Pending Review</span>'}
+          </div>
+        `).join('');
+      }
+    }
+
+    async function syncUserData() {
+      try {
+        const data = await API.request('/sync', { method: 'POST' });
+        state = { ...state, ...data };
+        document.getElementById('liveSyncStatus').innerText = 'Synced';
+        renderUI();
+      } catch (e) {
+        // Honest fallback if standalone or network offline
+        document.getElementById('liveSyncStatus').innerText = 'Offline Node';
+        renderUI();
+      }
+    }
+
+    /* =======================================================
+       6. REAL MONETAG SDK INTEGRATION ENGINE
+       ======================================================= */
+    async function executeMonetagRewarded(placementTag, onVerified) {
+      SFX.tap();
+      try {
+        let intent = null;
+        try {
+          // Intent handshake with backend for unique ymid nonce
+          intent = await API.request('/ad/intent', {
+            method: 'POST',
+            body: JSON.stringify({ placement: placementTag })
+          });
+        } catch (apiErr) {
+          // Fallback intent identifier if backend is temporarily unreachable
+          intent = { ymid: `client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}` };
+        }
+
+        if (typeof window.show_9969043 === 'function') {
+          showToast('Requesting sponsored ad stream...');
+          window.show_9969043({ ymid: intent.ymid, requestVar: placementTag })
+            .then(async () => {
+              showToast('Ad completed! Verifying on-chain pool...');
+              let confirmed = false;
+              for (let i = 0; i < 5; i++) {
+                await new Promise(r => setTimeout(r, 2000));
+                try {
+                  const check = await API.request(`/ad/status?ymid=${intent.ymid}`);
+                  if (check.settled) {
+                    confirmed = true;
+                    await syncUserData();
+                    if (onVerified) onVerified(check);
+                    showToast('Reward verified and credited!', true);
+                    break;
+                  }
+                } catch(e) {}
+              }
+              if (!confirmed) {
+                // If backend verification isn't responding, recharge energy if applicable
+                if (placementTag === 'energy_recharge') {
+                  state.energy = Math.min(state.maxEnergy, state.energy + 1);
+                  renderUI();
+                  showToast('Recharged +1 Energy!');
+                  if (onVerified) onVerified();
+                } else {
+                  showToast('Reward pending network confirmation.', false);
+                }
+              }
+            })
+            .catch(() => {
+              showToast('Ad was dismissed or unavailable.', false);
+            });
+        } else {
+          showToast('Monetag SDK initializing, please try again.', false);
+        }
+      } catch (err) {
+        showToast(err.message || 'Ad could not be launched', false);
+      }
+    }
+
+    /* =======================================================
+       7. 60-SECOND PRECISION SURVIVAL GAME ENGINE
+       ======================================================= */
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const sprites = {
+      diamond: new Image(),
+      goldDiamond: new Image(),
+      bomb: new Image()
+    };
+    sprites.diamond.src = 'https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png';
+    sprites.goldDiamond.src = 'https://i.postimg.cc/J7QB38t4/Pngtree-stunning-gold-diamond-showcasing-exquisite-18842161.png';
+    sprites.bomb.src = 'https://i.postimg.cc/pX6rkLHz/Pngtree-cartoon-round-black-bomb-with-5545852.png';
+
+    let gameActive = false;
+    let roundScore = 0;
+    let timeRemaining = 60;
+    let timerInterval = null;
+    let lastFrameTime = performance.now();
+    let entities = [];
+    let particles = [];
+    let spawnTimer = 0;
+    let activeSessionToken = null;
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.resetTransform && ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    class GameEntity {
+      constructor(w, speedMult) {
+        this.size = 42;
+        this.x = 20 + Math.random() * (w - 40 - this.size);
+        this.y = -50;
+        const rand = Math.random();
+        if (rand < 0.65) {
+          this.type = 'diamond';
+          this.score = 10;
+          this.img = sprites.diamond;
+        } else if (rand < 0.80) {
+          this.type = 'gold';
+          this.score = 50;
+          this.img = sprites.goldDiamond;
+        } else {
+          this.type = 'bomb';
+          this.score = 0;
+          this.img = sprites.bomb;
+        }
+        this.baseSpeed = (140 + Math.random() * 80) * speedMult;
+        this.rotation = 0;
+        this.rotSpeed = (Math.random() - 0.5) * 3;
+      }
+
+      update(dt) {
+        this.y += this.baseSpeed * dt;
+        this.rotation += this.rotSpeed * dt;
+      }
+
+      draw(c) {
+        c.save();
+        c.translate(this.x + this.size / 2, this.y + this.size / 2);
+        c.rotate(this.rotation);
+        if (this.img.complete && this.img.naturalWidth > 0) {
+          c.drawImage(this.img, -this.size / 2, -this.size / 2, this.size, this.size);
+        } else {
+          c.fillStyle = this.type === 'bomb' ? '#EF4444' : (this.type === 'gold' ? '#F59E0B' : '#0098EA');
+          c.beginPath();
+          c.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.restore();
+      }
+    }
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 220;
+        this.vy = (Math.random() - 0.5) * 220;
+        this.alpha = 1;
+        this.color = color;
+        this.size = Math.random() * 3 + 2;
+      }
+      update(dt) {
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+        this.alpha -= 1.8 * dt;
+      }
+      draw(c) {
+        c.save();
+        c.globalAlpha = Math.max(0, this.alpha);
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+    }
+
+    function addExplosion(x, y, color, count = 14) {
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle(x, y, color));
+      }
+    }
+
+    function getDifficultyParameters(timeSec) {
+      const elapsed = 60 - timeSec;
+      if (elapsed < 10) return { label: 'VERY EASY', speed: 1.0, interval: 0.85 };
+      if (elapsed < 25) return { label: 'EASY', speed: 1.25, interval: 0.70 };
+      if (elapsed < 40) return { label: 'MEDIUM', speed: 1.55, interval: 0.55 };
+      if (elapsed < 50) return { label: 'HARD', speed: 1.90, interval: 0.42 };
+      return { label: 'ELITE', speed: 2.25, interval: 0.34 };
+    }
+
+    async function startGameSession() {
+      if (state.energy < 1 && state.bonusPlays < 1) {
+        showToast('No Energy left! Watch ad to recharge.', false);
+        return;
+      }
+
+      try {
+        const res = await API.request('/game/start', { method: 'POST' });
+        activeSessionToken = res.sessionToken;
+        state.energy = res.energy;
+        state.bonusPlays = res.bonusPlays;
+      } catch (e) {
+        if (state.energy >= 1) state.energy--;
+        else if (state.bonusPlays >= 1) state.bonusPlays--;
+      }
+
+      renderUI();
+
+      document.getElementById('gameStartOverlay').classList.add('hidden');
+      document.getElementById('gameOverFailedOverlay').classList.add('hidden');
+      document.getElementById('gameVictoryModal').classList.add('hidden');
+
+      resizeCanvas();
+      entities = [];
+      particles = [];
+      roundScore = 0;
+      timeRemaining = 60;
+      spawnTimer = 0;
+      gameActive = true;
+      lastFrameTime = performance.now();
+
+      document.getElementById('gameScoreDisplay').innerText = '0';
+      document.getElementById('gameTimerDisplay').innerText = '60s';
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!gameActive) return;
+        timeRemaining--;
+        document.getElementById('gameTimerDisplay').innerText = `${timeRemaining}s`;
+        const diff = getDifficultyParameters(timeRemaining);
+        document.getElementById('gameDifficultyLabel').innerText = diff.label;
+
+        if (timeRemaining <= 0) {
+          triggerGameEnd(true);
+        }
+      }, 1000);
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    function renderLoop(now) {
+      if (!gameActive) return;
+      const dt = Math.min((now - lastFrameTime) / 1000, 0.1);
+      lastFrameTime = now;
+
+      const rect = canvas.getBoundingClientRect();
+      const cw = rect.width;
+      const ch = rect.height;
+
+      ctx.clearRect(0, 0, cw, ch);
+
+      const diff = getDifficultyParameters(timeRemaining);
+      spawnTimer += dt;
+      if (spawnTimer >= diff.interval) {
+        entities.push(new GameEntity(cw, diff.speed));
+        spawnTimer = 0;
+      }
+
+      for (let i = entities.length - 1; i >= 0; i--) {
+        const e = entities[i];
+        e.update(dt);
+        e.draw(ctx);
+
+        // Ground Collision Rule: 1 Missed Diamond = Immediate Loss
+        if (e.y > ch - 12) {
+          if (e.type === 'diamond' || e.type === 'gold') {
+            triggerHaptic('error');
+            SFX.fail();
+            triggerGameEnd(false, 'MISSED A DIAMOND!', 'Survival requires 100% precision. Missing one gem ends the run.');
+            return;
+          } else {
+            entities.splice(i, 1);
+          }
+        }
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update(dt);
+        p.draw(ctx);
+        if (p.alpha <= 0) particles.splice(i, 1);
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    function handleInput(clientX, clientY) {
+      if (!gameActive) return;
+      const rect = canvas.getBoundingClientRect();
+      const tx = clientX - rect.left;
+      const ty = clientY - rect.top;
+
+      for (let i = entities.length - 1; i >= 0; i--) {
+        const e = entities[i];
+        const dist = Math.hypot(tx - (e.x + e.size / 2), ty - (e.y + e.size / 2));
+        if (dist < e.size * 1.15) {
+          if (e.type === 'bomb') {
+            SFX.boom();
+            triggerHaptic('error');
+            addExplosion(tx, ty, '#EF4444', 28);
+            triggerGameEnd(false, 'BOOM! HIT A BOMB!', 'Active hazard detonated. Run terminated.');
+            return;
+          } else {
+            if (e.type === 'gold') {
+              SFX.goldGem();
+              triggerHaptic('heavy');
+              addExplosion(tx, ty, '#F59E0B', 18);
+            } else {
+              SFX.gem();
+              triggerHaptic('light');
+              addExplosion(tx, ty, '#0098EA', 14);
+            }
+            roundScore += e.score;
+            document.getElementById('gameScoreDisplay').innerText = roundScore;
+            entities.splice(i, 1);
+            break;
+          }
+        }
+      }
+    }
+
+    canvas.addEventListener('pointerdown', e => handleInput(e.clientX, e.clientY));
+
+    async function triggerGameEnd(survived, title, subtitle) {
+      gameActive = false;
+      clearInterval(timerInterval);
+
+      if (!survived) {
+        document.getElementById('failedTitle').innerText = title || 'RUN TERMINATED';
+        document.getElementById('failedSubtitle').innerText = subtitle || 'Game Over';
+        document.getElementById('failedFinalScore').innerText = roundScore;
+        document.getElementById('gameOverFailedOverlay').classList.remove('hidden');
+
+        try {
+          await API.request('/game/finish', {
+            method: 'POST',
+            body: JSON.stringify({ sessionToken: activeSessionToken, score: roundScore, survived: false })
+          });
+        } catch(e) {}
+      } else {
+        SFX.victory();
+        triggerHaptic('success');
+        if (roundScore > state.personalBest) state.personalBest = roundScore;
+        document.getElementById('victoryScoreText').innerText = roundScore;
+        document.getElementById('gameVictoryModal').classList.remove('hidden');
+
+        try {
+          await API.request('/game/finish', {
+            method: 'POST',
+            body: JSON.stringify({ sessionToken: activeSessionToken, score: roundScore, survived: true })
+          });
+        } catch(e) {}
+      }
+      renderUI();
+    }
+
+    /* =======================================================
+       8. DOM EVENT BINDING & LIFECYCLE
+       ======================================================= */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Navigation Buttons
+      ['home', 'game', 'referral', 'wallet'].forEach(tab => {
+        const btn = document.getElementById(`nav-${tab}`);
+        if (btn) btn.addEventListener('click', () => switchTab(tab));
+      });
+
+      document.getElementById('btnQuickPlay').addEventListener('click', () => switchTab('game'));
+      document.getElementById('btnQuickWithdraw').addEventListener('click', () => switchTab('wallet'));
+
+      // 2. Sound Toggle
+      document.getElementById('btnSoundToggle').addEventListener('click', () => {
+        isMuted = !isMuted;
+        document.getElementById('soundIcon').className = isMuted 
+          ? 'fa-solid fa-volume-xmark text-[11px]' 
+          : 'fa-solid fa-volume-high text-[11px]';
+        triggerHaptic('light');
+      });
+
+      // 3. Free Daily Gift (+1 Bonus Play every 24h)
+      document.getElementById('btnClaimDaily').addEventListener('click', async () => {
+        SFX.tap();
+        const now = Date.now();
+        if (now - state.lastDailyClaim < 24 * 3600 * 1000) {
+          showToast('Daily bonus claimed! Check back tomorrow', false);
+          return;
+        }
+
+        try {
+          const res = await API.request('/claim/daily', { method: 'POST' });
+          state.bonusPlays = res.bonusPlays;
+          state.streak = res.streak;
+          state.lastDailyClaim = now;
+          showToast(res.message, true);
+        } catch(e) {
+          state.bonusPlays = Math.min(20, state.bonusPlays + 1);
+          state.streak++;
+          state.lastDailyClaim = now;
+          showToast('Claimed +1 Bonus Play!', true);
+        }
+        renderUI();
+      });
+
+      // 4. Energy Recharge Ad
+      document.getElementById('btnRechargeEnergyAd').addEventListener('click', () => {
+        if (state.energy >= state.maxEnergy) {
+          showToast('Energy is already full (3/3)', false);
+          return;
+        }
+        executeMonetagRewarded('energy_recharge');
+      });
+
+      // 5. Home Sponsor Ad
+      document.getElementById('btnWatchSponsorAd').addEventListener('click', () => {
+        executeMonetagRewarded('home_sponsor');
+      });
+
+      // 6. Daily TON Ad
+      document.getElementById('btnDailyTonAd').addEventListener('click', () => {
+        executeMonetagRewarded('daily_ton');
+      });
+
+      // 7. Game Canvas & Overlay Handlers
+      document.getElementById('btnStartGame').addEventListener('click', startGameSession);
+
+      document.getElementById('btnFailTryAgain').addEventListener('click', () => {
+        document.getElementById('gameOverFailedOverlay').classList.add('hidden');
+        document.getElementById('gameStartOverlay').classList.remove('hidden');
+      });
+
+      document.getElementById('btnFailRechargeAd').addEventListener('click', () => {
+        executeMonetagRewarded('energy_recharge', () => {
+          document.getElementById('gameOverFailedOverlay').classList.add('hidden');
+          document.getElementById('gameStartOverlay').classList.remove('hidden');
+        });
+      });
+
+      document.getElementById('btnVictorySkip').addEventListener('click', () => {
+        document.getElementById('gameVictoryModal').classList.add('hidden');
+        document.getElementById('gameStartOverlay').classList.remove('hidden');
+      });
+
+      document.getElementById('btnVictoryAdClaim').addEventListener('click', () => {
+        executeMonetagRewarded('game_victory', () => {
+          document.getElementById('gameVictoryModal').classList.add('hidden');
+          document.getElementById('gameStartOverlay').classList.remove('hidden');
+        });
+      });
+
+      // 8. Referral System
+      document.getElementById('btnCopyRefLink').addEventListener('click', () => {
+        SFX.tap();
+        const input = document.getElementById('refShareLink');
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        showToast('Invite link copied!');
+      });
+
+      document.getElementById('btnShareTelegramRef').addEventListener('click', () => {
+        SFX.tap();
+        const url = document.getElementById('refShareLink').value;
+        const msg = encodeURIComponent("Mine TON and survive 60s rounds on TON Rush Elite 💎");
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
+      });
+
+      // 9. Withdrawal Calculation & Actions
+      const amountInput = document.getElementById('withdrawAmountInput');
+      function recalculateFees() {
+        const amt = parseFloat(amountInput.value) || 0;
+        const platformFee = amt * 0.02;
+        const net = Math.max(0, amt - platformFee - 0.005);
+        document.getElementById('withdrawPlatformFeeText').innerText = platformFee.toFixed(6) + ' TON';
+        document.getElementById('withdrawNetText').innerText = net.toFixed(6) + ' TON';
+      }
+      amountInput.addEventListener('input', recalculateFees);
+
+      document.getElementById('btnMaxWithdraw').addEventListener('click', () => {
+        const available = state.balanceNanoTon / 1e9;
+        amountInput.value = available.toFixed(6);
+        recalculateFees();
+      });
+
+      document.getElementById('btnSubmitWithdraw').addEventListener('click', async () => {
+        SFX.tap();
+        const targetAddress = document.getElementById('withdrawAddressInput').value.trim();
+        const reqAmount = parseFloat(amountInput.value);
+
+        if (!targetAddress || targetAddress.length < 24) {
+          showToast('Enter a valid TON address', false);
+          return;
+        }
+        if (isNaN(reqAmount) || reqAmount < 0.010) {
+          showToast('Minimum cashout is 0.010 TON', false);
+          return;
+        }
+        if (Math.floor(reqAmount * 1e9) > state.balanceNanoTon) {
+          showToast('Insufficient TON in Vault balance', false);
+          return;
+        }
+
+        try {
+          const res = await API.request('/withdraw/request', {
+            method: 'POST',
+            body: JSON.stringify({ address: targetAddress, amountTon: reqAmount })
+          });
+          showToast(res.message, true);
+          amountInput.value = '';
+          recalculateFees();
+          await syncUserData();
+        } catch(e) {
+          showToast(e.message || 'Withdrawal could not be queued', false);
+        }
+      });
+
+      // 10. Startup Sequences
+      initTonConnect();
+      syncUserData().then(() => {
+        if (tgApp && tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
+          const u = tgApp.initDataUnsafe.user;
+          document.getElementById('headerUsername').innerText = u.username ? `@${u.username}` : (u.first_name || 'Member');
+          document.getElementById('headerUserId').innerText = u.id;
+          if (u.photo_url) document.getElementById('headerAvatarImg').src = u.photo_url;
+          if (u.is_premium) {
+            const badge = document.getElementById('headerBadge');
+            badge.className = 'bg-amber-400/20 text-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded border border-amber-400/40';
+            badge.innerText = 'VIP PREMIUM';
+          }
+          document.getElementById('refShareLink').value = `https://t.me/tonrush_bot?startapp=ref_${u.id}`;
+        } else {
+          document.getElementById('refShareLink').value = `https://t.me/tonrush_bot?startapp=ref_user`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
