@@ -250,7 +250,7 @@
 
     <!-- FIXED TOP HEADER -->
     <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/10 flex items-center justify-between z-40">
-      <div class="flex items-center space-x-2.5">
+      <button id="btnOpenProfile" type="button" aria-label="Open my profile" class="flex items-center space-x-2.5 text-left min-w-0 active:scale-[0.98] transition-transform">
         <!-- Live Telegram Profile Avatar Container -->
         <div class="relative w-9 h-9 rounded-xl p-0.5 bg-gradient-to-tr from-ton/80 to-sky-400/90 shadow-md shadow-ton/30 flex items-center justify-center overflow-hidden">
           <img 
@@ -267,6 +267,7 @@
           <div class="flex items-center space-x-1.5">
             <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[125px]">AUTHENTICATING</span>
             <span id="headerBadge" class="bg-sky-500/15 text-sky-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-sky-500/30">MEMBER</span>
+            <i class="fa-solid fa-chevron-right text-[8px] text-slate-500"></i>
           </div>
           <p class="text-[10px] text-slate-400 font-mono-num flex items-center gap-1.5">
             <span class="text-ton font-bold">UID:</span>
@@ -275,7 +276,7 @@
             <span id="headerTonPrice" class="text-emerald-400 font-bold bg-emerald-500/15 px-1 rounded text-[8px]">$5.40</span>
           </p>
         </div>
-      </div>
+      </button>
 
       <div class="flex items-center space-x-2">
         <!-- CUSTOMER SUPPORT BUTTON (@PayZoteam) -->
@@ -445,18 +446,6 @@
           </div>
         </div>
 
-        <!-- ACTIVITY LEDGER -->
-        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
-          <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
-            <h4 class="text-xs font-black uppercase text-slate-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-clock-rotate-left text-ton"></i> Vault Ledger Activity
-            </h4>
-            <span class="text-[10px] text-slate-500 font-mono-num">Realtime Records</span>
-          </div>
-          <div id="homeHistoryList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
-            <!-- Dynamically populated via JS -->
-          </div>
-        </div>
       </section>
 
       <!-- ================= 2. SURVIVAL GAME TAB ================= -->
@@ -647,9 +636,12 @@
           </div>
 
           <div class="grid grid-cols-3 gap-2 text-center">
-            <div class="glass-elite-card p-2 rounded-xl border border-white/10">
+            <div class="glass-elite-card p-2 rounded-xl border border-white/10 flex flex-col items-center justify-center gap-1">
               <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
               <span id="statRefTotal" class="text-xs font-black text-white font-mono-num">0</span>
+              <button id="btnReferralHistory" type="button" class="text-[9px] font-black text-sky-300 bg-ton/15 hover:bg-ton/25 border border-ton/40 rounded-lg px-2.5 py-1 active:scale-95 transition-transform" aria-label="View referral history">
+                <i class="fa-solid fa-clock-rotate-left mr-1"></i>History
+              </button>
             </div>
             <div class="glass-elite-card p-2 rounded-xl border border-white/10">
               <span class="text-[8px] text-amber-300 uppercase font-bold block">Premium</span>
@@ -672,13 +664,6 @@
             </button>
           </div>
 
-          <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
-            <div class="flex items-center justify-between border-b border-white/10 pb-1">
-              <h4 class="text-xs font-black uppercase text-slate-300">Verified Referral Ledger</h4>
-              <span class="text-[9px] text-slate-400 font-mono-num">Realtime Recruits</span>
-            </div>
-            <div id="referralHistoryList" class="space-y-1.5 max-h-32 overflow-y-auto custom-scroll pr-1"></div>
-          </div>
         </div>
       </section>
 
@@ -783,7 +768,112 @@
         </div>
       </section>
 
+      <!-- ================= 5. USER PROFILE (OPENED FROM HEADER) ================= -->
+      <section id="tab-profile" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-24 space-y-4 hidden relative">
+        <div class="flex items-center justify-between gap-3">
+          <button id="btnProfileBack" type="button" class="w-9 h-9 rounded-xl glass-elite-card flex items-center justify-center text-sky-300 active:scale-95" aria-label="Back to app">
+            <i class="fa-solid fa-arrow-left text-sm"></i>
+          </button>
+          <div class="text-right">
+            <h2 class="text-sm font-black text-white uppercase tracking-wide">My Profile</h2>
+            <p class="text-[9px] text-slate-400 font-mono-num">TON Surge Member Center</p>
+          </div>
+        </div>
+
+        <div class="glass-ton-premium rounded-3xl p-4 relative overflow-hidden space-y-3">
+          <div class="absolute -right-8 -top-10 w-36 h-36 rounded-full bg-ton/15 blur-3xl pointer-events-none"></div>
+          <div class="flex items-center gap-3 relative z-10">
+            <div class="w-16 h-16 flex-none rounded-2xl p-0.5 bg-gradient-to-tr from-ton to-sky-300 shadow-lg shadow-ton/20">
+              <img id="profileAvatarImg" src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" alt="Profile avatar" class="w-full h-full object-cover rounded-[14px]" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <p id="profileUsername" class="text-sm font-black text-white truncate">Member</p>
+              <span id="profilePremiumBadge" class="inline-flex text-[9px] text-sky-300 font-bold bg-ton/15 rounded-md px-2 py-0.5 border border-ton/30">STANDARD MEMBER</span>
+              <p class="mt-1 text-[10px] text-slate-300 font-mono-num">UID: <span id="profileUserId">---</span></p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 relative z-10">
+            <button id="btnProfileCopyId" type="button" class="btn-3d btn-3d-dark rounded-xl py-2 text-[10px] font-black text-white"><i class="fa-regular fa-copy mr-1 text-ton"></i> Copy User ID</button>
+            <button id="btnProfileRefresh" type="button" class="btn-3d btn-3d-ton rounded-xl py-2 text-[10px] font-black text-white"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div class="glass-elite-card rounded-2xl p-3 border border-ton/30">
+            <p class="text-[9px] text-slate-400 font-bold uppercase"><i class="fa-solid fa-wallet text-ton mr-1"></i> TON Vault</p>
+            <p id="profileBalanceTon" class="text-lg text-cyan-glow font-black font-mono-num mt-1">0.000000</p>
+            <p class="text-[9px] text-slate-500 font-bold">Available TON</p>
+          </div>
+          <div class="glass-elite-card rounded-2xl p-3 border border-amber-400/20">
+            <p class="text-[9px] text-slate-400 font-bold uppercase"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i> Game Energy</p>
+            <p id="profileEnergyValue" class="text-lg text-amber-300 font-black font-mono-num mt-1">3/3</p>
+            <p class="text-[9px] text-slate-500 font-bold">Survival attempts</p>
+          </div>
+          <div class="glass-elite-card rounded-2xl p-3 border border-white/10">
+            <p class="text-[9px] text-slate-400 font-bold uppercase"><i class="fa-solid fa-user-group text-ton mr-1"></i> Invited Friends</p>
+            <p id="profileReferralValue" class="text-lg text-white font-black font-mono-num mt-1">0</p>
+            <p class="text-[9px] text-slate-500 font-bold">Qualified referrals</p>
+          </div>
+          <div class="glass-elite-card rounded-2xl p-3 border border-white/10">
+            <p class="text-[9px] text-slate-400 font-bold uppercase"><i class="fa-solid fa-hourglass-half text-amber-400 mr-1"></i> Pending Payouts</p>
+            <p id="profilePendingCount" class="text-lg text-white font-black font-mono-num mt-1">0</p>
+            <p class="text-[9px] text-slate-500 font-bold">Withdrawal requests</p>
+          </div>
+        </div>
+
+        <div class="glass-elite-card p-3.5 rounded-2xl space-y-2 border border-white/10">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-xs font-black text-white uppercase"><i class="fa-solid fa-link text-ton mr-1"></i> Connected Wallet</h3>
+            <span id="profileWalletState" class="text-[9px] font-bold text-slate-400">Not connected</span>
+          </div>
+          <p id="profileWalletAddress" class="text-[10px] font-mono-num text-slate-400 truncate">Connect a TON wallet from Cashout</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnProfileWalletPage" type="button" class="btn-3d btn-3d-dark rounded-xl py-2 text-white text-[10px] font-bold"><i class="fa-solid fa-wallet text-ton mr-1"></i> Cashout Page</button>
+            <button id="btnProfileCopyWallet" type="button" class="btn-3d btn-3d-dark rounded-xl py-2 text-white text-[10px] font-bold"><i class="fa-regular fa-copy text-ton mr-1"></i> Copy Address</button>
+          </div>
+        </div>
+
+        <!-- Original Vault Ledger relocated from Home, with the same records. -->
+        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <h3 class="text-xs font-black uppercase text-slate-200"><i class="fa-solid fa-clock-rotate-left text-ton mr-1"></i> TON Earning History</h3>
+            <span id="profileHistoryCount" class="text-[9px] text-slate-500 font-mono-num">Recent records</span>
+          </div>
+          <div id="profileHistoryList" class="space-y-2 max-h-72 overflow-y-auto custom-scroll pr-1"></div>
+        </div>
+
+        <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
+          <h3 class="text-xs font-black text-slate-200 uppercase"><i class="fa-solid fa-screwdriver-wrench text-ton mr-1"></i> Quick Actions</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnProfileReferralHistory" type="button" class="btn-3d btn-3d-dark rounded-xl py-2.5 text-white text-[10px] font-bold"><i class="fa-solid fa-users text-amber-400 mr-1"></i> Referral History</button>
+            <button id="btnProfileWithdrawals" type="button" class="btn-3d btn-3d-dark rounded-xl py-2.5 text-white text-[10px] font-bold"><i class="fa-solid fa-money-bill-transfer text-emerald-400 mr-1"></i> Withdrawals</button>
+            <button id="btnProfileCopyInvite" type="button" class="btn-3d btn-3d-dark rounded-xl py-2.5 text-white text-[10px] font-bold"><i class="fa-solid fa-link text-ton mr-1"></i> Copy Invite</button>
+            <button id="btnProfileSupport" type="button" class="btn-3d btn-3d-dark rounded-xl py-2.5 text-white text-[10px] font-bold"><i class="fa-solid fa-headset text-sky-400 mr-1"></i> Get Support</button>
+          </div>
+        </div>
+      </section>
+
     </main>
+
+    <!-- FULL REFERRAL HISTORY: OPENED FROM INVITED COUNT OR PROFILE -->
+    <div id="referralHistoryModal" class="hidden fixed inset-0 z-[10050] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="referralModalTitle">
+      <button id="btnReferralHistoryBackdrop" type="button" class="absolute inset-0 bg-[#030508]/90 backdrop-blur-md" aria-label="Close referral history"></button>
+      <div class="relative w-full max-w-md max-h-[82vh] glass-elite-card border border-ton/40 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+        <div class="p-4 border-b border-white/10 bg-ton/5 flex items-center justify-between">
+          <div>
+            <h2 id="referralModalTitle" class="text-base font-black text-white"><i class="fa-solid fa-users text-ton mr-1.5"></i> Referral History</h2>
+            <p class="text-[10px] text-slate-400 mt-0.5">Verified recruits and TON rewards</p>
+          </div>
+          <button id="btnCloseReferralHistory" type="button" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-white/10 text-slate-300 active:scale-95" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 p-3 border-b border-white/10">
+          <div class="bg-slate-900/70 rounded-xl p-2.5 border border-white/10"><p class="text-[9px] text-slate-400 uppercase font-bold">Invited</p><p id="modalRefTotal" class="text-base font-black text-white font-mono-num">0</p></div>
+          <div class="bg-slate-900/70 rounded-xl p-2.5 border border-ton/30"><p class="text-[9px] text-slate-400 uppercase font-bold">Earned</p><p id="modalRefEarned" class="text-base font-black text-cyan-glow font-mono-num">0.0000 TON</p></div>
+        </div>
+        <div id="referralHistoryList" class="overflow-y-auto custom-scroll p-3 space-y-2"></div>
+        <div id="referralHistoryNote" class="hidden px-4 pb-4 text-[10px] text-amber-300/90 leading-relaxed"></div>
+      </div>
+    </div>
 
     <!-- FLOATING TOAST NOTIFICATION -->
     <div id="toastNotification" class="fixed top-12 left-1/2 -translate-x-1/2 max-w-xs w-full px-4 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
@@ -1012,6 +1102,21 @@
         refLinkInput.value = telegramUser.id
           ? `https://t.me/ton_surge_bot?start=${telegramUser.id}` : 'Open TON Surge inside Telegram';
       }
+
+      // The same Telegram identity is shown in the new, read-only profile.
+      document.getElementById('profileUsername').innerText = displayName;
+      document.getElementById('profileUserId').innerText = telegramUser.id || '---';
+      const profileBadge = document.getElementById('profilePremiumBadge');
+      profileBadge.innerText = telegramUser.is_premium ? '★ TELEGRAM PREMIUM' : 'STANDARD MEMBER';
+      profileBadge.className = telegramUser.is_premium
+        ? 'inline-flex text-[9px] text-amber-300 font-bold bg-amber-400/15 rounded-md px-2 py-0.5 border border-amber-400/30'
+        : 'inline-flex text-[9px] text-sky-300 font-bold bg-ton/15 rounded-md px-2 py-0.5 border border-ton/30';
+      const profileAvatar = document.getElementById('profileAvatarImg');
+      profileAvatar.onerror = () => {
+        profileAvatar.onerror = null;
+        profileAvatar.src = 'https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png';
+      };
+      if (telegramUser.photo_url) profileAvatar.src = telegramUser.photo_url;
     }
 
     function showMonogram(name) {
@@ -1077,7 +1182,12 @@
       state.lastDailyClaim = Math.max(Number(cloudData.lastDailyClaim) || 0, state.lastDailyClaim || 0);
       state.completedTaskIds = cloudData.completedTaskIds || {};
       state.referralStats = cloudData.referralStats || { total: 0, premium: 0, tonEarned: 0 };
-      state.referrals = Array.isArray(cloudData.referrals) ? cloudData.referrals : [];
+      state.referrals = Array.isArray(cloudData.referrals) ? cloudData.referrals
+        : (cloudData.referrals && typeof cloudData.referrals === 'object'
+          ? Object.entries(cloudData.referrals).map(([id, entry]) => ({
+              ...(entry && typeof entry === 'object' ? entry : {}),
+              id: (entry && entry.id) || id
+            })) : []);
       state.withdrawals = Array.isArray(cloudData.withdrawals) ? cloudData.withdrawals : [];
       state.ledger = Array.isArray(cloudData.ledger) ? cloudData.ledger : [];
       state.referredBy = cloudData.referredBy || null;
@@ -1450,6 +1560,7 @@
               document.getElementById('walletStateTitle').innerText = 'TON Connect Protocol';
               document.getElementById('walletStateSub').innerText = 'Connect Tonkeeper, Telegram Wallet, or MyTonWallet';
             }
+            renderUI();
           });
         }
       } catch (e) {}
@@ -1475,6 +1586,7 @@
     function switchTab(tabId) {
       SFX.tap();
       triggerHaptic('light');
+      if (tabId !== 'profile') lastRegularTab = tabId;
 
       document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
       const activeEl = document.getElementById(`tab-${tabId}`);
@@ -1496,6 +1608,20 @@
       if (tabId === 'game') resizeCanvas();
     }
 
+    let lastRegularTab = 'home';
+
+    function openReferralHistory() {
+      renderUI();
+      const modal = document.getElementById('referralHistoryModal');
+      modal.classList.remove('hidden');
+      document.getElementById('btnCloseReferralHistory').focus();
+      triggerHaptic('light');
+    }
+
+    function closeReferralHistory() {
+      document.getElementById('referralHistoryModal').classList.add('hidden');
+    }
+
     function renderUI() {
       const tonStr = state.balanceTon.toFixed(6);
       const usdStr = (state.balanceTon * state.tonRate).toFixed(2);
@@ -1511,13 +1637,24 @@
       document.getElementById('statRefPremium').innerText = state.referralStats.premium;
       document.getElementById('statRefTon').innerText = `${state.referralStats.tonEarned.toFixed(4)} TON`;
 
-      const homeList = document.getElementById('homeHistoryList');
+      document.getElementById('profileBalanceTon').innerText = tonStr;
+      document.getElementById('profileEnergyValue').innerText = `${state.energy}/${state.maxEnergy}`;
+      document.getElementById('profileReferralValue').innerText = state.referralStats.total;
+      document.getElementById('profilePendingCount').innerText = state.withdrawals.filter(item =>
+        !['Paid', 'Rejected', 'Cancelled'].includes(String(item.status || 'Pending'))).length;
+      document.getElementById('profileWalletState').innerText = connectedWalletAddress ? 'Connected' : 'Not connected';
+      document.getElementById('profileWalletState').className = connectedWalletAddress
+        ? 'text-[9px] font-bold text-emerald-400' : 'text-[9px] font-bold text-slate-400';
+      document.getElementById('profileWalletAddress').innerText = connectedWalletAddress || 'Connect a TON wallet from Cashout';
+
+      const homeList = document.getElementById('profileHistoryList');
+      document.getElementById('profileHistoryCount').innerText = `${state.ledger.length} recent records`;
       if (state.ledger.length > 0) {
         homeList.innerHTML = state.ledger.map(item => `
           <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
             <div>
               <p class="text-[11px] font-bold text-white">${escapeHtml(item.desc)}</p>
-              <p class="text-[9px] text-slate-400 font-mono-num">${new Date(Number(item.timestamp) || Date.now()).toLocaleTimeString()}</p>
+              <p class="text-[9px] text-slate-400 font-mono-num">${new Date(Number(item.timestamp) || Date.now()).toLocaleString()}</p>
             </div>
             <span class="text-xs font-black ${(Number(item.ton) || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-mono-num">${(Number(item.ton) || 0) >= 0 ? '+' : ''}${(Number(item.ton) || 0).toFixed(6)} TON</span>
           </div>
@@ -1527,25 +1664,36 @@
       }
 
       const refList = document.getElementById('referralHistoryList');
+      const referralTotal = Number(state.referralStats.total) || 0;
+      document.getElementById('modalRefTotal').innerText = referralTotal;
+      document.getElementById('modalRefEarned').innerText = `${(Number(state.referralStats.tonEarned) || 0).toFixed(4)} TON`;
+      const historyNote = document.getElementById('referralHistoryNote');
       if (state.referrals && state.referrals.length > 0) {
-        refList.innerHTML = state.referrals.map(item => `
-          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
-            <div class="flex items-center space-x-1.5">
-              <span class="text-[11px] font-bold text-white font-mono-num">${escapeHtml(item.username)}</span>
-              ${item.isPremium ? '<span class="text-[8px] bg-amber-400/20 text-amber-300 px-1 py-0.2 rounded font-black">VIP</span>' : ''}
+        refList.innerHTML = [...state.referrals].sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0)).map(item => `
+          <div class="p-3 rounded-2xl bg-slate-900/70 border border-white/10 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-ton/15 border border-ton/30 text-sky-300 flex items-center justify-center flex-none"><i class="fa-solid fa-user-check text-sm"></i></div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-black text-white truncate">${escapeHtml(item.username || (item.id ? `TG_${item.id}` : 'Telegram Member'))}</p>
+              <p class="text-[9px] text-slate-400 font-mono-num truncate">${item.id ? `UID: ${escapeHtml(item.id)}` : 'Referred user'}${item.timestamp ? ` • ${new Date(Number(item.timestamp)).toLocaleDateString()}` : ''}</p>
+              ${item.isPremium ? '<span class="text-[8px] text-amber-300 font-bold">★ PREMIUM</span>' : ''}
             </div>
-            <span class="text-[11px] font-black ${item.isPremium ? 'text-amber-300' : 'text-ton'} font-mono-num">+${(Number(item.rewardTon) || 0).toFixed(3)} TON</span>
+            <span class="text-[11px] font-black ${item.isPremium ? 'text-amber-300' : 'text-emerald-400'} font-mono-num flex-none">+${(Number(item.rewardTon) || 0).toFixed(4)} TON</span>
           </div>
         `).join('');
       } else {
         refList.innerHTML = `
-          <div class="text-center py-4 space-y-1">
-            <i class="fa-solid fa-users text-slate-600 text-lg"></i>
-            <p class="text-[11px] font-bold text-slate-400">No verified recruits yet</p>
-            <p class="text-[9px] text-slate-500">Share your invite link above to start earning direct TON.</p>
+          <div class="text-center py-7 space-y-2">
+            <i class="fa-solid fa-users text-slate-600 text-2xl"></i>
+            <p class="text-xs font-bold text-slate-300">No detailed referral records available</p>
+            <p class="text-[10px] text-slate-500">New verified referrals will appear here.</p>
           </div>
         `;
       }
+      const missingRecords = Math.max(0, referralTotal - (state.referrals || []).length);
+      historyNote.classList.toggle('hidden', missingRecords === 0);
+      historyNote.innerText = missingRecords > 0
+        ? `${missingRecords} older referral(s) were counted before detailed history was saved. Their identities cannot be determined from the count alone.`
+        : '';
 
       const withList = document.getElementById('withdrawalHistoryList');
       if (state.withdrawals && state.withdrawals.length > 0) {
@@ -2019,6 +2167,42 @@
         if (btn) btn.addEventListener('click', () => switchTab(tab));
       });
 
+      // Header profile and the dedicated full-screen member center.
+      document.getElementById('btnOpenProfile').addEventListener('click', () => switchTab('profile'));
+      document.getElementById('btnProfileBack').addEventListener('click', () => switchTab(lastRegularTab));
+      document.getElementById('btnProfileWalletPage').addEventListener('click', () => switchTab('wallet'));
+      document.getElementById('btnProfileWithdrawals').addEventListener('click', () => switchTab('wallet'));
+      document.getElementById('btnProfileReferralHistory').addEventListener('click', openReferralHistory);
+      document.getElementById('btnReferralHistory').addEventListener('click', openReferralHistory);
+      document.getElementById('btnCloseReferralHistory').addEventListener('click', closeReferralHistory);
+      document.getElementById('btnReferralHistoryBackdrop').addEventListener('click', closeReferralHistory);
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeReferralHistory();
+      });
+
+      const copyProfileValue = async (value, label) => {
+        if (!value) return showToast(`${label} is not available yet.`, false);
+        try {
+          await navigator.clipboard.writeText(String(value));
+          showToast(`${label} copied successfully!`, true);
+        } catch (e) {
+          showToast(`Could not copy ${label}. Try again.`, false);
+        }
+      };
+      document.getElementById('btnProfileCopyId').addEventListener('click', () => {
+        copyProfileValue(telegramUser.id, 'Telegram ID');
+      });
+      document.getElementById('btnProfileCopyWallet').addEventListener('click', () => {
+        copyProfileValue(connectedWalletAddress, 'TON wallet address');
+      });
+      document.getElementById('btnProfileCopyInvite').addEventListener('click', () => {
+        copyProfileValue(telegramUser.id ? document.getElementById('refShareLink').value : null, 'Invite link');
+      });
+      document.getElementById('btnProfileRefresh').addEventListener('click', async () => {
+        showToast('Refreshing your account data...');
+        await syncUserWithFirebase();
+      });
+
       document.getElementById('btnQuickPlay').addEventListener('click', () => switchTab('game'));
       document.getElementById('btnQuickWithdraw').addEventListener('click', () => switchTab('wallet'));
 
@@ -2039,6 +2223,7 @@
       };
       document.getElementById('btnCustomerSupport').addEventListener('click', openSupport);
       document.getElementById('btnChatSupportTile').addEventListener('click', openSupport);
+      document.getElementById('btnProfileSupport').addEventListener('click', openSupport);
 
       // Daily Gift Claim (persisted on Firebase, one claim per 24 hours).
       let dailyClaimPending = false;
