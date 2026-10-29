@@ -20,6 +20,9 @@
   <!-- Monetag Official SDK -->
   <script src="//libtl.com/sdk.js" data-zone="9969043" data-sdk="show_9969043"></script>
 
+  <!-- Official Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -301,7 +304,7 @@
     <main class="flex-1 overflow-hidden relative">
 
       <!-- ================= 1. HOME / VAULT TAB ================= -->
-      <section id="tab-home" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 relative">
+      <section id="tab-home" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-28 space-y-4 relative">
         <!-- Glowing Diamond Watermark Background -->
         <div class="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
           <img 
@@ -370,7 +373,7 @@
           </div>
         </div>
 
-        <!-- QUICK ENERGY BOOST CARD -->
+        <!-- QUICK ENERGY BOOST CARD (ADSGRAM OFFICIAL REWARDED AD) -->
         <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-base">
@@ -413,18 +416,18 @@
 
           <!-- Dynamic Task Container Loaded from Firebase DB or Admin Panel -->
           <div id="dynamicTasksContainer" class="space-y-2">
-            <!-- Fallback Static Tasks until Firebase is Loaded -->
+            <!-- Fallback Initial Tasks -->
             <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
               <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 rounded-xl bg-ton/10 border border-ton/30 flex items-center justify-center text-ton">
-                  <i class="fa-solid fa-satellite-dish text-sm"></i>
+                  <i class="fa-solid fa-play text-sm"></i>
                 </div>
                 <div>
-                  <h4 class="text-xs font-bold text-white">Institutional Sponsor Stream</h4>
-                  <p class="text-[10px] text-slate-400">Reward: <span class="text-emerald-400 font-mono-num font-bold">0.00015 TON</span></p>
+                  <h4 class="text-xs font-bold text-white">Adsgram Reward Stream</h4>
+                  <p class="text-[10px] text-slate-400">Rewarded Video • <span class="text-emerald-400 font-mono-num font-bold">+0.00015 TON</span></p>
                 </div>
               </div>
-              <button onclick="handleExecuteTask({id: 'default_sponsor', type: 'monetag', rewardTon: 0.00015, title: 'Institutional Sponsor Stream'})" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
+              <button data-task-id="default_sponsor" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
                 Engage
               </button>
             </div>
@@ -436,10 +439,10 @@
                 </div>
                 <div>
                   <h4 class="text-xs font-bold text-white">Daily Bonus Pool Stream</h4>
-                  <p class="text-[10px] text-slate-400">Reward: <span class="text-amber-400 font-mono-num font-bold">0.00005 TON</span></p>
+                  <p class="text-[10px] text-slate-400">1x / 24h • <span class="text-amber-400 font-mono-num font-bold">+0.00005 TON</span></p>
                 </div>
               </div>
-              <button onclick="handleExecuteTask({id: 'default_daily', type: 'monetag', rewardTon: 0.00005, title: 'Daily Bonus Pool Stream'})" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950">
+              <button data-task-id="default_daily" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950">
                 Claim
               </button>
             </div>
@@ -449,7 +452,7 @@
       </section>
 
       <!-- ================= 2. SURVIVAL GAME TAB ================= -->
-      <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-3 hidden relative">
+      <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-28 space-y-3 hidden relative">
         <!-- ULTRA-PREMIUM DYNAMIC ANIMATED BACKGROUND -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden game-cosmic-bg">
           <div class="absolute -top-10 -left-10 w-72 h-72 rounded-full bg-cyan-500/20 blur-3xl animate-nebula-drift pointer-events-none"></div>
@@ -570,7 +573,8 @@
       </section>
 
       <!-- ================= 3. SYNDICATE (REFERRAL) TAB ================= -->
-      <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
+      <!-- Added pb-28 so bottom navigation never covers the Invite button and link -->
+      <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-28 space-y-4 hidden relative">
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img 
             src="https://i.postimg.cc/C53cGfwm/IMG-20261028-002411.jpg" 
@@ -635,11 +639,12 @@
             </div>
           </div>
 
+          <!-- Referral Stats Grid with History Button -->
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="glass-elite-card p-2 rounded-xl border border-white/10 flex flex-col items-center justify-center gap-1">
               <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
               <span id="statRefTotal" class="text-xs font-black text-white font-mono-num">0</span>
-              <button id="btnReferralHistory" type="button" class="text-[9px] font-black text-sky-300 bg-ton/15 hover:bg-ton/25 border border-ton/40 rounded-lg px-2.5 py-1 active:scale-95 transition-transform" aria-label="View referral history">
+              <button id="btnReferralHistory" type="button" class="text-[9px] font-black text-sky-300 bg-ton/15 hover:bg-ton/25 border border-ton/40 rounded-lg px-2 py-0.5 active:scale-95 transition-transform" aria-label="View referral history">
                 <i class="fa-solid fa-clock-rotate-left mr-1"></i>History
               </button>
             </div>
@@ -653,14 +658,17 @@
             </div>
           </div>
 
-          <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-2">
-            <span class="text-[10px] font-bold text-slate-300 uppercase">Your Personal Invite Link:</span>
-            <div class="flex items-center space-x-2 bg-slate-950/80 rounded-xl p-1.5 border border-white/10">
-              <input id="refShareLink" type="text" readonly value="Loading..." class="bg-transparent text-[10px] text-slate-300 w-full outline-none font-mono-num px-1" />
-              <button id="btnCopyRefLink" class="btn-3d btn-3d-ton text-white text-[10px] px-2.5 py-1 rounded-lg font-bold">Copy</button>
+          <!-- High-Contrast Fully-Visible Link Share Box -->
+          <div class="glass-elite-card p-3.5 rounded-2xl border border-white/15 space-y-2.5 bg-slate-900/90 shadow-xl">
+            <span class="text-[10px] font-bold text-slate-200 uppercase flex items-center gap-1.5">
+              <i class="fa-solid fa-link text-ton text-xs"></i> Your Personal Invite Link:
+            </span>
+            <div class="flex items-center space-x-2 bg-slate-950 rounded-xl p-1.5 border border-white/20">
+              <input id="refShareLink" type="text" readonly value="Loading..." class="bg-transparent text-[11px] text-white font-bold w-full outline-none font-mono-num px-2" />
+              <button id="btnCopyRefLink" class="btn-3d btn-3d-ton text-white text-[10px] px-3 py-1.5 rounded-lg font-bold flex-none shadow-md">Copy</button>
             </div>
-            <button id="btnShareTelegramRef" class="btn-3d btn-3d-ton w-full py-2.5 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-1.5">
-              <i class="fa-brands fa-telegram text-xs"></i> Invite Friends Now
+            <button id="btnShareTelegramRef" class="btn-3d btn-3d-ton w-full py-2.5 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-1.5 shadow-lg">
+              <i class="fa-brands fa-telegram text-sm"></i> Invite Friends Now
             </button>
           </div>
 
@@ -668,7 +676,7 @@
       </section>
 
       <!-- ================= 4. CASHOUT (WALLET) TAB ================= -->
-      <section id="tab-wallet" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
+      <section id="tab-wallet" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-28 space-y-4 hidden relative">
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img 
             src="https://i.postimg.cc/pLJtdPZP/IMG-20261028-002345.jpg" 
@@ -739,7 +747,7 @@
               </div>
             </div>
 
-            <!-- CLEAR PROFESSIONAL 24-HOUR SETTLEMENT NOTICE (AS REQUESTED) -->
+            <!-- CLEAR PROFESSIONAL 24-HOUR SETTLEMENT NOTICE -->
             <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 space-y-1.5 text-[10px]">
               <div class="flex items-center space-x-1.5 text-amber-400 font-bold">
                 <i class="fa-solid fa-clock-rotate-left text-xs animate-pulse"></i>
@@ -768,7 +776,7 @@
         </div>
       </section>
 
-      <!-- ================= 5. USER PROFILE (OPENED FROM HEADER) ================= -->
+      <!-- ================= 5. USER PROFILE ================= -->
       <section id="tab-profile" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-24 space-y-4 hidden relative">
         <div class="flex items-center justify-between gap-3">
           <button id="btnProfileBack" type="button" class="w-9 h-9 rounded-xl glass-elite-card flex items-center justify-center text-sky-300 active:scale-95" aria-label="Back to app">
@@ -833,7 +841,6 @@
           </div>
         </div>
 
-        <!-- Original Vault Ledger relocated from Home, with the same records. -->
         <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
           <div class="flex items-center justify-between border-b border-white/10 pb-2">
             <h3 class="text-xs font-black uppercase text-slate-200"><i class="fa-solid fa-clock-rotate-left text-ton mr-1"></i> TON Earning History</h3>
@@ -855,7 +862,7 @@
 
     </main>
 
-    <!-- FULL REFERRAL HISTORY: OPENED FROM INVITED COUNT OR PROFILE -->
+    <!-- FULL REFERRAL HISTORY MODAL -->
     <div id="referralHistoryModal" class="hidden fixed inset-0 z-[10050] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="referralModalTitle">
       <button id="btnReferralHistoryBackdrop" type="button" class="absolute inset-0 bg-[#030508]/90 backdrop-blur-md" aria-label="Close referral history"></button>
       <div class="relative w-full max-w-md max-h-[82vh] glass-elite-card border border-ton/40 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
@@ -927,19 +934,21 @@
       energyRegenMinutes: 30,
       supportHandle: "@PayZoteam",
       announcement: "",
-      monetagZoneId: "9969043"
+      monetagZoneId: "9969043",
+      adsgramBlockId: "56729" // Configured from your Adsgram "Energy Boost" unit
     };
 
     // Dynamic Task and Ad List controlled remotely by Admin
     let dynamicTasks = [
       {
         id: 'default_sponsor',
-        title: 'Institutional Sponsor Stream',
-        desc: 'Monetag Verified Video Stream',
+        title: 'Adsgram Reward Stream',
+        desc: 'Adsgram Verified Video Stream',
         rewardTon: 0.00015,
-        type: 'monetag',
+        type: 'adsgram',
+        blockId: '56729',
         actionLabel: 'Engage',
-        icon: 'fa-solid fa-satellite-dish',
+        icon: 'fa-solid fa-play',
         theme: 'ton'
       },
       {
@@ -994,8 +1003,6 @@
     let pendingReferrerId = null;
 
     function initTelegramSdkAndAutoFill() {
-      // Migrate the owner of pre-update local state before rewriting the
-      // cached Telegram profile, so one user never inherits another's cache.
       if (!localStorage.getItem('TON_SURGE_STATE_UID')) {
         try {
           const oldProfile = JSON.parse(localStorage.getItem('TON_SURGE_TG_USER') || 'null');
@@ -1040,7 +1047,6 @@
 
       const cached = localStorage.getItem('TON_SURGE_TG_USER');
       if (cached && telegramUser.id) {
-        // Cached profile details must never replace a Telegram-provided identity.
         try {
           const profile = JSON.parse(cached);
           if (String(profile.id) === String(telegramUser.id)) {
@@ -1103,7 +1109,6 @@
           ? `https://t.me/ton_surge_bot?start=${telegramUser.id}` : 'Open TON Surge inside Telegram';
       }
 
-      // The same Telegram identity is shown in the new, read-only profile.
       document.getElementById('profileUsername').innerText = displayName;
       document.getElementById('profileUserId').innerText = telegramUser.id || '---';
       const profileBadge = document.getElementById('profilePremiumBadge');
@@ -1131,7 +1136,7 @@
     }
 
     /* =======================================================
-       3. REALTIME CLOUD SYNC & DYNAMIC ADMIN TASKS ENGINE
+       3. REALTIME CLOUD SYNC & DYNAMIC ENGINE
        ======================================================= */
     const TON_NANO = 1000000000;
     let pendingCloudWrites = 0;
@@ -1202,9 +1207,6 @@
       return response;
     }
 
-    // Conditional Firebase REST transactions prevent two tabs from claiming the
-    // same balance or reward using stale snapshots. This is not a replacement
-    // for server-side identity verification and protected database rules.
     async function transactUser(uid, mutator, createIfMissing = false) {
       if (!/^\d+$/.test(String(uid))) throw new Error('A Telegram account is required.');
       pendingCloudWrites++;
@@ -1287,7 +1289,7 @@
               if (Number.isFinite(value) && value >= 0) appConfig[key] = value;
             }
           }
-          ['supportHandle', 'announcement', 'monetagZoneId'].forEach(key => {
+          ['supportHandle', 'announcement', 'monetagZoneId', 'adsgramBlockId'].forEach(key => {
             if (remote[key] !== undefined) appConfig[key] = String(remote[key]);
           });
         }
@@ -1307,7 +1309,6 @@
             const created = await transactUser(telegramUser.id, (draft, existing) => !existing, true);
             cloudData = created.record;
           } else if (!Number(cloudData.lastDailyClaim) && Number(state.lastDailyClaim) > 0) {
-            // Previous versions saved this cooldown only on the device.
             const localClaimTime = Number(state.lastDailyClaim);
             const migrated = await transactUser(telegramUser.id, record => {
               if (Number(record.lastDailyClaim) > 0) return false;
@@ -1358,8 +1359,6 @@
       const adminChannel = new BroadcastChannel('ton_rush_admin_channel');
       adminChannel.onmessage = (event) => {
         if (event.data && ['CONFIG_UPDATE', 'TASKS_UPDATE', 'USER_ADJUST'].includes(event.data.type)) {
-          // This channel is only an update notification. Never trust its
-          // payload for balances, tasks, or configuration; reload Firebase.
           syncUserWithFirebase();
         }
       };
@@ -1412,8 +1411,17 @@
       container.innerHTML = dynamicTasks.map(task => {
         const isDone = taskIsComplete(task);
         const isGold = task.theme === 'gold';
-        const iconClass = /^(fa-solid|fa-regular|fa-brands) fa-[a-z0-9-]+$/.test(task.icon || '')
-          ? task.icon : (isGold ? 'fa-solid fa-coins' : 'fa-solid fa-satellite-dish');
+        
+        let iconClass = task.icon;
+        if (!iconClass || !/^(fa-solid|fa-regular|fa-brands) fa-[a-z0-9-]+$/.test(iconClass)) {
+          if (task.type === 'adsgram') iconClass = 'fa-solid fa-play';
+          else if (task.type === 'monetag') iconClass = 'fa-solid fa-satellite-dish';
+          else if (task.type === 'onclicka') iconClass = 'fa-solid fa-arrow-pointer';
+          else if (task.type === 'telegram' || task.type === 'channel') iconClass = 'fa-brands fa-telegram';
+          else if (task.type === 'miniapp') iconClass = 'fa-solid fa-robot';
+          else iconClass = isGold ? 'fa-solid fa-coins' : 'fa-solid fa-globe';
+        }
+
         const iconColor = isGold ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 'text-ton bg-ton/10 border-ton/30';
         const btnClass = isDone ? 'btn-3d-dark opacity-60 text-slate-400 cursor-not-allowed' : (isGold ? 'btn-3d-gold text-slate-950 font-black' : 'btn-3d-ton text-white font-black');
 
@@ -1436,6 +1444,49 @@
       }).join('');
     }
 
+    /* =======================================================
+       OFFICIAL ADSGRAM REWARDED AD INTEGRATION
+       ======================================================= */
+    let adsgramInProgress = false;
+    function triggerAdsgramAd(blockId, onComplete) {
+      if (adsgramInProgress) return showToast('An ad is already running.', false);
+      SFX.tap();
+      const bId = blockId || appConfig.adsgramBlockId || "56729";
+      
+      if (!window.Adsgram) {
+        showToast('Adsgram SDK not loaded. Check internet.', false);
+        return;
+      }
+
+      adsgramInProgress = true;
+      showToast('Loading Adsgram video stream...');
+
+      try {
+        const AdController = window.Adsgram.init({ blockId: String(bId) });
+        AdController.show()
+          .then(async (result) => {
+            showToast('Ad completed! Reward verified.', true);
+            if (onComplete) await onComplete();
+          })
+          .catch((result) => {
+            console.warn('Adsgram result:', result);
+            const desc = result && result.description ? result.description : 'Ad skipped or closed without reward.';
+            showToast(desc, false);
+          })
+          .finally(() => {
+            adsgramInProgress = false;
+          });
+      } catch (err) {
+        console.error('Adsgram invocation error:', err);
+        showToast('Could not initiate Adsgram ad stream.', false);
+        adsgramInProgress = false;
+      }
+    }
+
+    /* =======================================================
+       MULTI-NETWORK DYNAMIC TASK HANDLER
+       (Supports: Adsgram, Monetag, OnClicka, Telegram Channel, MiniApp, Web Link)
+       ======================================================= */
     async function handleExecuteTask(task) {
       const activeTask = dynamicTasks.find(item => String(item.id) === String(task.id));
       if (!telegramUser.id || !activeTask) {
@@ -1470,18 +1521,57 @@
         }
       };
 
-      if (task.type === 'link' || task.type === 'telegram') {
-        try {
-          const url = new URL(task.link);
-          if (url.protocol !== 'https:') throw new Error('Unsafe task URL');
-          window.open(url.href, '_blank', 'noopener,noreferrer');
-          // Link opening is not proof of completion; server verification is
-          // required before this can be considered a fraud-resistant reward.
-          await giveTaskReward();
-        } catch (e) { showToast('Invalid task link.', false); }
-      } else {
-        // Monetag video or sponsor stream
+      const taskType = String(task.type || '').toLowerCase();
+
+      // 1. Adsgram Network Task
+      if (taskType === 'adsgram') {
+        const blockId = task.blockId || task.adId || appConfig.adsgramBlockId || '56729';
+        triggerAdsgramAd(blockId, giveTaskReward);
+      }
+      // 2. Monetag Network Task
+      else if (taskType === 'monetag') {
         triggerMonetagAd(task.id, giveTaskReward);
+      }
+      // 3. OnClicka Ad Network Task
+      else if (taskType === 'onclicka') {
+        if (task.link) {
+          window.open(task.link, '_blank', 'noopener,noreferrer');
+        }
+        await giveTaskReward();
+      }
+      // 4. Telegram Channel Join Task
+      else if (taskType === 'telegram' || taskType === 'channel') {
+        if (task.link) {
+          if (tgApp && tgApp.openTelegramLink && task.link.includes('t.me/')) {
+            tgApp.openTelegramLink(task.link);
+          } else {
+            window.open(task.link, '_blank', 'noopener,noreferrer');
+          }
+        }
+        await giveTaskReward();
+      }
+      // 5. Telegram Mini App Join Task
+      else if (taskType === 'miniapp') {
+        if (task.link) {
+          if (tgApp && tgApp.openTelegramLink && task.link.includes('t.me/')) {
+            tgApp.openTelegramLink(task.link);
+          } else {
+            window.open(task.link, '_blank', 'noopener,noreferrer');
+          }
+        }
+        await giveTaskReward();
+      }
+      // 6. Generic Link / Website Task
+      else {
+        if (task.link) {
+          try {
+            const url = new URL(task.link);
+            window.open(url.href, '_blank', 'noopener,noreferrer');
+          } catch(e) {
+            window.open(task.link, '_blank');
+          }
+        }
+        await giveTaskReward();
       }
     }
 
@@ -1737,7 +1827,6 @@
       Promise.resolve()
         .then(() => window[fnName]({ type: 'end', ymid, requestVar: String(placementTag) }))
         .then(async result => {
-          // Monetag also resolves the promise for closed/non-valued ads.
           if (result?.reward_event_type !== 'valued') {
             showToast('Ad was not verified as rewarded. No bonus credited.', false);
             return;
@@ -2069,7 +2158,6 @@
           record.creditedGameIds ||= {};
           if (record.creditedGameIds[currentGameId]) return false;
           record.creditedGameIds[currentGameId] = Date.now();
-          // Bound the stored game-id cache to avoid unbounded data growth.
           const ids = Object.keys(record.creditedGameIds);
           if (ids.length > 40) delete record.creditedGameIds[ids[0]];
           record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(roundTonEarned));
@@ -2135,7 +2223,7 @@
       loadPersistedState();
       syncUserWithFirebase();
 
-      // Periodic Live Cloud Sync (Every 30 seconds for dynamic task & config updates)
+      // Periodic Live Cloud Sync
       setInterval(() => {
         syncUserWithFirebase();
       }, 30000);
@@ -2167,7 +2255,7 @@
         if (btn) btn.addEventListener('click', () => switchTab(tab));
       });
 
-      // Header profile and the dedicated full-screen member center.
+      // Profile View
       document.getElementById('btnOpenProfile').addEventListener('click', () => switchTab('profile'));
       document.getElementById('btnProfileBack').addEventListener('click', () => switchTab(lastRegularTab));
       document.getElementById('btnProfileWalletPage').addEventListener('click', () => switchTab('wallet'));
@@ -2225,7 +2313,7 @@
       document.getElementById('btnChatSupportTile').addEventListener('click', openSupport);
       document.getElementById('btnProfileSupport').addEventListener('click', openSupport);
 
-      // Daily Gift Claim (persisted on Firebase, one claim per 24 hours).
+      // Daily Gift Claim
       let dailyClaimPending = false;
       document.getElementById('btnClaimDaily').addEventListener('click', async () => {
         if (dailyClaimPending) return;
@@ -2253,13 +2341,13 @@
         }
       });
 
-      // Energy Recharge via Ad
+      // Energy Recharge via Adsgram Ad (Block ID: 56729)
       document.getElementById('btnRechargeEnergyAd').addEventListener('click', () => {
         if (state.energy >= state.maxEnergy) {
           showToast("Energy is already full (3/3).", false);
           return;
         }
-        triggerMonetagAd('energy_recharge', async () => {
+        triggerAdsgramAd(appConfig.adsgramBlockId || '56729', async () => {
           try {
             const charged = await transactUser(telegramUser.id, record => {
               restoreEnergy(record);
@@ -2281,8 +2369,9 @@
         document.getElementById('gameStartOverlay').classList.remove('hidden');
       });
 
+      // Failed Run Recharge via Adsgram Ad
       document.getElementById('btnFailRechargeAd').addEventListener('click', () => {
-        triggerMonetagAd('energy_recharge', async () => {
+        triggerAdsgramAd(appConfig.adsgramBlockId || '56729', async () => {
           try {
             const recharged = await transactUser(telegramUser.id, record => {
               restoreEnergy(record);
