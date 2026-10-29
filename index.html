@@ -761,10 +761,10 @@
                 <span class="uppercase tracking-wider font-mono-num text-[9px]">Settlement Processing Notice</span>
               </div>
               <p class="text-slate-300 leading-relaxed">
-                All withdrawal requests are cryptographically audited and dispatched to your recipient wallet within <strong class="text-amber-300">24 hours</strong>.
+                Withdrawal requests are reviewed before payout. TON is sent manually after approval; settlement time may vary.
               </p>
               <p class="text-slate-400 leading-relaxed border-t border-amber-500/20 pt-1">
-                If your payout is not credited after <strong class="text-white">24 hours</strong>, please contact our <strong class="text-sky-300">Official Support (<span id="supportNoticeHandle">@PayZoteam</span>)</strong> immediately with your User ID: <span id="noticeUserId" class="text-ton font-mono-num font-bold">---</span>.
+                To check a pending payout, contact <strong class="text-sky-300">Official Support (<span id="supportNoticeHandle">@PayZoteam</span>)</strong> with your User ID: <span id="noticeUserId" class="text-ton font-mono-num font-bold">---</span>.
               </p>
             </div>
 
@@ -832,6 +832,9 @@
       minWithdrawTon: 0.010,
       platformFeePercent: 2,
       networkFeeTon: 0.005,
+      dailyBonusTon: 0.001,
+      victoryAdBonusTon: 0.00010,
+      energyRegenMinutes: 30,
       supportHandle: "@PayZoteam",
       announcement: "",
       monetagZoneId: "9969043"
@@ -868,6 +871,10 @@
       energy: 3,
       maxEnergy: 3,
       lastDailyClaim: 0,
+      lastEnergyAt: Date.now(),
+      referredBy: null,
+      firstWinRecorded: false,
+      referralRewardClaimed: false,
       completedTaskIds: {},
       referralStats: {
         total: 0,
@@ -882,10 +889,10 @@
     };
 
     let telegramUser = {
-      id: "8075561163",
-      first_name: "Agent",
+      id: null,
+      first_name: "Guest",
       last_name: "",
-      username: "validator_node",
+      username: "",
       photo_url: null,
       is_premium: false
     };
@@ -894,8 +901,19 @@
        2. TELEGRAM SDK INITIALIZATION & AUTO-FILL
        ======================================================= */
     const tgApp = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    let pendingReferrerId = null;
 
     function initTelegramSdkAndAutoFill() {
+      // Migrate the owner of pre-update local state before rewriting the
+      // cached Telegram profile, so one user never inherits another's cache.
+      if (!localStorage.getItem('TON_SURGE_STATE_UID')) {
+        try {
+          const oldProfile = JSON.parse(localStorage.getItem('TON_SURGE_TG_USER') || 'null');
+          if (oldProfile && oldProfile.id) {
+            localStorage.setItem('TON_SURGE_STATE_UID', String(oldProfile.id));
+          }
+        } catch (e) {}
+      }
       if (tgApp) {
         try {
           tgApp.ready();
@@ -907,14 +925,12 @@
 
         if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
           telegramUser = { ...telegramUser, ...tgApp.initDataUnsafe.user };
-          localStorage.setItem('TON_SURGE_TG_USER', JSON.stringify(telegramUser));
         } else if (tgApp.initData) {
           try {
             const urlParams = new URLSearchParams(tgApp.initData);
             const userJson = urlParams.get('user');
             if (userJson) {
               telegramUser = { ...telegramUser, ...JSON.parse(userJson) };
-              localStorage.setItem('TON_SURGE_TG_USER', JSON.stringify(telegramUser));
             }
           } catch(err) {}
         }
@@ -922,15 +938,30 @@
 
       try {
         const urlParams = new URLSearchParams(window.location.search);
-        const refParam = urlParams.get('start') || urlParams.get('startapp');
-        if (refParam) {
-          localStorage.setItem('TON_SURGE_INVITED_BY', refParam.replace('ref_', ''));
+        const refParam = (tgApp && tgApp.initDataUnsafe && tgApp.initDataUnsafe.start_param)
+          || urlParams.get('startapp') || urlParams.get('start');
+        if (refParam && /^(?:ref_)?\d+$/.test(refParam)) {
+          const refId = refParam.replace(/^ref_/, '');
+          if (String(telegramUser.id) !== refId) {
+            localStorage.setItem('TON_SURGE_INVITED_BY', refId);
+          }
         }
       } catch(e) {}
 
       const cached = localStorage.getItem('TON_SURGE_TG_USER');
-      if (cached) {
-        try { telegramUser = { ...telegramUser, ...JSON.parse(cached) }; } catch(e){}
+      if (cached && telegramUser.id) {
+        // Cached profile details must never replace a Telegram-provided identity.
+        try {
+          const profile = JSON.parse(cached);
+          if (String(profile.id) === String(telegramUser.id)) {
+            telegramUser = { ...profile, ...telegramUser };
+          }
+        } catch(e){}
+      }
+      if (telegramUser.id) localStorage.setItem('TON_SURGE_TG_USER', JSON.stringify(telegramUser));
+      const savedRef = localStorage.getItem('TON_SURGE_INVITED_BY');
+      if (savedRef && /^\d+$/.test(savedRef) && savedRef !== String(telegramUser.id)) {
+        pendingReferrerId = savedRef;
       }
 
       applyTelegramUserToUI();
@@ -944,10 +975,10 @@
       if (usernameEl) usernameEl.innerText = displayName.toUpperCase();
 
       const uidEl = document.getElementById('headerUserId');
-      if (uidEl) uidEl.innerText = telegramUser.id;
+      if (uidEl) uidEl.innerText = telegramUser.id || '---';
 
       const noticeUidEl = document.getElementById('noticeUserId');
-      if (noticeUidEl) noticeUidEl.innerText = telegramUser.id;
+      if (noticeUidEl) noticeUidEl.innerText = telegramUser.id || '---';
 
       const avatarImg = document.getElementById('headerAvatarImg');
       const monogramFallback = document.getElementById('avatarFallbackMonogram');
@@ -978,7 +1009,8 @@
 
       const refLinkInput = document.getElementById('refShareLink');
       if (refLinkInput) {
-        refLinkInput.value = `https://t.me/ton_surge_bot?start=${telegramUser.id}`;
+        refLinkInput.value = telegramUser.id
+          ? `https://t.me/ton_surge_bot?start=${telegramUser.id}` : 'Open TON Surge inside Telegram';
       }
     }
 
@@ -996,96 +1028,215 @@
     /* =======================================================
        3. REALTIME CLOUD SYNC & DYNAMIC ADMIN TASKS ENGINE
        ======================================================= */
-    async function syncUserWithFirebase() {
-      if (!telegramUser || !telegramUser.id) return;
-      const userNode = `tg_${telegramUser.id}`;
+    const TON_NANO = 1000000000;
+    let pendingCloudWrites = 0;
+    let syncInProgress = false;
+    let energyRecoveryInProgress = false;
+    let cloudRevision = 0;
+    let referralSettlementInProgress = false;
+    const toNanoTon = value => Math.round(Number(value) * TON_NANO);
+    const fromNanoTon = value => Math.round(Number(value)) / TON_NANO;
+    const roundedTon = value => fromNanoTon(toNanoTon(value));
 
-      try {
-        // 1. Fetch live admin config from Firebase
-        const configRes = await fetch(`${FIREBASE_DB_URL}/config.json`);
-        const remoteConfig = await configRes.json();
-        if (remoteConfig) {
-          appConfig = { ...appConfig, ...remoteConfig };
-        }
-
-        // 2. Fetch live dynamic tasks from Firebase
-        const tasksRes = await fetch(`${FIREBASE_DB_URL}/tasks.json`);
-        const remoteTasks = await tasksRes.json();
-        if (remoteTasks) {
-          if (Array.isArray(remoteTasks)) {
-            dynamicTasks = remoteTasks.filter(Boolean);
-          } else if (typeof remoteTasks === 'object') {
-            dynamicTasks = Object.keys(remoteTasks).map(k => ({ ...remoteTasks[k], id: k }));
-          }
-        }
-
-        // 3. Fetch User data
-        const res = await fetch(`${FIREBASE_DB_URL}/users/${userNode}.json`);
-        const cloudData = await res.json();
-
-        if (cloudData) {
-          state.balanceTon = typeof cloudData.balanceTon === 'number' ? cloudData.balanceTon : state.balanceTon;
-          state.energy = typeof cloudData.energy === 'number' ? cloudData.energy : state.energy;
-          if (cloudData.completedTaskIds) state.completedTaskIds = cloudData.completedTaskIds;
-          if (cloudData.referralStats) state.referralStats = cloudData.referralStats;
-          if (cloudData.ledger && Array.isArray(cloudData.ledger)) state.ledger = cloudData.ledger;
-          if (cloudData.withdrawals && Array.isArray(cloudData.withdrawals)) state.withdrawals = cloudData.withdrawals;
-          document.getElementById('liveSyncStatus').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-[8px]"></i> Cloud Synced';
-        } else {
-          state.balanceTon = 0.001000;
-          state.ledger = [{
-            desc: "Vault Protocol Initialization",
-            ton: 0.001000,
-            timestamp: Date.now()
-          }];
-        }
-
-        renderUI();
-        renderDynamicTasks();
-        await pushUserToFirebase();
-      } catch (err) {
-        console.warn("Firebase sync fallback:", err);
-        renderUI();
-        renderDynamicTasks();
-      }
-    }
-
-    async function pushUserToFirebase() {
-      if (!telegramUser || !telegramUser.id) return;
-      const userNode = `tg_${telegramUser.id}`;
-
-      const payload = {
-        id: String(telegramUser.id),
+    function initialUserRecord(uid) {
+      const now = Date.now();
+      return {
+        id: String(uid),
         username: telegramUser.username ? `@${telegramUser.username}` : (telegramUser.first_name || 'Member'),
         first_name: telegramUser.first_name || '',
         photo_url: telegramUser.photo_url || null,
         is_premium: Boolean(telegramUser.is_premium),
-        balanceTon: state.balanceTon,
-        balanceNanoTon: Math.floor(state.balanceTon * 1e9),
-        energy: state.energy,
-        completedTaskIds: state.completedTaskIds || {},
-        referralStats: state.referralStats,
-        withdrawals: state.withdrawals || [],
-        ledger: (state.ledger || []).slice(0, 20),
-        lastActive: Date.now()
+        balanceTon: 0.001,
+        balanceNanoTon: 1000000,
+        energy: 3,
+        maxEnergy: 3,
+        lastEnergyAt: now,
+        lastDailyClaim: 0,
+        referredBy: pendingReferrerId || null,
+        firstWinRecorded: false,
+        referralRewardClaimed: false,
+        completedTaskIds: {},
+        referralStats: { total: 0, premium: 0, tonEarned: 0 },
+        referrals: [],
+        withdrawals: [],
+        ledger: [{ desc: 'Vault Protocol Initialization', ton: 0.001, timestamp: now }],
+        createdAt: now,
+        lastActive: now
       };
+    }
 
+    function hydrateUserState(cloudData) {
+      if (!cloudData) return;
+      state.balanceTon = Number.isFinite(cloudData.balanceTon) && cloudData.balanceTon >= 0
+        ? roundedTon(cloudData.balanceTon) : state.balanceTon;
+      state.maxEnergy = Number.isFinite(cloudData.maxEnergy) && cloudData.maxEnergy > 0
+        ? Math.floor(cloudData.maxEnergy) : 3;
+      state.energy = Number.isFinite(cloudData.energy)
+        ? Math.min(state.maxEnergy, Math.max(0, Math.floor(cloudData.energy))) : state.energy;
+      state.lastEnergyAt = Number(cloudData.lastEnergyAt) || state.lastEnergyAt || Date.now();
+      state.lastDailyClaim = Math.max(Number(cloudData.lastDailyClaim) || 0, state.lastDailyClaim || 0);
+      state.completedTaskIds = cloudData.completedTaskIds || {};
+      state.referralStats = cloudData.referralStats || { total: 0, premium: 0, tonEarned: 0 };
+      state.referrals = Array.isArray(cloudData.referrals) ? cloudData.referrals : [];
+      state.withdrawals = Array.isArray(cloudData.withdrawals) ? cloudData.withdrawals : [];
+      state.ledger = Array.isArray(cloudData.ledger) ? cloudData.ledger : [];
+      state.referredBy = cloudData.referredBy || null;
+      state.firstWinRecorded = Boolean(cloudData.firstWinRecorded);
+      state.referralRewardClaimed = Boolean(cloudData.referralRewardClaimed);
+      saveState();
+    }
+
+    async function fetchFirebaseJson(path, options = {}) {
+      const response = await fetch(`${FIREBASE_DB_URL}/${path}.json`, { cache: 'no-store', ...options });
+      if (!response.ok) throw new Error(`Firebase ${response.status}: ${path}`);
+      return response;
+    }
+
+    // Conditional Firebase REST transactions prevent two tabs from claiming the
+    // same balance or reward using stale snapshots. This is not a replacement
+    // for server-side identity verification and protected database rules.
+    async function transactUser(uid, mutator, createIfMissing = false) {
+      if (!/^\d+$/.test(String(uid))) throw new Error('A Telegram account is required.');
+      pendingCloudWrites++;
       try {
-        await fetch(`${FIREBASE_DB_URL}/users/${userNode}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } catch (e) {}
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const path = `users/tg_${uid}`;
+          const read = await fetchFirebaseJson(path, { headers: { 'X-Firebase-ETag': 'true' } });
+          const current = await read.json();
+          const etag = read.headers.get('ETag');
+          if (!etag) throw new Error('Firebase transaction support is unavailable.');
+          if (!current && !createIfMissing) throw new Error('User account does not exist.');
+          const draft = current ? JSON.parse(JSON.stringify(current)) : initialUserRecord(uid);
+          const changed = await mutator(draft, current);
+          if (changed === false) return { record: draft, changed: false };
+          if (!Number.isFinite(Number(draft.balanceTon)) || Number(draft.balanceTon) < 0) {
+            throw new Error('Invalid TON balance.');
+          }
+          draft.balanceTon = roundedTon(draft.balanceTon);
+          draft.balanceNanoTon = toNanoTon(draft.balanceTon);
+          draft.lastActive = Date.now();
+          const write = await fetch(`${FIREBASE_DB_URL}/${path}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'if-match': etag },
+            body: JSON.stringify(draft)
+          });
+          if (write.status === 412) continue;
+          if (!write.ok) throw new Error(`Firebase write failed (${write.status}).`);
+          cloudRevision++;
+          if (String(uid) === String(telegramUser.id)) hydrateUserState(draft);
+          return { record: draft, changed: true };
+        }
+        throw new Error('Account changed elsewhere. Please retry.');
+      } finally {
+        pendingCloudWrites--;
+      }
+    }
+
+    function restoreEnergy(record, now = Date.now()) {
+      const maxEnergy = Math.max(1, Math.floor(Number(record.maxEnergy) || 3));
+      record.maxEnergy = maxEnergy;
+      record.energy = Math.min(maxEnergy, Math.max(0, Math.floor(Number(record.energy) || 0)));
+      const interval = Math.max(1, Number(appConfig.energyRegenMinutes) || 30) * 60000;
+      if (record.energy >= maxEnergy) return false;
+      const since = Number(record.lastEnergyAt) || now;
+      const gained = Math.max(0, Math.floor((now - since) / interval));
+      if (!gained) return false;
+      record.energy = Math.min(maxEnergy, record.energy + gained);
+      record.lastEnergyAt = record.energy === maxEnergy ? now : since + gained * interval;
+      return true;
+    }
+
+    async function recoverEnergyIfDue() {
+      if (!telegramUser.id || energyRecoveryInProgress || pendingCloudWrites) return;
+      const regen = Math.max(1, Number(appConfig.energyRegenMinutes) || 30) * 60000;
+      if (state.energy >= state.maxEnergy || Date.now() - state.lastEnergyAt < regen) return;
+      energyRecoveryInProgress = true;
+      try {
+        await transactUser(telegramUser.id, record => restoreEnergy(record));
+      } catch (e) { console.warn('Energy regeneration:', e); }
+      finally { energyRecoveryInProgress = false; }
+    }
+
+    async function syncUserWithFirebase() {
+      if (syncInProgress || pendingCloudWrites) return;
+      syncInProgress = true;
+      const revisionAtStart = cloudRevision;
+      try {
+        const [configResult, tasksResult] = await Promise.allSettled([
+          fetchFirebaseJson('config').then(res => res.json()),
+          fetchFirebaseJson('tasks').then(res => res.json())
+        ]);
+        if (configResult.status === 'fulfilled' && configResult.value && typeof configResult.value === 'object') {
+          const remote = configResult.value;
+          const numericKeys = ['blueDiamondTon', 'goldDiamondTon', 'normalRefTon', 'premiumRefTon',
+            'minWithdrawTon', 'platformFeePercent', 'networkFeeTon', 'dailyBonusTon',
+            'victoryAdBonusTon', 'energyRegenMinutes'];
+          for (const key of numericKeys) {
+            if (remote[key] !== undefined) {
+              const value = Number(remote[key]);
+              if (Number.isFinite(value) && value >= 0) appConfig[key] = value;
+            }
+          }
+          ['supportHandle', 'announcement', 'monetagZoneId'].forEach(key => {
+            if (remote[key] !== undefined) appConfig[key] = String(remote[key]);
+          });
+        }
+        if (tasksResult.status === 'fulfilled' && tasksResult.value) {
+          const remoteTasks = tasksResult.value;
+          dynamicTasks = (Array.isArray(remoteTasks) ? remoteTasks.filter(Boolean)
+            : Object.keys(remoteTasks).map(key => ({ ...remoteTasks[key], id: key })))
+            .filter(task => task && task.id && Number.isFinite(Number(task.rewardTon)));
+        }
+
+        if (!telegramUser.id) {
+          document.getElementById('liveSyncStatus').textContent = 'Open in Telegram';
+        } else {
+          let response = await fetchFirebaseJson(`users/tg_${telegramUser.id}`);
+          let cloudData = await response.json();
+          if (!cloudData) {
+            const created = await transactUser(telegramUser.id, (draft, existing) => !existing, true);
+            cloudData = created.record;
+          } else if (!Number(cloudData.lastDailyClaim) && Number(state.lastDailyClaim) > 0) {
+            // Previous versions saved this cooldown only on the device.
+            const localClaimTime = Number(state.lastDailyClaim);
+            const migrated = await transactUser(telegramUser.id, record => {
+              if (Number(record.lastDailyClaim) > 0) return false;
+              record.lastDailyClaim = localClaimTime;
+            });
+            cloudData = migrated.record;
+          }
+          if (!pendingCloudWrites && cloudRevision === revisionAtStart) hydrateUserState(cloudData);
+          document.getElementById('liveSyncStatus').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-[8px]"></i> Cloud Synced';
+        }
+      } catch (err) {
+        console.warn('Firebase sync error:', err);
+        document.getElementById('liveSyncStatus').textContent = 'Sync unavailable';
+      } finally {
+        renderUI();
+        renderDynamicTasks();
+        syncInProgress = false;
+        recoverEnergyIfDue();
+        if (state.firstWinRecorded && state.referredBy && !state.referralRewardClaimed) settlePendingReferral();
+      }
     }
 
     function saveState() {
-      localStorage.setItem('TON_SURGE_REAL_USER_STATE_V2', JSON.stringify(state));
+      if (telegramUser.id) {
+        localStorage.setItem('TON_SURGE_REAL_USER_STATE_V2', JSON.stringify(state));
+        localStorage.setItem('TON_SURGE_STATE_UID', String(telegramUser.id));
+      }
       renderUI();
-      pushUserToFirebase();
     }
 
     function loadPersistedState() {
+      if (!telegramUser.id) return;
+      const storedOwner = localStorage.getItem('TON_SURGE_STATE_UID');
+      const cachedProfile = localStorage.getItem('TON_SURGE_TG_USER');
+      let previousOwner = storedOwner;
+      if (!previousOwner && cachedProfile) {
+        try { previousOwner = String(JSON.parse(cachedProfile).id); } catch (e) {}
+      }
+      if (previousOwner !== String(telegramUser.id)) return;
       const savedState = localStorage.getItem('TON_SURGE_REAL_USER_STATE_V2');
       if (savedState) {
         try { state = { ...state, ...JSON.parse(savedState) }; } catch(e){}
@@ -1096,31 +1247,10 @@
     try {
       const adminChannel = new BroadcastChannel('ton_rush_admin_channel');
       adminChannel.onmessage = (event) => {
-        if (event.data && event.data.type === 'CONFIG_UPDATE') {
-          appConfig = { ...appConfig, ...event.data.payload };
-          applyAdminConfigToUI();
-          showToast("Remote protocol settings updated!", true);
-        } else if (event.data && event.data.type === 'TASKS_UPDATE') {
-          if (Array.isArray(event.data.payload)) {
-            dynamicTasks = event.data.payload;
-            renderDynamicTasks();
-            showToast("Sponsored task stream refreshed!", true);
-          }
-        } else if (event.data && event.data.type === 'USER_ADJUST') {
-          if (event.data.payload.uid === `tg_${telegramUser.id}`) {
-            if (typeof event.data.payload.addTon === 'number') {
-              state.balanceTon = Math.max(0, state.balanceTon + event.data.payload.addTon);
-              state.ledger.unshift({
-                desc: "Admin Vault Adjustment",
-                ton: event.data.payload.addTon,
-                timestamp: Date.now()
-              });
-            }
-            if (typeof event.data.payload.setEnergy === 'number') {
-              state.energy = event.data.payload.setEnergy;
-            }
-            saveState();
-          }
+        if (event.data && ['CONFIG_UPDATE', 'TASKS_UPDATE', 'USER_ADJUST'].includes(event.data.type)) {
+          // This channel is only an update notification. Never trust its
+          // payload for balances, tasks, or configuration; reload Firebase.
+          syncUserWithFirebase();
         }
       };
     } catch(e){}
@@ -1132,6 +1262,8 @@
       document.getElementById('labelPremiumRefTon').innerText = `+${appConfig.premiumRefTon.toFixed(3)} TON`;
       document.getElementById('labelMinWithdraw').innerText = `${appConfig.minWithdrawTon.toFixed(3)} TON`;
       document.getElementById('labelPlatformFee').innerText = appConfig.platformFeePercent;
+      document.getElementById('withdrawNetworkFeeText').innerText = `${Number(appConfig.networkFeeTon).toFixed(6)} TON`;
+      document.getElementById('btnVictoryAdClaim').innerHTML = `<i class="fa-solid fa-video text-xs mr-1"></i> Watch Ad For Bonus (+${Number(appConfig.victoryAdBonusTon).toFixed(5)} TON)`;
       document.getElementById('supportHandleLabel').innerText = appConfig.supportHandle;
       document.getElementById('supportNoticeHandle').innerText = appConfig.supportHandle;
 
@@ -1142,6 +1274,19 @@
       } else {
         banner.classList.add('hidden');
       }
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function taskIsComplete(task, completions = state.completedTaskIds) {
+      const completedAt = Number((completions || {})[task.id]) || 0;
+      if (!completedAt) return false;
+      const repeatHours = task.id === 'default_daily' ? 24 : Number(task.repeatHours) || 0;
+      return !repeatHours || Date.now() - completedAt < repeatHours * 3600000;
     }
 
     /* Dynamic Tasks Rendering from Admin Setup */
@@ -1155,9 +1300,10 @@
       }
 
       container.innerHTML = dynamicTasks.map(task => {
-        const isDone = state.completedTaskIds && state.completedTaskIds[task.id];
+        const isDone = taskIsComplete(task);
         const isGold = task.theme === 'gold';
-        const iconClass = task.icon || (isGold ? 'fa-solid fa-coins' : 'fa-solid fa-satellite-dish');
+        const iconClass = /^(fa-solid|fa-regular|fa-brands) fa-[a-z0-9-]+$/.test(task.icon || '')
+          ? task.icon : (isGold ? 'fa-solid fa-coins' : 'fa-solid fa-satellite-dish');
         const iconColor = isGold ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 'text-ton bg-ton/10 border-ton/30';
         const btnClass = isDone ? 'btn-3d-dark opacity-60 text-slate-400 cursor-not-allowed' : (isGold ? 'btn-3d-gold text-slate-950 font-black' : 'btn-3d-ton text-white font-black');
 
@@ -1168,42 +1314,61 @@
                 <i class="${iconClass}"></i>
               </div>
               <div>
-                <h4 class="text-xs font-bold text-white">${task.title}</h4>
-                <p class="text-[10px] text-slate-400">${task.desc || 'Protocol Task'} • <span class="${isGold ? 'text-amber-400' : 'text-emerald-400'} font-mono-num font-bold">+${Number(task.rewardTon).toFixed(5)} TON</span></p>
+                <h4 class="text-xs font-bold text-white">${escapeHtml(task.title)}</h4>
+                <p class="text-[10px] text-slate-400">${escapeHtml(task.desc || 'Protocol Task')} • <span class="${isGold ? 'text-amber-400' : 'text-emerald-400'} font-mono-num font-bold">+${Number(task.rewardTon).toFixed(5)} TON</span></p>
               </div>
             </div>
-            <button onclick="handleExecuteTask(${JSON.stringify(task).replace(/"/g, '&quot;')})" ${isDone ? 'disabled' : ''} class="btn-3d ${btnClass} px-3 py-1.5 rounded-xl text-[10px]">
-              ${isDone ? 'Completed' : (task.actionLabel || 'Claim')}
+            <button data-task-id="${escapeHtml(task.id)}" ${isDone ? 'disabled' : ''} class="btn-3d ${btnClass} px-3 py-1.5 rounded-xl text-[10px]">
+              ${isDone ? 'Completed' : escapeHtml(task.actionLabel || 'Claim')}
             </button>
           </div>
         `;
       }).join('');
     }
 
-    function handleExecuteTask(task) {
-      if (state.completedTaskIds && state.completedTaskIds[task.id]) {
+    async function handleExecuteTask(task) {
+      const activeTask = dynamicTasks.find(item => String(item.id) === String(task.id));
+      if (!telegramUser.id || !activeTask) {
+        showToast('Open TON Surge in Telegram to claim rewards.', false);
+        return;
+      }
+      task = activeTask;
+      if (taskIsComplete(task)) {
         showToast("Task already claimed!", false);
         return;
       }
 
-      const giveTaskReward = () => {
-        state.balanceTon += Number(task.rewardTon || 0);
-        if (!state.completedTaskIds) state.completedTaskIds = {};
-        state.completedTaskIds[task.id] = Date.now();
-        state.ledger.unshift({
-          desc: `Task: ${task.title}`,
-          ton: Number(task.rewardTon || 0),
-          timestamp: Date.now()
-        });
-        saveState();
-        renderDynamicTasks();
-        SFX.victory();
-        showToast(`Reward Credited: +${Number(task.rewardTon).toFixed(5)} TON!`, true);
+      const giveTaskReward = async () => {
+        try {
+          const result = await transactUser(telegramUser.id, record => {
+            if (taskIsComplete(task, record.completedTaskIds)) return false;
+            const reward = Number(task.rewardTon);
+            if (!Number.isFinite(reward) || reward < 0) return false;
+            record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(reward));
+            record.completedTaskIds ||= {};
+            record.completedTaskIds[task.id] = Date.now();
+            record.ledger ||= [];
+            record.ledger.unshift({ desc: `Task: ${task.title}`, ton: reward, timestamp: Date.now() });
+            record.ledger = record.ledger.slice(0, 20);
+          });
+          renderDynamicTasks();
+          if (!result.changed) return showToast('Task already claimed!', false);
+          SFX.victory();
+          showToast(`Reward Credited: +${Number(task.rewardTon).toFixed(5)} TON!`, true);
+        } catch (err) {
+          showToast('Reward could not be saved. Please retry.', false);
+        }
       };
 
       if (task.type === 'link' || task.type === 'telegram') {
-        if (task.link) window.open(task.link, '_blank');
-        giveTaskReward();
+        try {
+          const url = new URL(task.link);
+          if (url.protocol !== 'https:') throw new Error('Unsafe task URL');
+          window.open(url.href, '_blank', 'noopener,noreferrer');
+          // Link opening is not proof of completion; server verification is
+          // required before this can be considered a fraud-resistant reward.
+          await giveTaskReward();
+        } catch (e) { showToast('Invalid task link.', false); }
       } else {
         // Monetag video or sponsor stream
         triggerMonetagAd(task.id, giveTaskReward);
@@ -1351,10 +1516,10 @@
         homeList.innerHTML = state.ledger.map(item => `
           <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
             <div>
-              <p class="text-[11px] font-bold text-white">${item.desc}</p>
-              <p class="text-[9px] text-slate-400 font-mono-num">${new Date(item.timestamp).toLocaleTimeString()}</p>
+              <p class="text-[11px] font-bold text-white">${escapeHtml(item.desc)}</p>
+              <p class="text-[9px] text-slate-400 font-mono-num">${new Date(Number(item.timestamp) || Date.now()).toLocaleTimeString()}</p>
             </div>
-            <span class="text-xs font-black text-emerald-400 font-mono-num">+${item.ton.toFixed(6)} TON</span>
+            <span class="text-xs font-black ${(Number(item.ton) || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-mono-num">${(Number(item.ton) || 0) >= 0 ? '+' : ''}${(Number(item.ton) || 0).toFixed(6)} TON</span>
           </div>
         `).join('');
       } else {
@@ -1366,10 +1531,10 @@
         refList.innerHTML = state.referrals.map(item => `
           <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
             <div class="flex items-center space-x-1.5">
-              <span class="text-[11px] font-bold text-white font-mono-num">${item.username}</span>
+              <span class="text-[11px] font-bold text-white font-mono-num">${escapeHtml(item.username)}</span>
               ${item.isPremium ? '<span class="text-[8px] bg-amber-400/20 text-amber-300 px-1 py-0.2 rounded font-black">VIP</span>' : ''}
             </div>
-            <span class="text-[11px] font-black ${item.isPremium ? 'text-amber-300' : 'text-ton'} font-mono-num">+${item.rewardTon.toFixed(3)} TON</span>
+            <span class="text-[11px] font-black ${item.isPremium ? 'text-amber-300' : 'text-ton'} font-mono-num">+${(Number(item.rewardTon) || 0).toFixed(3)} TON</span>
           </div>
         `).join('');
       } else {
@@ -1388,12 +1553,12 @@
           <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-white/10">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-[11px] font-bold text-white font-mono-num">${item.amount.toFixed(4)} TON</span>
-                <span class="text-[8px] ${item.status === 'Paid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-400/20 text-amber-300'} px-1.5 py-0.2 rounded font-bold">${item.status}</span>
+                <span class="text-[11px] font-bold text-white font-mono-num">${(Number(item.amount) || 0).toFixed(4)} TON</span>
+                <span class="text-[8px] ${item.status === 'Paid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-400/20 text-amber-300'} px-1.5 py-0.2 rounded font-bold">${escapeHtml(item.status)}</span>
               </div>
-              <p class="text-[9px] text-slate-400 font-mono-num">To: ${item.address.substring(0,6)}... • ${new Date(item.timestamp).toLocaleDateString()}</p>
+              <p class="text-[9px] text-slate-400 font-mono-num">To: ${escapeHtml(String(item.address || '').substring(0,6))}... • ${new Date(Number(item.timestamp) || Date.now()).toLocaleDateString()}</p>
             </div>
-            ${item.txHash ? `<span class="text-[9px] text-emerald-400 font-mono-num">TX: ${item.txHash.substring(0,8)}...</span>` : '<span class="text-[9px] text-slate-400 font-mono-num">Auditing (≤24h)</span>'}
+            ${item.txHash ? `<span class="text-[9px] text-emerald-400 font-mono-num">TX: ${escapeHtml(String(item.txHash).substring(0,8))}...</span>` : '<span class="text-[9px] text-slate-400 font-mono-num">Awaiting review</span>'}
           </div>
         `).join('');
       } else {
@@ -1406,23 +1571,36 @@
     /* =======================================================
        7. MONETAG OFFICIAL REWARDED AD INTEGRATION
        ======================================================= */
+    let adInProgress = false;
     function triggerMonetagAd(placementTag, onComplete) {
+      if (adInProgress) return showToast('A sponsor stream is already running.', false);
       SFX.tap();
       const fnName = `show_${appConfig.monetagZoneId || '9969043'}`;
-      if (typeof window[fnName] === 'function') {
-        showToast('Connecting to verified sponsor stream...');
-        window[fnName]({ ymid: `tg_${Date.now()}`, requestVar: placementTag })
-          .then(() => {
-            showToast('Sponsor stream verified! Reward credited.', true);
-            if (onComplete) onComplete();
-          })
-          .catch(() => {
-            showToast('Stream was closed or unavailable.', false);
-          });
-      } else {
-        showToast('Sponsor preview completed! Reward credited.', true);
-        if (onComplete) onComplete();
+      const loadedZone = document.querySelector('script[data-zone][data-sdk]')?.dataset.zone;
+      if (String(loadedZone) !== String(appConfig.monetagZoneId)) {
+        return showToast('Sponsor zone changed. App SDK must be updated.', false);
       }
+      if (typeof window[fnName] !== 'function') {
+        return showToast('Sponsor stream unavailable. No reward charged or credited.', false);
+      }
+      adInProgress = true;
+      showToast('Connecting to verified sponsor stream...');
+      const ymid = `tg_${telegramUser.id || 'guest'}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+      Promise.resolve()
+        .then(() => window[fnName]({ type: 'end', ymid, requestVar: String(placementTag) }))
+        .then(async result => {
+          // Monetag also resolves the promise for closed/non-valued ads.
+          if (result?.reward_event_type !== 'valued') {
+            showToast('Ad was not verified as rewarded. No bonus credited.', false);
+            return;
+          }
+          if (onComplete) await onComplete();
+        })
+        .catch(err => {
+          console.warn('Sponsor verification failed:', err);
+          showToast('Stream closed, failed, or reward could not be saved.', false);
+        })
+        .finally(() => { adInProgress = false; });
     }
 
     /* =======================================================
@@ -1449,6 +1627,9 @@
     let particles = [];
     let floatingTexts = [];
     let spawnTimer = 0;
+    let gameStartPending = false;
+    let currentGameId = null;
+    let gameVictorySaved = false;
 
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
@@ -1571,14 +1752,24 @@
       return { label: 'ELITE', speed: 2.25, interval: 0.34 };
     }
 
-    function startSurvivalRun() {
-      if (state.energy < 1) {
-        showToast('Not enough Energy! Watch ad to recharge.', false);
-        return;
+    async function startSurvivalRun() {
+      if (gameActive || gameStartPending) return;
+      if (!telegramUser.id) return showToast('Open TON Surge inside Telegram to play.', false);
+      gameStartPending = true;
+      try {
+        const spent = await transactUser(telegramUser.id, record => {
+          restoreEnergy(record);
+          if ((Number(record.energy) || 0) < 1) return false;
+          const wasFull = record.energy >= (Number(record.maxEnergy) || 3);
+          record.energy -= 1;
+          if (wasFull || !record.lastEnergyAt) record.lastEnergyAt = Date.now();
+        });
+        if (!spent.changed) return showToast('Not enough Energy! Watch ad to recharge.', false);
+      } catch (err) {
+        return showToast('Could not reserve energy. Check connection.', false);
+      } finally {
+        gameStartPending = false;
       }
-
-      state.energy -= 1;
-      saveState();
 
       document.getElementById('gameStartOverlay').classList.add('hidden');
       document.getElementById('gameOverFailedOverlay').classList.add('hidden');
@@ -1591,6 +1782,8 @@
       roundTonEarned = 0;
       timeRemaining = 60;
       spawnTimer = 0;
+      currentGameId = `${telegramUser.id}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+      gameVictorySaved = false;
       gameActive = true;
       lastFrameTime = performance.now();
 
@@ -1714,37 +1907,111 @@
       document.getElementById('gameOverFailedOverlay').classList.remove('hidden');
     }
 
-    function triggerGameVictory() {
+    async function triggerGameVictory() {
       gameActive = false;
       clearInterval(timerInterval);
 
       SFX.victory();
       triggerHaptic('success');
 
-      state.balanceTon += roundTonEarned;
-      state.ledger.unshift({
-        desc: "60s Survival Run Cleared",
-        ton: roundTonEarned,
-        timestamp: Date.now()
-      });
-      saveState();
-
-      document.getElementById('victoryScoreText').innerText = `+${roundTonEarned.toFixed(6)} TON`;
+      document.getElementById('victoryScoreText').innerText = 'Saving reward...';
       document.getElementById('gameVictoryModal').classList.remove('hidden');
+      try {
+        const credited = await transactUser(telegramUser.id, record => {
+          record.creditedGameIds ||= {};
+          if (record.creditedGameIds[currentGameId]) return false;
+          record.creditedGameIds[currentGameId] = Date.now();
+          // Bound the stored game-id cache to avoid unbounded data growth.
+          const ids = Object.keys(record.creditedGameIds);
+          if (ids.length > 40) delete record.creditedGameIds[ids[0]];
+          record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(roundTonEarned));
+          record.ledger ||= [];
+          record.ledger.unshift({ desc: '60s Survival Run Cleared', ton: roundedTon(roundTonEarned), timestamp: Date.now() });
+          record.ledger = record.ledger.slice(0, 20);
+          record.firstWinRecorded = true;
+        });
+        if (!credited.changed) return;
+        gameVictorySaved = true;
+        document.getElementById('victoryScoreText').innerText = `+${roundTonEarned.toFixed(6)} TON`;
+        settlePendingReferral();
+      } catch (err) {
+        document.getElementById('victoryScoreText').innerText = 'Reward sync failed';
+        showToast('Game reward could not be saved. Please check connection.', false);
+      }
+    }
+
+    async function settlePendingReferral() {
+      if (referralSettlementInProgress || !telegramUser.id || !state.firstWinRecorded || !state.referredBy || state.referralRewardClaimed) return;
+      const friendId = String(telegramUser.id);
+      const inviterId = String(state.referredBy);
+      if (!/^\d+$/.test(inviterId) || friendId === inviterId) return;
+      referralSettlementInProgress = true;
+      try {
+        const paid = await transactUser(inviterId, record => {
+          record.referralCreditedUsers ||= {};
+          if (record.referralCreditedUsers[friendId]) return false;
+          const reward = Number(telegramUser.is_premium ? appConfig.premiumRefTon : appConfig.normalRefTon);
+          if (!Number.isFinite(reward) || reward < 0) return false;
+          record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(reward));
+          record.referralCreditedUsers[friendId] = Date.now();
+          record.referralStats ||= { total: 0, premium: 0, tonEarned: 0 };
+          record.referralStats.total = (Number(record.referralStats.total) || 0) + 1;
+          if (telegramUser.is_premium) {
+            record.referralStats.premium = (Number(record.referralStats.premium) || 0) + 1;
+          }
+          record.referralStats.tonEarned = roundedTon((Number(record.referralStats.tonEarned) || 0) + reward);
+          record.referrals ||= [];
+          record.referrals.unshift({ id: friendId, username: telegramUser.username ? `@${telegramUser.username}` : telegramUser.first_name,
+            isPremium: Boolean(telegramUser.is_premium), rewardTon: reward, timestamp: Date.now() });
+          record.ledger ||= [];
+          record.ledger.unshift({ desc: `Referral: ${friendId}`, ton: reward, timestamp: Date.now() });
+          record.ledger = record.ledger.slice(0, 20);
+        });
+        await transactUser(friendId, record => {
+          if (record.referralRewardClaimed) return false;
+          record.referralRewardClaimed = true;
+        });
+        if (paid.changed) console.info('Referral reward recorded for inviter.');
+      } catch (err) {
+        console.warn('Referral settlement pending:', err);
+      } finally {
+        referralSettlementInProgress = false;
+      }
     }
 
     /* =======================================================
        9. DOM EVENT BINDINGS & LIFECYCLE
        ======================================================= */
     document.addEventListener('DOMContentLoaded', () => {
-      loadPersistedState();
       initTelegramSdkAndAutoFill();
+      loadPersistedState();
       syncUserWithFirebase();
 
       // Periodic Live Cloud Sync (Every 30 seconds for dynamic task & config updates)
       setInterval(() => {
         syncUserWithFirebase();
       }, 30000);
+      setInterval(() => {
+        const el = document.getElementById('energyRegenCountdown');
+        if (!el) return;
+        if (state.energy >= state.maxEnergy) {
+          el.textContent = 'Energy full • Watch Ad when needed';
+        } else {
+          const periodMs = Math.max(1, Number(appConfig.energyRegenMinutes) || 30) * 60000;
+          const remaining = Math.max(0, periodMs - (Date.now() - state.lastEnergyAt));
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          el.textContent = `+1 Energy in ${minutes}:${String(seconds).padStart(2, '0')} or Watch Ad`;
+          recoverEnergyIfDue();
+        }
+      }, 1000);
+
+      document.getElementById('dynamicTasksContainer').addEventListener('click', event => {
+        const button = event.target.closest('button[data-task-id]');
+        if (!button || button.disabled) return;
+        const task = dynamicTasks.find(item => String(item.id) === button.dataset.taskId);
+        if (task) handleExecuteTask(task);
+      });
 
       // Tab navigation
       ['home', 'game', 'referral', 'wallet'].forEach(tab => {
@@ -1773,24 +2040,32 @@
       document.getElementById('btnCustomerSupport').addEventListener('click', openSupport);
       document.getElementById('btnChatSupportTile').addEventListener('click', openSupport);
 
-      // Daily Gift Claim (+0.001 TON)
-      document.getElementById('btnClaimDaily').addEventListener('click', () => {
+      // Daily Gift Claim (persisted on Firebase, one claim per 24 hours).
+      let dailyClaimPending = false;
+      document.getElementById('btnClaimDaily').addEventListener('click', async () => {
+        if (dailyClaimPending) return;
         SFX.tap();
-        const now = Date.now();
-        if (now - state.lastDailyClaim < 24 * 3600 * 1000) {
-          showToast('Daily bonus already claimed! Check back tomorrow.', false);
-          return;
+        if (!telegramUser.id) return showToast('Open the app in Telegram to claim.', false);
+        dailyClaimPending = true;
+        try {
+          const claimed = await transactUser(telegramUser.id, record => {
+            const now = Date.now();
+            if (now - (Number(record.lastDailyClaim) || 0) < 24 * 3600 * 1000) return false;
+            const reward = Number(appConfig.dailyBonusTon) || 0;
+            record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(reward));
+            record.lastDailyClaim = now;
+            record.ledger ||= [];
+            record.ledger.unshift({ desc: 'Daily Gift Check-In', ton: reward, timestamp: now });
+            record.ledger = record.ledger.slice(0, 20);
+          });
+          if (!claimed.changed) return showToast('Daily bonus already claimed! Check back tomorrow.', false);
+          SFX.victory();
+          showToast(`Claimed Daily Gift: +${Number(appConfig.dailyBonusTon).toFixed(6)} TON!`, true);
+        } catch (err) {
+          showToast('Daily gift could not sync. Please retry.', false);
+        } finally {
+          dailyClaimPending = false;
         }
-        state.balanceTon += 0.001000;
-        state.lastDailyClaim = now;
-        state.ledger.unshift({
-          desc: "Daily Gift Check-In",
-          ton: 0.001000,
-          timestamp: now
-        });
-        saveState();
-        SFX.victory();
-        showToast("Claimed Daily Gift: +0.001000 TON!", true);
       });
 
       // Energy Recharge via Ad
@@ -1799,10 +2074,17 @@
           showToast("Energy is already full (3/3).", false);
           return;
         }
-        triggerMonetagAd('energy_recharge', () => {
-          state.energy = Math.min(state.maxEnergy, state.energy + 1);
-          saveState();
-          showToast("Recharged +1 Energy!");
+        triggerMonetagAd('energy_recharge', async () => {
+          try {
+            const charged = await transactUser(telegramUser.id, record => {
+              restoreEnergy(record);
+              const maximum = Number(record.maxEnergy) || 3;
+              if (record.energy >= maximum) return false;
+              record.energy = Math.min(maximum, record.energy + 1);
+              if (record.energy === maximum) record.lastEnergyAt = Date.now();
+            });
+            showToast(charged.changed ? 'Recharged +1 Energy!' : 'Energy is already full.', charged.changed);
+          } catch (e) { showToast('Energy recharge could not sync.', false); }
         });
       });
 
@@ -1815,11 +2097,19 @@
       });
 
       document.getElementById('btnFailRechargeAd').addEventListener('click', () => {
-        triggerMonetagAd('energy_recharge', () => {
-          state.energy = Math.min(state.maxEnergy, state.energy + 1);
-          saveState();
-          document.getElementById('gameOverFailedOverlay').classList.add('hidden');
-          document.getElementById('gameStartOverlay').classList.remove('hidden');
+        triggerMonetagAd('energy_recharge', async () => {
+          try {
+            const recharged = await transactUser(telegramUser.id, record => {
+              restoreEnergy(record);
+              if (record.energy >= (Number(record.maxEnergy) || 3)) return false;
+              record.energy = Math.min(Number(record.maxEnergy) || 3, record.energy + 1);
+              if (record.energy >= (Number(record.maxEnergy) || 3)) record.lastEnergyAt = Date.now();
+            });
+            if (recharged.changed) {
+              document.getElementById('gameOverFailedOverlay').classList.add('hidden');
+              document.getElementById('gameStartOverlay').classList.remove('hidden');
+            }
+          } catch (e) { showToast('Energy recharge could not sync.', false); }
         });
       });
 
@@ -1829,17 +2119,26 @@
       });
 
       document.getElementById('btnVictoryAdClaim').addEventListener('click', () => {
-        triggerMonetagAd('game_victory', () => {
-          const victoryBonus = 0.00010;
-          state.balanceTon += victoryBonus;
-          state.ledger.unshift({
-            desc: "Survival 60s Extra Ad Bonus",
-            ton: victoryBonus,
-            timestamp: Date.now()
-          });
-          saveState();
-          document.getElementById('gameVictoryModal').classList.add('hidden');
-          document.getElementById('gameStartOverlay').classList.remove('hidden');
+        if (!gameVictorySaved) return showToast('Wait until the game reward is saved.', false);
+        triggerMonetagAd('game_victory', async () => {
+          try {
+            const result = await transactUser(telegramUser.id, record => {
+              record.victoryAdClaimedGames ||= {};
+              if (record.victoryAdClaimedGames[currentGameId]) return false;
+              record.victoryAdClaimedGames[currentGameId] = Date.now();
+              const ids = Object.keys(record.victoryAdClaimedGames);
+              if (ids.length > 40) delete record.victoryAdClaimedGames[ids[0]];
+              const bonus = Number(appConfig.victoryAdBonusTon) || 0;
+              record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(bonus));
+              record.ledger ||= [];
+              record.ledger.unshift({ desc: 'Survival 60s Extra Ad Bonus', ton: bonus, timestamp: Date.now() });
+              record.ledger = record.ledger.slice(0, 20);
+            });
+            if (!result.changed) return showToast('Bonus already claimed for this game.', false);
+            document.getElementById('gameVictoryModal').classList.add('hidden');
+            document.getElementById('gameStartOverlay').classList.remove('hidden');
+            showToast('Extra TON bonus credited!', true);
+          } catch (e) { showToast('Victory bonus could not sync.', false); }
         });
       });
 
@@ -1862,12 +2161,37 @@
 
       // Withdrawal Calculator & Request Submission
       const amountInput = document.getElementById('withdrawAmountInput');
+      function validTonAddress(address) {
+        if (/^-?\d+:[0-9a-fA-F]{64}$/.test(address)) return true;
+        if (!/^[A-Za-z0-9_-]{48}$/.test(address)) return false;
+        try {
+          const bytes = Uint8Array.from(atob(address.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+          if (bytes.length !== 36) return false;
+          let checksum = 0;
+          for (let i = 0; i < 34; i++) {
+            checksum ^= bytes[i] << 8;
+            for (let bit = 0; bit < 8; bit++) {
+              checksum = (checksum & 0x8000) ? ((checksum << 1) ^ 0x1021) & 0xffff : (checksum << 1) & 0xffff;
+            }
+          }
+          return bytes[34] === (checksum >> 8) && bytes[35] === (checksum & 255);
+        } catch (e) { return false; }
+      }
+
+      function feesForAmount(amount) {
+        const grossNano = Math.max(0, toNanoTon(amount) || 0);
+        const platformNano = Math.round(grossNano * Number(appConfig.platformFeePercent) / 100);
+        const networkNano = Math.max(0, toNanoTon(appConfig.networkFeeTon));
+        return { grossNano, platformNano, networkNano,
+          netNano: grossNano - platformNano - networkNano };
+      }
+
       function recalculateFees() {
         const amt = parseFloat(amountInput.value) || 0;
-        const platformFee = amt * (appConfig.platformFeePercent / 100);
-        const net = Math.max(0, amt - platformFee - appConfig.networkFeeTon);
-        document.getElementById('withdrawPlatformFeeText').innerText = platformFee.toFixed(6) + ' TON';
-        document.getElementById('withdrawNetText').innerText = net.toFixed(6) + ' TON';
+        const fees = feesForAmount(amt);
+        document.getElementById('withdrawPlatformFeeText').innerText = fromNanoTon(fees.platformNano).toFixed(6) + ' TON';
+        document.getElementById('withdrawNetworkFeeText').innerText = fromNanoTon(fees.networkNano).toFixed(6) + ' TON';
+        document.getElementById('withdrawNetText').innerText = fromNanoTon(Math.max(0, fees.netNano)).toFixed(6) + ' TON';
       }
       amountInput.addEventListener('input', recalculateFees);
 
@@ -1876,37 +2200,60 @@
         recalculateFees();
       });
 
-      document.getElementById('btnSubmitWithdraw').addEventListener('click', () => {
+      let withdrawalPending = false;
+      document.getElementById('btnSubmitWithdraw').addEventListener('click', async () => {
+        if (withdrawalPending) return;
         SFX.tap();
         const address = document.getElementById('withdrawAddressInput').value.trim();
         const amt = parseFloat(amountInput.value);
 
-        if (!address || address.length < 24) {
+        if (!telegramUser.id) return showToast('Open TON Surge inside Telegram to request payout.', false);
+        if (!validTonAddress(address)) {
           showToast('Please enter a valid TON address.', false);
           return;
         }
-        if (isNaN(amt) || amt < appConfig.minWithdrawTon) {
+        if (!Number.isFinite(amt) || amt <= 0 || amt < appConfig.minWithdrawTon) {
           showToast(`Minimum withdrawal is ${appConfig.minWithdrawTon} TON.`, false);
           return;
         }
-        if (amt > state.balanceTon) {
-          showToast('Insufficient TON in Vault balance.', false);
-          return;
+        const fees = feesForAmount(amt);
+        if (fees.netNano <= 0) {
+          return showToast('Withdrawal is too small after network and platform fees.', false);
         }
-
-        state.balanceTon -= amt;
-        state.withdrawals.unshift({
-          amount: amt,
-          address: address,
-          status: 'Auditing (≤24h)',
-          txHash: null,
-          timestamp: Date.now()
-        });
-
-        saveState();
-        amountInput.value = '';
-        recalculateFees();
-        showToast("Settlement queued! Sent to wallet within 24h.", true);
+        withdrawalPending = true;
+        const button = document.getElementById('btnSubmitWithdraw');
+        button.disabled = true;
+        try {
+          const withdrawalId = `wd_${telegramUser.id}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+          await transactUser(telegramUser.id, record => {
+            const balanceNano = toNanoTon(record.balanceTon);
+            if (fees.grossNano > balanceNano) throw new Error('Insufficient TON in Vault balance.');
+            record.balanceTon = fromNanoTon(balanceNano - fees.grossNano);
+            record.withdrawals ||= [];
+            record.withdrawals.unshift({
+              id: withdrawalId,
+              amount: fromNanoTon(fees.grossNano),
+              platformFee: fromNanoTon(fees.platformNano),
+              networkFee: fromNanoTon(fees.networkNano),
+              netAmount: fromNanoTon(fees.netNano),
+              address,
+              status: 'Pending',
+              txHash: null,
+              timestamp: Date.now()
+            });
+            record.ledger ||= [];
+            record.ledger.unshift({ desc: `Withdrawal Request: ${withdrawalId}`, ton: -fromNanoTon(fees.grossNano), timestamp: Date.now() });
+            record.ledger = record.ledger.slice(0, 20);
+          });
+          amountInput.value = '';
+          recalculateFees();
+          showToast('Withdrawal request saved. Awaiting manual review.', true);
+        } catch (err) {
+          showToast(err.message || 'Withdrawal could not be submitted.', false);
+        } finally {
+          withdrawalPending = false;
+          button.disabled = false;
+        }
       });
 
       initTonConnect();
