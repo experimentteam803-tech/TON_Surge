@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>TON Surge - Web3 Protocol & Yield</title>
+  <title>TON Surge — Sovereign Web3 Protocol & Yield</title>
 
   <!-- Official Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -43,36 +43,15 @@
             'star-spin': 'starSpin 24s linear infinite',
             'float-slow': 'floatSlow 3.5s ease-in-out infinite',
             'diamond-pulse': 'diamondPulse 2.8s ease-in-out infinite alternate',
-            'watermark-pulse': 'watermarkPulse 4s ease-in-out infinite alternate',
             'nebula-drift': 'nebulaDrift 18s ease-in-out infinite alternate',
             'cyber-scan': 'cyberScan 4s linear infinite'
           },
           keyframes: {
-            starSpin: {
-              '0%': { transform: 'rotate(0deg)' },
-              '100%': { transform: 'rotate(360deg)' }
-            },
-            floatSlow: {
-              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-              '50%': { transform: 'translateY(-8px) rotate(4deg)' }
-            },
-            diamondPulse: {
-              '0%': { transform: 'scale(0.92) rotate(-5deg)', filter: 'drop-shadow(0 0 10px rgba(0, 152, 234, 0.6))' },
-              '100%': { transform: 'scale(1.08) rotate(5deg)', filter: 'drop-shadow(0 0 25px rgba(56, 189, 248, 0.95))' }
-            },
-            watermarkPulse: {
-              '0%': { opacity: '0.08', transform: 'scale(0.96)' },
-              '100%': { opacity: '0.22', transform: 'scale(1.05)' }
-            },
-            nebulaDrift: {
-              '0%': { transform: 'translate(0px, 0px) scale(1)' },
-              '50%': { transform: 'translate(-20px, 15px) scale(1.12)' },
-              '100%': { transform: 'translate(25px, -18px) scale(1.05)' }
-            },
-            cyberScan: {
-              '0%': { transform: 'translateY(-100%)' },
-              '100%': { transform: 'translateY(1000%)' }
-            }
+            starSpin: { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
+            floatSlow: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-8px)' } },
+            diamondPulse: { '0%': { transform: 'scale(0.92)' }, '100%': { transform: 'scale(1.08)' } },
+            nebulaDrift: { '0%': { transform: 'translate(0px, 0px)' }, '100%': { transform: 'translate(20px, -15px)' } },
+            cyberScan: { '0%': { transform: 'translateY(-100%)' }, '100%': { transform: 'translateY(1000%)' } }
           }
         }
       }
@@ -112,7 +91,6 @@
     .glass-elite-card {
       background: linear-gradient(135deg, rgba(16, 23, 37, 0.88) 0%, rgba(8, 12, 20, 0.94) 100%);
       backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.75);
     }
@@ -120,12 +98,10 @@
     .glass-ton-premium {
       background: linear-gradient(135deg, rgba(0, 152, 234, 0.28) 0%, rgba(8, 13, 22, 0.95) 80%);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(0, 152, 234, 0.5);
       box-shadow: 0 12px 32px -8px rgba(0, 152, 234, 0.4);
     }
 
-    /* 3D Tactile Buttons */
     .btn-3d {
       transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -200,7 +176,6 @@
       border-radius: 4px;
     }
 
-    /* Animated Cyber Neon Arena Border */
     .neon-cyber-frame {
       padding: 3px;
       background: linear-gradient(135deg, #00C6FF, #0072FF, #F59E0B, #EC4899, #00F2FE);
@@ -208,14 +183,12 @@
       animation: gradientShift 6s ease infinite;
       box-shadow: 0 0 26px rgba(0, 152, 234, 0.55);
     }
-
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    /* Dedicated Animated Game Background */
     .game-cosmic-bg {
       background: 
         radial-gradient(ellipse at top left, rgba(0, 152, 234, 0.25) 0%, transparent 50%),
@@ -237,21 +210,20 @@
   <!-- Mobile Viewport Frame -->
   <div id="appContainer" class="w-full max-w-md h-full bg-mesh-radial flex flex-col justify-between relative shadow-2xl overflow-hidden border-x border-slate-900/60">
 
-    <!-- ADMIN REMOTE ANNOUNCEMENT BANNER -->
-    <div id="remoteAnnouncementBanner" class="hidden flex-none bg-gradient-to-r from-amber-500/20 via-ton/20 to-amber-500/20 border-b border-amber-500/30 px-3 py-1 flex items-center justify-between text-[10px] text-amber-300 font-bold z-50">
+    <!-- DYNAMIC ADMIN ANNOUNCEMENT BANNER -->
+    <div id="remoteAnnouncementBanner" class="hidden flex-none bg-gradient-to-r from-amber-500/20 via-ton/20 to-amber-500/20 border-b border-amber-500/30 px-3 py-1.5 flex items-center justify-between text-[10px] text-amber-300 font-bold z-50">
       <div class="flex items-center space-x-1.5 truncate">
         <i class="fa-solid fa-bullhorn text-[9px] animate-pulse"></i>
-        <span id="announcementText" class="truncate">Network Settlement Node: Live</span>
+        <span id="announcementText" class="truncate">Network Protocol Live</span>
       </div>
       <button onclick="document.getElementById('remoteAnnouncementBanner').classList.add('hidden')" class="text-slate-400 hover:text-white ml-2">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
 
-    <!-- FIXED TOP HEADER -->
+    <!-- FIXED TOP HEADER (WITH AUTO TELEGRAM PROFILE) -->
     <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/10 flex items-center justify-between z-40">
       <div class="flex items-center space-x-2.5">
-        <!-- Live Telegram Profile Avatar Container -->
         <div class="relative w-9 h-9 rounded-xl p-0.5 bg-gradient-to-tr from-ton/80 to-sky-400/90 shadow-md shadow-ton/30 flex items-center justify-center overflow-hidden">
           <img 
             id="headerAvatarImg"
@@ -265,7 +237,7 @@
         </div>
         <div>
           <div class="flex items-center space-x-1.5">
-            <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[125px]">AUTHENTICATING</span>
+            <span id="headerUsername" class="text-xs font-black tracking-wide text-white font-mono-num truncate max-w-[125px]">NODE_OPERATIVE</span>
             <span id="headerBadge" class="bg-sky-500/15 text-sky-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-sky-500/30">MEMBER</span>
           </div>
           <p class="text-[10px] text-slate-400 font-mono-num flex items-center gap-1.5">
@@ -278,17 +250,17 @@
       </div>
 
       <div class="flex items-center space-x-2">
-        <!-- CUSTOMER SUPPORT BUTTON (@PayZoteam) -->
+        <!-- Official Support Button (@PayZoteam) -->
         <button id="btnCustomerSupport" title="Customer Support" class="w-8 h-8 rounded-lg glass-elite-card flex items-center justify-center text-sky-400 border border-sky-400/30 hover:border-sky-400 active:scale-90 transition-transform">
           <i class="fa-solid fa-headset text-xs"></i>
         </button>
 
-        <!-- SOUND TOGGLE BUTTON -->
+        <!-- Sound Toggle Button -->
         <button id="btnSoundToggle" title="Toggle Sound" class="w-8 h-8 rounded-lg glass-elite-card flex items-center justify-center text-slate-400 border border-white/10 active:scale-90 transition-transform">
           <i id="soundIcon" class="fa-solid fa-volume-high text-[11px]"></i>
         </button>
 
-        <!-- ENERGY PILL -->
+        <!-- Energy Counter Pill -->
         <div class="glass-elite-card px-2.5 py-1 rounded-full flex items-center space-x-1.5 border border-slate-800">
           <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
           <span id="headerEnergyText" class="text-xs font-mono-num font-black text-white">3/3</span>
@@ -301,7 +273,7 @@
 
       <!-- ================= 1. HOME / VAULT TAB ================= -->
       <section id="tab-home" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 relative">
-        <!-- Glowing Diamond Watermark Background -->
+        <!-- Watermark Background -->
         <div class="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
           <img 
             src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
@@ -310,9 +282,8 @@
           />
         </div>
 
-        <!-- LUXURY BALANCE CARD WITH DUAL ANIMATION (3D TON COIN + 3D DIAMOND) -->
+        <!-- DUAL-ANIMATED VAULT BALANCE CARD -->
         <div class="glass-ton-premium rounded-3xl p-5 relative overflow-hidden shadow-2xl">
-          <!-- 1. Right Side: 3D Rotating TON Coin Animation -->
           <div class="absolute -right-6 -bottom-6 w-36 h-36 opacity-35 pointer-events-none animate-star-spin">
             <img 
               src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
@@ -321,7 +292,6 @@
             />
           </div>
 
-          <!-- 2. Left Side: 3D Floating Glowing Diamond Animation -->
           <div class="absolute -left-5 -top-5 w-28 h-28 opacity-45 pointer-events-none animate-diamond-pulse">
             <img 
               src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
@@ -352,9 +322,8 @@
             </div>
           </div>
 
-          <!-- Quick Action Buttons -->
           <div class="mt-4 pt-3 border-t border-slate-700/50 grid grid-cols-3 gap-2 relative z-10">
-            <button id="btnQuickWithdraw" class="btn-3d btn-3d-dark py-2 rounded-xl text-center">
+            <button onclick="switchTab('wallet')" class="btn-3d btn-3d-dark py-2 rounded-xl text-center">
               <i class="fa-solid fa-arrow-down-to-bracket text-ton text-xs block mb-0.5"></i>
               <span class="text-[10px] font-bold text-white">Withdraw</span>
             </button>
@@ -362,7 +331,7 @@
               <i class="fa-solid fa-gift text-amber-400 text-xs block mb-0.5"></i>
               <span class="text-[10px] font-black text-amber-300">Daily Gift</span>
             </button>
-            <button id="btnQuickPlay" class="btn-3d btn-3d-ton glow-pulse-cta py-2 rounded-xl text-center">
+            <button onclick="switchTab('game')" class="btn-3d btn-3d-ton glow-pulse-cta py-2 rounded-xl text-center">
               <i class="fa-solid fa-gamepad text-white text-xs block mb-0.5"></i>
               <span class="text-[10px] font-black text-white">Play Survival</span>
             </button>
@@ -385,7 +354,7 @@
           </button>
         </div>
 
-        <!-- CUSTOMER SUPPORT TILE -->
+        <!-- 24/7 SUPPORT DESK -->
         <div class="glass-elite-card p-3 rounded-2xl border border-sky-500/30 flex items-center justify-between bg-sky-500/5">
           <div class="flex items-center space-x-3">
             <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
@@ -401,8 +370,8 @@
           </button>
         </div>
 
-        <!-- VERIFIED SPONSOR STREAM NODES -->
-        <div class="space-y-2">
+        <!-- DYNAMIC SPONSORED AD STREAMS & NODES (CONTROLLED BY ADMIN CMS) -->
+        <div class="space-y-2.5">
           <div class="flex items-center justify-between px-1">
             <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <i class="fa-solid fa-shield-halved text-ton"></i> Sponsored Web3 Nodes
@@ -410,36 +379,22 @@
             <span class="text-[10px] text-slate-400 font-mono-num">Monetag Verified</span>
           </div>
 
-          <!-- Placement 1: Home Sponsor Bonus -->
-          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-xl bg-ton/10 border border-ton/30 flex items-center justify-center text-ton">
-                <i class="fa-solid fa-satellite-dish text-sm"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-white">Institutional Sponsor Stream</h4>
-                <p class="text-[10px] text-slate-400">Up to <span class="text-emerald-400 font-mono-num font-bold">0.00015 TON</span></p>
-              </div>
-            </div>
-            <button id="btnWatchSponsorAd" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
-              Engage
-            </button>
+          <div id="homeDynamicAdsContainer" class="space-y-2">
+            <!-- Dynamically populated from Firebase /adminConfig/ads or Fallback defaults -->
+          </div>
+        </div>
+
+        <!-- DYNAMIC PROTOCOL TASKS & MISSIONS (CONTROLLED BY ADMIN CMS) -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check text-emerald-400"></i> Protocol Tasks & Bounties
+            </h3>
+            <span class="text-[10px] text-slate-400 font-mono-num">Instant Payout</span>
           </div>
 
-          <!-- Placement 2: Daily TON Bonus -->
-          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <i class="fa-solid fa-coins text-sm"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-white">Daily Bonus Pool Stream</h4>
-                <p class="text-[10px] text-slate-400">1x / 24h • Up to <span class="text-amber-400 font-mono-num font-bold">0.00005 TON</span></p>
-              </div>
-            </div>
-            <button id="btnDailyTonAd" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950">
-              Claim
-            </button>
+          <div id="homeDynamicTasksContainer" class="space-y-2">
+            <!-- Dynamically populated from Firebase /adminConfig/tasks or Fallback defaults -->
           </div>
         </div>
 
@@ -452,15 +407,13 @@
             <span class="text-[10px] text-slate-500 font-mono-num">Realtime Records</span>
           </div>
           <div id="homeHistoryList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
-            <!-- Dynamically populated via JS -->
+            <!-- Populated via JS -->
           </div>
         </div>
       </section>
 
       <!-- ================= 2. SURVIVAL GAME TAB ================= -->
       <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-3 hidden relative">
-        
-        <!-- ULTRA-PREMIUM DYNAMIC ANIMATED BACKGROUND -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden game-cosmic-bg">
           <div class="absolute -top-10 -left-10 w-72 h-72 rounded-full bg-cyan-500/20 blur-3xl animate-nebula-drift pointer-events-none"></div>
           <div class="absolute -bottom-10 -right-10 w-80 h-80 rounded-full bg-amber-500/15 blur-3xl animate-nebula-drift pointer-events-none" style="animation-delay: -6s;"></div>
@@ -470,7 +423,6 @@
         </div>
 
         <div class="relative z-10 space-y-3">
-          <!-- TOP HUD: TIME, DIFFICULTY & ROUND TON REWARD -->
           <div class="glass-elite-card p-2.5 rounded-2xl flex items-center justify-between border border-white/10 backdrop-blur-md">
             <div class="flex items-center space-x-2">
               <div class="w-7 h-7 rounded-lg bg-ton/15 flex items-center justify-center text-ton">
@@ -491,12 +443,10 @@
             </div>
           </div>
 
-          <!-- CANVAS ARENA WITH GLOWING NEON CYBER BORDER -->
           <div class="neon-cyber-frame rounded-3xl overflow-hidden shadow-2xl relative">
             <div class="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-slate-950/80 backdrop-blur-sm">
               <canvas id="gameCanvas" class="w-full h-full"></canvas>
 
-              <!-- 1. Start Lobby Overlay -->
               <div id="gameStartOverlay" class="absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-20">
                 <div class="w-14 h-14 rounded-2xl bg-ton/15 border border-ton/40 flex items-center justify-center mb-2 p-2 animate-float-slow">
                   <img 
@@ -528,7 +478,6 @@
                 </button>
               </div>
 
-              <!-- 2. Failed Overlay -->
               <div id="gameOverFailedOverlay" class="hidden absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
                 <div class="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center text-xl mb-2 p-2">
                   <img id="failedOverlayImg" src="https://i.postimg.cc/pX6rkLHz/Pngtree-cartoon-round-black-bomb-with-5545852.png" alt="Failed" class="w-full h-full object-contain" />
@@ -551,7 +500,6 @@
                 </div>
               </div>
 
-              <!-- 3. Victory Modal -->
               <div id="gameVictoryModal" class="hidden absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
                 <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl mb-2 shadow-lg shadow-emerald-500/30">
                   <i class="fa-solid fa-trophy"></i>
@@ -581,7 +529,6 @@
 
       <!-- ================= 3. SYNDICATE (REFERRAL) TAB ================= -->
       <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
-        <!-- REFERRAL BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img 
             src="https://i.postimg.cc/C53cGfwm/IMG-20261028-002411.jpg" 
@@ -602,9 +549,7 @@
             </p>
           </div>
 
-          <!-- REWARD TIERS (0.002 TON & 0.005 TON) -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- Standard Friend -->
             <div class="glass-elite-card p-3 rounded-xl border border-white/10 space-y-1">
               <div class="flex items-center justify-between">
                 <span class="text-[9px] font-bold text-slate-300 uppercase">Standard Invite</span>
@@ -614,7 +559,6 @@
               <p class="text-[9px] text-slate-300 leading-tight">Instant direct credit when friend completes 1st round</p>
             </div>
 
-            <!-- Telegram Premium VIP -->
             <div class="glass-elite-card p-3 rounded-xl border border-amber-400/40 bg-amber-500/15 space-y-1">
               <div class="flex items-center justify-between">
                 <span class="text-[9px] font-black text-amber-300 uppercase flex items-center gap-1">
@@ -627,7 +571,6 @@
             </div>
           </div>
 
-          <!-- DETAILED STEP-BY-STEP INSTRUCTIONS -->
           <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2">
             <h4 class="text-xs font-black uppercase text-slate-200 flex items-center gap-1.5">
               <i class="fa-solid fa-circle-info text-ton"></i> Referral Protocol Instructions
@@ -648,7 +591,6 @@
             </div>
           </div>
 
-          <!-- Referral Stats Overview (REAL STATS ONLY) -->
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="glass-elite-card p-2 rounded-xl border border-white/10">
               <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
@@ -664,7 +606,6 @@
             </div>
           </div>
 
-          <!-- Link Share Box -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-2">
             <span class="text-[10px] font-bold text-slate-300 uppercase">Your Personal Invite Link:</span>
             <div class="flex items-center space-x-2 bg-slate-950/80 rounded-xl p-1.5 border border-white/10">
@@ -676,7 +617,6 @@
             </button>
           </div>
 
-          <!-- Referral Ledger (Clean Empty State) -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
             <div class="flex items-center justify-between border-b border-white/10 pb-1">
               <h4 class="text-xs font-black uppercase text-slate-300">Verified Referral Ledger</h4>
@@ -691,7 +631,6 @@
 
       <!-- ================= 4. CASHOUT (WALLET) TAB ================= -->
       <section id="tab-wallet" class="tab-section h-full overflow-y-auto custom-scroll p-4 space-y-4 hidden relative">
-        <!-- WALLET BACKGROUND: 100% OPACITY CRYSTAL CLEAR -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img 
             src="https://i.postimg.cc/pLJtdPZP/IMG-20261028-002345.jpg" 
@@ -707,7 +646,7 @@
             <p class="text-[10px] text-slate-200">Non-custodial settlement via official TON Connect standard.</p>
           </div>
 
-          <!-- Official TON Connect UI Button Wrapper -->
+          <!-- TON Connect UI Widget -->
           <div class="glass-ton-premium p-4 rounded-3xl text-center space-y-3">
             <div class="w-12 h-12 rounded-2xl bg-ton/20 border border-ton/50 flex items-center justify-center mx-auto p-1.5 shadow-lg shadow-ton/30">
               <img 
@@ -746,7 +685,7 @@
               </div>
             </div>
 
-            <!-- Fee Table -->
+            <!-- Fee Calculation Table -->
             <div class="bg-slate-900/75 rounded-xl p-2 text-[10px] space-y-1 border border-white/10">
               <div class="flex justify-between text-slate-400">
                 <span>Platform Fee (<span id="labelPlatformFee">2</span>%):</span>
@@ -767,6 +706,23 @@
             </button>
           </div>
 
+          <!-- ================= 24-HOUR SETTLEMENT POLICY & SUPPORT ADVISORY NOTE ================= -->
+          <div class="glass-elite-card p-3 rounded-2xl border border-amber-400/30 bg-amber-500/10 space-y-1.5">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-clock-rotate-left text-amber-400 text-xs"></i>
+              <h4 class="text-xs font-black uppercase text-amber-300 tracking-wider">Settlement Policy & Timelines</h4>
+            </div>
+            <p class="text-[10px] text-slate-300 leading-relaxed">
+              All cashout requests undergo on-chain verification and are processed directly to your destination TON wallet within <strong>24 hours</strong>.
+            </p>
+            <div class="flex items-center justify-between pt-1 border-t border-white/5 text-[9px]">
+              <span class="text-slate-400">Not received after 24 hours?</span>
+              <a href="https://t.me/PayZoteam" target="_blank" class="text-sky-300 font-bold hover:underline flex items-center gap-1">
+                <i class="fa-solid fa-headset text-[9px]"></i> Contact Official Support
+              </a>
+            </div>
+          </div>
+
           <!-- Withdrawal Ledger -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
             <div class="flex items-center justify-between border-b border-white/10 pb-1">
@@ -781,7 +737,7 @@
 
     </main>
 
-    <!-- FLOATING TOAST NOTIFICATION -->
+    <!-- FLOATING TOAST -->
     <div id="toastNotification" class="fixed top-12 left-1/2 -translate-x-1/2 max-w-xs w-full px-4 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
       <div class="glass-elite-card border border-ton/50 px-3.5 py-2 rounded-2xl text-center shadow-2xl flex items-center justify-center gap-2">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
@@ -812,14 +768,14 @@
     </nav>
   </div>
 
-  <!-- APPLICATION JAVASCRIPT ENGINE -->
+  <!-- APPLICATION JAVASCRIPT CONTROLLER -->
   <script>
     /* =======================================================
        1. FIREBASE REALTIME CLOUD SYNC CONFIGURATION
        ======================================================= */
     const FIREBASE_DB_URL = "https://gift-code-wellcome-default-rtdb.firebaseio.com";
 
-    // Application Parameters
+    // Application Parameters (Syncs dynamically with Admin Panel)
     let appConfig = {
       blueDiamondTon: 0.00002,
       goldDiamondTon: 0.00005,
@@ -829,16 +785,56 @@
       platformFeePercent: 2,
       networkFeeTon: 0.005,
       supportHandle: "@PayZoteam",
-      announcement: ""
+      announcement: "",
+      maintenanceMode: false,
+      // Default dynamic ads (editable via Admin panel)
+      ads: [
+        {
+          id: "ad_sponsor_stream",
+          title: "Institutional Sponsor Stream",
+          desc: "Decentralized Web3 Node Preview",
+          rewardTon: 0.00015,
+          placement: "home_sponsor",
+          icon: "fa-solid fa-satellite-dish"
+        },
+        {
+          id: "ad_daily_pool",
+          title: "Daily Bonus Pool Stream",
+          desc: "1x / 24h • Liquidity Reward",
+          rewardTon: 0.00005,
+          placement: "daily_ton",
+          icon: "fa-solid fa-coins"
+        }
+      ],
+      // Default dynamic tasks (editable via Admin panel)
+      tasks: [
+        {
+          id: "task_tg_node",
+          title: "Join Official Telegram Node",
+          desc: "Announcements & daily drops",
+          rewardTon: 0.0050,
+          url: "https://t.me/toncoin",
+          icon: "fa-brands fa-telegram"
+        },
+        {
+          id: "task_sponsor_video",
+          title: "Web3 Sponsor Video Stream",
+          desc: "Institutional partner node check",
+          rewardTon: 0.0010,
+          url: "", // triggers monetag video
+          icon: "fa-solid fa-circle-play"
+        }
+      ]
     };
 
-    // Real User State
+    // User State
     let state = {
       balanceTon: 0.001000,
       tonRate: 5.40,
       energy: 3,
       maxEnergy: 3,
       lastDailyClaim: 0,
+      completedTasks: {},
       referralStats: {
         total: 0,
         premium: 0,
@@ -853,15 +849,15 @@
 
     let telegramUser = {
       id: "8075561163",
-      first_name: "Agent",
+      first_name: "Operative",
       last_name: "",
-      username: "validator_node",
+      username: "node_operative",
       photo_url: null,
       is_premium: false
     };
 
     /* =======================================================
-       2. TELEGRAM SDK INITIALIZATION & AUTO-FILL
+       2. TELEGRAM SDK INITIALIZATION & USER AUTO-FILL
        ======================================================= */
     const tgApp = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
@@ -875,7 +871,6 @@
           if (tgApp.enableClosingConfirmation) tgApp.enableClosingConfirmation();
         } catch (e) {}
 
-        // Direct fetch from Telegram WebApp initDataUnsafe
         if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
           telegramUser = { ...telegramUser, ...tgApp.initDataUnsafe.user };
           localStorage.setItem('TON_SURGE_TG_USER', JSON.stringify(telegramUser));
@@ -891,7 +886,7 @@
         }
       }
 
-      // Check URL parameters for direct start referral
+      // Check referral deep-link
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const refParam = urlParams.get('start') || urlParams.get('startapp');
@@ -900,7 +895,7 @@
         }
       } catch(e) {}
 
-      // Fallback to cached Telegram profile
+      // Cache fallback
       const cached = localStorage.getItem('TON_SURGE_TG_USER');
       if (cached) {
         try { telegramUser = { ...telegramUser, ...JSON.parse(cached) }; } catch(e){}
@@ -946,7 +941,7 @@
         }
       }
 
-      // Dynamic Referral Link: Opens bot chat with /start USER_ID
+      // Dynamic Referral Link: opens bot chat with /start USER_ID
       const refLinkInput = document.getElementById('refShareLink');
       if (refLinkInput) {
         refLinkInput.value = `https://t.me/ton_surge_bot?start=${telegramUser.id}`;
@@ -965,9 +960,27 @@
     }
 
     /* =======================================================
-       3. REALTIME FIREBASE SYNC ENGINE
+       3. REALTIME CLOUD DATABASE & CMS SYNC (ADMIN CONTROLLER)
        ======================================================= */
-    async function syncUserWithFirebase() {
+    async function syncWithCloudDatabase() {
+      // 1. Sync Dynamic Admin Configuration, Tasks & Ads from Firebase
+      try {
+        const cfgRes = await fetch(`${FIREBASE_DB_URL}/adminConfig.json`);
+        const cloudCfg = await cfgRes.json();
+        if (cloudCfg) {
+          appConfig = { ...appConfig, ...cloudCfg };
+          if (cloudCfg.tasks) appConfig.tasks = Array.isArray(cloudCfg.tasks) ? cloudCfg.tasks : Object.values(cloudCfg.tasks);
+          if (cloudCfg.ads) appConfig.ads = Array.isArray(cloudCfg.ads) ? cloudCfg.ads : Object.values(cloudCfg.ads);
+        }
+      } catch (e) {
+        console.warn("Using local configuration cache:", e);
+      }
+
+      applyAdminConfigToUI();
+      renderDynamicAds();
+      renderDynamicTasks();
+
+      // 2. Sync Real User Node from Firebase
       if (!telegramUser || !telegramUser.id) return;
       const userNode = `tg_${telegramUser.id}`;
 
@@ -979,14 +992,15 @@
           state.balanceTon = typeof cloudData.balanceTon === 'number' ? cloudData.balanceTon : state.balanceTon;
           state.energy = typeof cloudData.energy === 'number' ? cloudData.energy : state.energy;
           if (cloudData.referralStats) state.referralStats = cloudData.referralStats;
+          if (cloudData.completedTasks) state.completedTasks = cloudData.completedTasks;
           if (cloudData.ledger && Array.isArray(cloudData.ledger)) state.ledger = cloudData.ledger;
           if (cloudData.withdrawals && Array.isArray(cloudData.withdrawals)) state.withdrawals = cloudData.withdrawals;
           document.getElementById('liveSyncStatus').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-[8px]"></i> Cloud Synced';
         } else {
-          // New User Starter Credit
+          // Initialize Starter Entry
           state.balanceTon = 0.001000;
           state.ledger = [{
-            desc: "Vault Protocol Initialization",
+            desc: "Vault Protocol Starter Bonus",
             ton: 0.001000,
             timestamp: Date.now()
           }];
@@ -995,7 +1009,7 @@
         renderUI();
         await pushUserToFirebase();
       } catch (err) {
-        console.warn("Firebase sync fallback:", err);
+        console.warn("Firebase user sync fallback:", err);
       }
     }
 
@@ -1005,13 +1019,14 @@
 
       const payload = {
         id: String(telegramUser.id),
-        username: telegramUser.username ? `@${telegramUser.username}` : (telegramUser.first_name || 'Member'),
+        username: telegramUser.username ? `@${telegramUser.username}` : (telegramUser.first_name || 'Operative'),
         first_name: telegramUser.first_name || '',
         photo_url: telegramUser.photo_url || null,
         is_premium: Boolean(telegramUser.is_premium),
         balanceTon: state.balanceTon,
         balanceNanoTon: Math.floor(state.balanceTon * 1e9),
         energy: state.energy,
+        completedTasks: state.completedTasks || {},
         referralStats: state.referralStats,
         withdrawals: state.withdrawals || [],
         ledger: (state.ledger || []).slice(0, 15),
@@ -1028,45 +1043,19 @@
     }
 
     function saveState() {
-      localStorage.setItem('TON_SURGE_REAL_USER_STATE_V2', JSON.stringify(state));
+      localStorage.setItem('TON_SURGE_REAL_USER_STATE_V3', JSON.stringify(state));
       renderUI();
-      pushUserToFirebase(); // Realtime cloud database write
+      pushUserToFirebase();
     }
 
     function loadPersistedState() {
-      const savedState = localStorage.getItem('TON_SURGE_REAL_USER_STATE_V2');
+      const savedState = localStorage.getItem('TON_SURGE_REAL_USER_STATE_V3');
       if (savedState) {
         try { state = { ...state, ...JSON.parse(savedState) }; } catch(e){}
       }
     }
 
-    /* Live Admin Remote Broadcast Listener */
-    try {
-      const adminChannel = new BroadcastChannel('ton_rush_admin_channel');
-      adminChannel.onmessage = (event) => {
-        if (event.data && event.data.type === 'CONFIG_UPDATE') {
-          appConfig = { ...appConfig, ...event.data.payload };
-          applyAdminConfigToUI();
-          showToast("Remote protocol settings updated!", true);
-        } else if (event.data && event.data.type === 'USER_ADJUST') {
-          if (event.data.payload.uid === `tg_${telegramUser.id}`) {
-            if (typeof event.data.payload.addTon === 'number') {
-              state.balanceTon = Math.max(0, state.balanceTon + event.data.payload.addTon);
-              state.ledger.unshift({
-                desc: "Admin Vault Adjustment",
-                ton: event.data.payload.addTon,
-                timestamp: Date.now()
-              });
-            }
-            if (typeof event.data.payload.setEnergy === 'number') {
-              state.energy = event.data.payload.setEnergy;
-            }
-            saveState();
-          }
-        }
-      };
-    } catch(e){}
-
+    // Dynamic UI Updates based on Admin Config
     function applyAdminConfigToUI() {
       document.getElementById('labelBlueDiamondTon').innerText = appConfig.blueDiamondTon.toFixed(5);
       document.getElementById('labelGoldDiamondTon').innerText = appConfig.goldDiamondTon.toFixed(5);
@@ -1083,6 +1072,130 @@
       } else {
         banner.classList.add('hidden');
       }
+    }
+
+    /* Render Dynamic Sponsored Ad Nodes */
+    function renderDynamicAds() {
+      const container = document.getElementById('homeDynamicAdsContainer');
+      if (!container) return;
+
+      if (!appConfig.ads || appConfig.ads.length === 0) {
+        container.innerHTML = `<p class="text-[10px] text-slate-500 text-center py-2">No active sponsor streams</p>`;
+        return;
+      }
+
+      container.innerHTML = appConfig.ads.map(ad => `
+        <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-ton/10 border border-ton/30 flex items-center justify-center text-ton text-sm">
+              <i class="${ad.icon || 'fa-solid fa-satellite-dish'}"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white">${ad.title}</h4>
+              <p class="text-[10px] text-slate-400">${ad.desc || 'Verified Web3 Stream'}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-black text-emerald-400 font-mono-num">+${ad.rewardTon.toFixed(5)} TON</span>
+            <button onclick="triggerDynamicAdReward('${ad.id}', ${ad.rewardTon}, '${ad.placement || 'home_sponsor'}')" class="btn-3d btn-3d-ton block mt-1 px-3 py-1 text-[10px] font-black text-white rounded-lg">
+              Engage
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* Render Dynamic Protocol Tasks / Bounties */
+    function renderDynamicTasks() {
+      const container = document.getElementById('homeDynamicTasksContainer');
+      if (!container) return;
+
+      if (!appConfig.tasks || appConfig.tasks.length === 0) {
+        container.innerHTML = `<p class="text-[10px] text-slate-500 text-center py-2">No active bounty missions</p>`;
+        return;
+      }
+
+      container.innerHTML = appConfig.tasks.map(task => {
+        const isClaimed = state.completedTasks && state.completedTasks[task.id];
+        return `
+          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10" id="task-card-${task.id}">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-sm">
+                <i class="${task.icon || 'fa-solid fa-circle-play'}"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">${task.title}</h4>
+                <p class="text-[10px] text-slate-400">${task.desc || 'Community Bounty'}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-black text-ton font-mono-num">+${task.rewardTon.toFixed(4)} TON</span>
+              <button 
+                onclick="executeDynamicTask('${task.id}', ${task.rewardTon}, '${task.url || ''}')" 
+                class="btn-3d ${isClaimed ? 'btn-3d-dark opacity-60 text-slate-400 cursor-not-allowed' : 'btn-3d-gold text-slate-950'} block mt-1 px-3 py-1 text-[10px] font-black rounded-lg"
+                ${isClaimed ? 'disabled' : ''}
+              >
+                ${isClaimed ? 'Claimed' : 'Complete'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* Dynamic Ad Reward Trigger */
+    function triggerDynamicAdReward(adId, rewardTon, placement) {
+      triggerMonetagAd(placement, () => {
+        state.balanceTon += rewardTon;
+        state.ledger.unshift({
+          desc: `Sponsor Stream (${placement})`,
+          ton: rewardTon,
+          timestamp: Date.now()
+        });
+        saveState();
+        showToast(`+${rewardTon.toFixed(5)} TON credited to Vault!`, true);
+      });
+    }
+
+    /* Dynamic Task Execution */
+    function executeDynamicTask(taskId, rewardTon, url) {
+      SFX.tap();
+      if (state.completedTasks && state.completedTasks[taskId]) {
+        showToast("Task already completed!", false);
+        return;
+      }
+
+      if (url && url.startsWith('http')) {
+        window.open(url, '_blank');
+        const btn = document.querySelector(`#task-card-${taskId} button`);
+        if (btn) {
+          btn.disabled = true;
+          btn.innerText = 'Verifying...';
+        }
+        setTimeout(() => {
+          awardTaskCompletion(taskId, rewardTon);
+        }, 2500);
+      } else {
+        // Rewarded video task
+        triggerMonetagAd('task_stream', () => {
+          awardTaskCompletion(taskId, rewardTon);
+        });
+      }
+    }
+
+    function awardTaskCompletion(taskId, rewardTon) {
+      if (!state.completedTasks) state.completedTasks = {};
+      state.completedTasks[taskId] = true;
+      state.balanceTon += rewardTon;
+      state.ledger.unshift({
+        desc: `Protocol Task Claimed`,
+        ton: rewardTon,
+        timestamp: Date.now()
+      });
+      saveState();
+      renderDynamicTasks();
+      SFX.victory();
+      showToast(`Mission Complete: +${rewardTon.toFixed(4)} TON!`, true);
     }
 
     /* =======================================================
@@ -1135,7 +1248,7 @@
     }
 
     /* =======================================================
-       5. OFFICIAL TON CONNECT UI SETUP
+       5. OFFICIAL TON CONNECT UI INTEGRATION
        ======================================================= */
     let tonConnectUI = null;
     let connectedWalletAddress = null;
@@ -1166,7 +1279,7 @@
     }
 
     /* =======================================================
-       6. UI RENDERING & NAVIGATION LOGIC
+       6. UI RENDERING & TAB SWITCHING
        ======================================================= */
     function showToast(msg, isSuccess = true) {
       const toast = document.getElementById('toastNotification');
@@ -1238,7 +1351,7 @@
         homeList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-3">No activity recorded yet.</p>`;
       }
 
-      // Referral Ledger (Real Records Only)
+      // Referral Ledger
       const refList = document.getElementById('referralHistoryList');
       if (state.referrals.length > 0) {
         refList.innerHTML = state.referrals.map(item => `
@@ -1278,8 +1391,6 @@
       } else {
         withList.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No settlements recorded yet.</p>`;
       }
-
-      applyAdminConfigToUI();
     }
 
     /* =======================================================
@@ -1450,6 +1561,10 @@
     }
 
     function startSurvivalRun() {
+      if (appConfig.maintenanceMode) {
+        showToast("Survival runs temporarily paused for maintenance.", false);
+        return;
+      }
       if (state.energy < 1) {
         showToast('Not enough Energy! Watch ad to recharge.', false);
         return;
@@ -1617,7 +1732,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadPersistedState();
       initTelegramSdkAndAutoFill();
-      syncUserWithFirebase(); // Realtime cloud synchronization on launch
+      syncWithCloudDatabase(); // Realtime cloud synchronization on launch
 
       // Tab navigation
       ['home', 'game', 'referral', 'wallet'].forEach(tab => {
@@ -1640,7 +1755,7 @@
       // Customer Support Link (@PayZoteam)
       const openSupport = () => {
         SFX.tap();
-        const handle = appConfig.supportHandle.replace('@', '');
+        const handle = (appConfig.supportHandle || '@PayZoteam').replace('@', '');
         window.open(`https://t.me/${handle}`, '_blank');
       };
       document.getElementById('btnCustomerSupport').addEventListener('click', openSupport);
@@ -1676,34 +1791,6 @@
           state.energy = Math.min(state.maxEnergy, state.energy + 1);
           saveState();
           showToast("Recharged +1 Energy!");
-        });
-      });
-
-      // Home Sponsor Stream Ad
-      document.getElementById('btnWatchSponsorAd').addEventListener('click', () => {
-        triggerMonetagAd('home_sponsor', () => {
-          const reward = 0.00015;
-          state.balanceTon += reward;
-          state.ledger.unshift({
-            desc: "Institutional Sponsor Stream",
-            ton: reward,
-            timestamp: Date.now()
-          });
-          saveState();
-        });
-      });
-
-      // Daily TON Ad
-      document.getElementById('btnDailyTonAd').addEventListener('click', () => {
-        triggerMonetagAd('daily_ton', () => {
-          const reward = 0.00005;
-          state.balanceTon += reward;
-          state.ledger.unshift({
-            desc: "Daily Bonus Pool Stream",
-            ton: reward,
-            timestamp: Date.now()
-          });
-          saveState();
         });
       });
 
@@ -1788,6 +1875,11 @@ Launch your node and claim your starter balance here:`);
 
       document.getElementById('btnSubmitWithdraw').addEventListener('click', () => {
         SFX.tap();
+        if (appConfig.maintenanceMode) {
+          showToast("Withdrawals temporarily paused for network maintenance.", false);
+          return;
+        }
+
         const address = document.getElementById('withdrawAddressInput').value.trim();
         const amt = parseFloat(amountInput.value);
 
