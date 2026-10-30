@@ -254,7 +254,6 @@
     <!-- FIXED TOP HEADER -->
     <header class="flex-none bg-elite-bg/95 backdrop-blur-xl px-4 py-2.5 border-b border-white/10 flex items-center justify-between z-40">
       <button id="btnOpenProfile" type="button" aria-label="Open my profile" class="flex items-center space-x-2.5 text-left min-w-0 active:scale-[0.98] transition-transform">
-        <!-- Live Telegram Profile Avatar Container -->
         <div class="relative w-9 h-9 rounded-xl p-0.5 bg-gradient-to-tr from-ton/80 to-sky-400/90 shadow-md shadow-ton/30 flex items-center justify-center overflow-hidden">
           <img 
             id="headerAvatarImg"
@@ -282,17 +281,14 @@
       </button>
 
       <div class="flex items-center space-x-2">
-        <!-- CUSTOMER SUPPORT BUTTON (@PayZoteam) -->
         <button id="btnCustomerSupport" title="Customer Support" class="w-8 h-8 rounded-lg glass-elite-card flex items-center justify-center text-sky-400 border border-sky-400/30 hover:border-sky-400 active:scale-90 transition-transform">
           <i class="fa-solid fa-headset text-xs"></i>
         </button>
 
-        <!-- SOUND TOGGLE BUTTON -->
         <button id="btnSoundToggle" title="Toggle Sound" class="w-8 h-8 rounded-lg glass-elite-card flex items-center justify-center text-slate-400 border border-white/10 active:scale-90 transition-transform">
           <i id="soundIcon" class="fa-solid fa-volume-high text-[11px]"></i>
         </button>
 
-        <!-- ENERGY PILL -->
         <div class="glass-elite-card px-2.5 py-1 rounded-full flex items-center space-x-1.5 border border-slate-800">
           <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
           <span id="headerEnergyText" class="text-xs font-mono-num font-black text-white">3/3</span>
@@ -305,7 +301,6 @@
 
       <!-- ================= 1. HOME / VAULT TAB ================= -->
       <section id="tab-home" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-28 space-y-4 relative">
-        <!-- Glowing Diamond Watermark Background -->
         <div class="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
           <img 
             src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
@@ -314,9 +309,8 @@
           />
         </div>
 
-        <!-- LUXURY BALANCE CARD WITH DUAL ANIMATION (3D TON COIN + 3D DIAMOND) -->
+        <!-- BALANCE CARD -->
         <div class="glass-ton-premium rounded-3xl p-5 relative overflow-hidden shadow-2xl">
-          <!-- 1. Right Side: 3D Rotating TON Coin Animation -->
           <div class="absolute -right-6 -bottom-6 w-36 h-36 opacity-35 pointer-events-none animate-star-spin">
             <img 
               src="https://i.postimg.cc/K88SHPmV/vecteezy-toncoin-coin-crypto-3d-illustration-68015977.png" 
@@ -325,7 +319,6 @@
             />
           </div>
 
-          <!-- 2. Left Side: 3D Floating Glowing Diamond Animation -->
           <div class="absolute -left-5 -top-5 w-28 h-28 opacity-45 pointer-events-none animate-diamond-pulse">
             <img 
               src="https://i.postimg.cc/jdWyQ97m/bijutoha-diamond-1857733-640.png" 
@@ -356,7 +349,6 @@
             </div>
           </div>
 
-          <!-- Quick Action Buttons -->
           <div class="mt-4 pt-3 border-t border-slate-700/50 grid grid-cols-3 gap-2 relative z-10">
             <button id="btnQuickWithdraw" class="btn-3d btn-3d-dark py-2 rounded-xl text-center">
               <i class="fa-solid fa-arrow-down-to-bracket text-ton text-xs block mb-0.5"></i>
@@ -373,7 +365,7 @@
           </div>
         </div>
 
-        <!-- QUICK ENERGY BOOST CARD (ADSGRAM OFFICIAL REWARDED AD) -->
+        <!-- RECHARGE ENERGY VIA ADSGRAM AD -->
         <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 text-base">
@@ -385,7 +377,7 @@
             </div>
           </div>
           <button id="btnRechargeEnergyAd" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950 flex items-center gap-1.5">
-            <i class="fa-solid fa-play text-[9px]"></i> Watch (+1 E)
+            <i class="fa-solid fa-play text-[9px]"></i> <span id="labelRechargeAdBtn">Watch (+1 E)</span>
           </button>
         </div>
 
@@ -405,7 +397,7 @@
           </button>
         </div>
 
-        <!-- DYNAMIC SPONSOR STREAMS & ADMIN MANAGED TASKS -->
+        <!-- DYNAMIC SPONSORED TASKS (WITH 0/5 LIMIT & 20s SAFETY COOLDOWN) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between px-1">
             <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
@@ -414,46 +406,13 @@
             <span class="text-[10px] text-slate-400 font-mono-num">Admin Synchronized</span>
           </div>
 
-          <!-- Dynamic Task Container Loaded from Firebase DB or Admin Panel -->
-          <div id="dynamicTasksContainer" class="space-y-2">
-            <!-- Fallback Initial Tasks -->
-            <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
-              <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-ton/10 border border-ton/30 flex items-center justify-center text-ton">
-                  <i class="fa-solid fa-play text-sm"></i>
-                </div>
-                <div>
-                  <h4 class="text-xs font-bold text-white">Adsgram Reward Stream</h4>
-                  <p class="text-[10px] text-slate-400">Rewarded Video • <span class="text-emerald-400 font-mono-num font-bold">+0.00015 TON</span></p>
-                </div>
-              </div>
-              <button data-task-id="default_sponsor" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
-                Engage
-              </button>
-            </div>
-
-            <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
-              <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                  <i class="fa-solid fa-coins text-sm"></i>
-                </div>
-                <div>
-                  <h4 class="text-xs font-bold text-white">Daily Bonus Pool Stream</h4>
-                  <p class="text-[10px] text-slate-400">1x / 24h • <span class="text-amber-400 font-mono-num font-bold">+0.00005 TON</span></p>
-                </div>
-              </div>
-              <button data-task-id="default_daily" class="btn-3d btn-3d-gold px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-950">
-                Claim
-              </button>
-            </div>
-          </div>
+          <div id="dynamicTasksContainer" class="space-y-2"></div>
         </div>
 
       </section>
 
       <!-- ================= 2. SURVIVAL GAME TAB ================= -->
       <section id="tab-game" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-28 space-y-3 hidden relative">
-        <!-- ULTRA-PREMIUM DYNAMIC ANIMATED BACKGROUND -->
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden game-cosmic-bg">
           <div class="absolute -top-10 -left-10 w-72 h-72 rounded-full bg-cyan-500/20 blur-3xl animate-nebula-drift pointer-events-none"></div>
           <div class="absolute -bottom-10 -right-10 w-80 h-80 rounded-full bg-amber-500/15 blur-3xl animate-nebula-drift pointer-events-none" style="animation-delay: -6s;"></div>
@@ -463,7 +422,6 @@
         </div>
 
         <div class="relative z-10 space-y-3">
-          <!-- TOP HUD: TIME, DIFFICULTY & ROUND TON REWARD -->
           <div class="glass-elite-card p-2.5 rounded-2xl flex items-center justify-between border border-white/10 backdrop-blur-md">
             <div class="flex items-center space-x-2">
               <div class="w-7 h-7 rounded-lg bg-ton/15 flex items-center justify-center text-ton">
@@ -484,12 +442,10 @@
             </div>
           </div>
 
-          <!-- CANVAS ARENA WITH GLOWING NEON CYBER BORDER -->
           <div class="neon-cyber-frame rounded-3xl overflow-hidden shadow-2xl relative">
             <div class="relative w-full aspect-[4/5] rounded-[22px] overflow-hidden bg-slate-950/80 backdrop-blur-sm">
               <canvas id="gameCanvas" class="w-full h-full"></canvas>
 
-              <!-- 1. Start Lobby Overlay -->
               <div id="gameStartOverlay" class="absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-20">
                 <div class="w-14 h-14 rounded-2xl bg-ton/15 border border-ton/40 flex items-center justify-center mb-2 p-2 animate-float-slow">
                   <img 
@@ -521,7 +477,6 @@
                 </button>
               </div>
 
-              <!-- 2. Failed Overlay -->
               <div id="gameOverFailedOverlay" class="hidden absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
                 <div class="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center text-xl mb-2 p-2">
                   <img id="failedOverlayImg" src="https://i.postimg.cc/pX6rkLHz/Pngtree-cartoon-round-black-bomb-with-5545852.png" alt="Failed" class="w-full h-full object-contain" />
@@ -544,7 +499,6 @@
                 </div>
               </div>
 
-              <!-- 3. Victory Modal -->
               <div id="gameVictoryModal" class="hidden absolute inset-0 bg-[#04060A]/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-30">
                 <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl mb-2 shadow-lg shadow-emerald-500/30">
                   <i class="fa-solid fa-trophy"></i>
@@ -573,7 +527,6 @@
       </section>
 
       <!-- ================= 3. SYNDICATE (REFERRAL) TAB ================= -->
-      <!-- Added pb-28 so bottom navigation never covers the Invite button and link -->
       <section id="tab-referral" class="tab-section h-full overflow-y-auto custom-scroll p-4 pb-28 space-y-4 hidden relative">
         <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img 
@@ -596,7 +549,6 @@
           </div>
 
           <div class="grid grid-cols-2 gap-2">
-            <!-- Standard Friend -->
             <div class="glass-elite-card p-3 rounded-xl border border-white/10 space-y-1">
               <div class="flex items-center justify-between">
                 <span class="text-[9px] font-bold text-slate-300 uppercase">Standard Invite</span>
@@ -606,7 +558,6 @@
               <p class="text-[9px] text-slate-300 leading-tight">Instant direct credit when friend completes 1st round</p>
             </div>
 
-            <!-- Telegram Premium VIP -->
             <div class="glass-elite-card p-3 rounded-xl border border-amber-400/40 bg-amber-500/15 space-y-1">
               <div class="flex items-center justify-between">
                 <span class="text-[9px] font-black text-amber-300 uppercase flex items-center gap-1">
@@ -639,7 +590,6 @@
             </div>
           </div>
 
-          <!-- Referral Stats Grid with History Button -->
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="glass-elite-card p-2 rounded-xl border border-white/10 flex flex-col items-center justify-center gap-1">
               <span class="text-[8px] text-slate-400 uppercase font-bold block">Invited</span>
@@ -692,7 +642,6 @@
             <p class="text-[10px] text-slate-200">Non-custodial settlement via official TON Connect standard.</p>
           </div>
 
-          <!-- Official TON Connect UI Button Wrapper -->
           <div class="glass-ton-premium p-4 rounded-3xl text-center space-y-3">
             <div class="w-12 h-12 rounded-2xl bg-ton/20 border border-ton/50 flex items-center justify-center mx-auto p-1.5 shadow-lg shadow-ton/30">
               <img 
@@ -708,7 +657,6 @@
             <div id="tonConnectBtnWrapper" class="flex justify-center"></div>
           </div>
 
-          <!-- Cashout Submission Form -->
           <div class="glass-elite-card p-3.5 rounded-2xl border border-white/10 space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-slate-200">Request Cashout</span>
@@ -731,7 +679,6 @@
               </div>
             </div>
 
-            <!-- Fee Table -->
             <div class="bg-slate-900/75 rounded-xl p-2 text-[10px] space-y-1 border border-white/10">
               <div class="flex justify-between text-slate-400">
                 <span>Platform Fee (<span id="labelPlatformFee">2</span>%):</span>
@@ -747,7 +694,6 @@
               </div>
             </div>
 
-            <!-- CLEAR PROFESSIONAL 24-HOUR SETTLEMENT NOTICE -->
             <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 space-y-1.5 text-[10px]">
               <div class="flex items-center space-x-1.5 text-amber-400 font-bold">
                 <i class="fa-solid fa-clock-rotate-left text-xs animate-pulse"></i>
@@ -766,7 +712,6 @@
             </button>
           </div>
 
-          <!-- Withdrawal Ledger -->
           <div class="glass-elite-card p-3 rounded-2xl border border-white/10 space-y-1.5">
             <div class="flex items-center justify-between border-b border-white/10 pb-1">
               <h4 class="text-xs font-black uppercase text-slate-300">Settlement Ledger</h4>
@@ -935,7 +880,10 @@
       supportHandle: "@PayZoteam",
       announcement: "",
       monetagZoneId: "9969043",
-      adsgramBlockId: "56729" // Configured from your Adsgram "Energy Boost" unit
+      adsgramBlockId: "56729",
+      adTaskLimit: 5,        // Max ads per cycle (e.g. 0/5)
+      adCooldownHours: 5,    // Cooldown in hours once 5/5 is reached
+      adIntervalSeconds: 20  // 20s anti-spam timer between two ads
     };
 
     // Dynamic Task and Ad List controlled remotely by Admin
@@ -954,7 +902,7 @@
       {
         id: 'default_daily',
         title: 'Daily Bonus Pool Stream',
-        desc: '1x / 24h Sponsored Stream',
+        desc: 'Monetag Sponsored Stream',
         rewardTon: 0.00005,
         type: 'monetag',
         actionLabel: 'Claim',
@@ -975,6 +923,8 @@
       firstWinRecorded: false,
       referralRewardClaimed: false,
       completedTaskIds: {},
+      adProgress: {},        // { [taskId]: { count: 0, cooldownUntil: 0 } }
+      lastGlobalAdAt: 0,     // Timestamp of last ad watched (for 20s cooldown)
       referralStats: {
         total: 0,
         premium: 0,
@@ -1166,6 +1116,8 @@
         firstWinRecorded: false,
         referralRewardClaimed: false,
         completedTaskIds: {},
+        adProgress: {},
+        lastGlobalAdAt: 0,
         referralStats: { total: 0, premium: 0, tonEarned: 0 },
         referrals: [],
         withdrawals: [],
@@ -1186,6 +1138,8 @@
       state.lastEnergyAt = Number(cloudData.lastEnergyAt) || state.lastEnergyAt || Date.now();
       state.lastDailyClaim = Math.max(Number(cloudData.lastDailyClaim) || 0, state.lastDailyClaim || 0);
       state.completedTaskIds = cloudData.completedTaskIds || {};
+      state.adProgress = cloudData.adProgress || {};
+      state.lastGlobalAdAt = Number(cloudData.lastGlobalAdAt) || 0;
       state.referralStats = cloudData.referralStats || { total: 0, premium: 0, tonEarned: 0 };
       state.referrals = Array.isArray(cloudData.referrals) ? cloudData.referrals
         : (cloudData.referrals && typeof cloudData.referrals === 'object'
@@ -1282,7 +1236,7 @@
           const remote = configResult.value;
           const numericKeys = ['blueDiamondTon', 'goldDiamondTon', 'normalRefTon', 'premiumRefTon',
             'minWithdrawTon', 'platformFeePercent', 'networkFeeTon', 'dailyBonusTon',
-            'victoryAdBonusTon', 'energyRegenMinutes'];
+            'victoryAdBonusTon', 'energyRegenMinutes', 'adTaskLimit', 'adCooldownHours', 'adIntervalSeconds'];
           for (const key of numericKeys) {
             if (remote[key] !== undefined) {
               const value = Number(remote[key]);
@@ -1354,7 +1308,6 @@
       }
     }
 
-    /* Live Admin Remote Broadcast & Inter-Tab Synchronization Listener */
     try {
       const adminChannel = new BroadcastChannel('ton_rush_admin_channel');
       adminChannel.onmessage = (event) => {
@@ -1391,11 +1344,77 @@
       })[char]);
     }
 
-    function taskIsComplete(task, completions = state.completedTaskIds) {
-      const completedAt = Number((completions || {})[task.id]) || 0;
-      if (!completedAt) return false;
-      const repeatHours = task.id === 'default_daily' ? 24 : Number(task.repeatHours) || 0;
-      return !repeatHours || Date.now() - completedAt < repeatHours * 3600000;
+    /* =======================================================
+       AD ANTI-ABUSE ENGINE: LIMITS, COOLDOWNS & INTERVALS
+       ======================================================= */
+    function isAdTaskType(type) {
+      const t = String(type || '').toLowerCase();
+      return t === 'adsgram' || t === 'monetag' || t === 'onclicka';
+    }
+
+    function getTaskAdStatus(task) {
+      if (!isAdTaskType(task.type)) {
+        // Non-ad task (e.g. Telegram Channel or MiniApp)
+        const isDone = Boolean((state.completedTaskIds || {})[task.id]);
+        return { isAd: false, isDone, buttonLabel: isDone ? 'Completed' : (task.actionLabel || 'Claim'), disabled: isDone };
+      }
+
+      const maxLimit = Math.max(1, Number(task.limit || appConfig.adTaskLimit || 5));
+      const prog = (state.adProgress && state.adProgress[task.id]) ? { ...state.adProgress[task.id] } : { count: 0, cooldownUntil: 0 };
+      const now = Date.now();
+
+      // Check if long cycle cooldown is active (e.g. 5 hours)
+      if (prog.cooldownUntil && now < prog.cooldownUntil) {
+        const diffMs = prog.cooldownUntil - now;
+        const hours = Math.floor(diffMs / 3600000);
+        const mins = Math.floor((diffMs % 3600000) / 60000);
+        const secs = Math.floor((diffMs % 60000) / 1000);
+        const timeStr = `${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        return {
+          isAd: true,
+          count: maxLimit,
+          maxLimit,
+          isDone: true,
+          badge: `${maxLimit}/${maxLimit}`,
+          buttonLabel: `Locked (${timeStr})`,
+          disabled: true
+        };
+      }
+
+      // If cooldown finished, reset count
+      if (prog.cooldownUntil && now >= prog.cooldownUntil) {
+        prog.count = 0;
+        prog.cooldownUntil = 0;
+      }
+
+      const currentCount = Math.min(maxLimit, Math.max(0, Number(prog.count) || 0));
+
+      // Check 20-second anti-spam spacing cooldown between ads
+      const intervalSec = Math.max(1, Number(appConfig.adIntervalSeconds) || 20);
+      const sinceLastAdSec = Math.floor((now - (Number(state.lastGlobalAdAt) || 0)) / 1000);
+      const remainingInterval = Math.max(0, intervalSec - sinceLastAdSec);
+
+      if (remainingInterval > 0) {
+        return {
+          isAd: true,
+          count: currentCount,
+          maxLimit,
+          isDone: false,
+          badge: `${currentCount}/${maxLimit}`,
+          buttonLabel: `Wait ${remainingInterval}s`,
+          disabled: true
+        };
+      }
+
+      return {
+        isAd: true,
+        count: currentCount,
+        maxLimit,
+        isDone: false,
+        badge: `${currentCount}/${maxLimit}`,
+        buttonLabel: `${task.actionLabel || 'Engage'}`,
+        disabled: false
+      };
     }
 
     /* Dynamic Tasks Rendering from Admin Setup */
@@ -1409,7 +1428,7 @@
       }
 
       container.innerHTML = dynamicTasks.map(task => {
-        const isDone = taskIsComplete(task);
+        const adStat = getTaskAdStatus(task);
         const isGold = task.theme === 'gold';
         
         let iconClass = task.icon;
@@ -1423,7 +1442,9 @@
         }
 
         const iconColor = isGold ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 'text-ton bg-ton/10 border-ton/30';
-        const btnClass = isDone ? 'btn-3d-dark opacity-60 text-slate-400 cursor-not-allowed' : (isGold ? 'btn-3d-gold text-slate-950 font-black' : 'btn-3d-ton text-white font-black');
+        const btnClass = adStat.disabled 
+          ? 'btn-3d-dark opacity-60 text-slate-400 cursor-not-allowed' 
+          : (isGold ? 'btn-3d-gold text-slate-950 font-black' : 'btn-3d-ton text-white font-black');
 
         return `
           <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
@@ -1432,12 +1453,15 @@
                 <i class="${iconClass}"></i>
               </div>
               <div>
-                <h4 class="text-xs font-bold text-white">${escapeHtml(task.title)}</h4>
+                <div class="flex items-center gap-1.5">
+                  <h4 class="text-xs font-bold text-white">${escapeHtml(task.title)}</h4>
+                  ${adStat.isAd ? `<span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-ton/20 text-sky-300 font-bold border border-ton/30">${adStat.badge}</span>` : ''}
+                </div>
                 <p class="text-[10px] text-slate-400">${escapeHtml(task.desc || 'Protocol Task')} • <span class="${isGold ? 'text-amber-400' : 'text-emerald-400'} font-mono-num font-bold">+${Number(task.rewardTon).toFixed(5)} TON</span></p>
               </div>
             </div>
-            <button data-task-id="${escapeHtml(task.id)}" ${isDone ? 'disabled' : ''} class="btn-3d ${btnClass} px-3 py-1.5 rounded-xl text-[10px]">
-              ${isDone ? 'Completed' : escapeHtml(task.actionLabel || 'Claim')}
+            <button data-task-id="${escapeHtml(task.id)}" ${adStat.disabled ? 'disabled' : ''} class="btn-3d ${btnClass} px-3 py-1.5 rounded-xl text-[10px] min-w-[70px] text-center">
+              ${escapeHtml(adStat.buttonLabel)}
             </button>
           </div>
         `;
@@ -1484,8 +1508,7 @@
     }
 
     /* =======================================================
-       MULTI-NETWORK DYNAMIC TASK HANDLER
-       (Supports: Adsgram, Monetag, OnClicka, Telegram Channel, MiniApp, Web Link)
+       MULTI-NETWORK DYNAMIC TASK HANDLER WITH 20s SPACING
        ======================================================= */
     async function handleExecuteTask(task) {
       const activeTask = dynamicTasks.find(item => String(item.id) === String(task.id));
@@ -1494,26 +1517,46 @@
         return;
       }
       task = activeTask;
-      if (taskIsComplete(task)) {
-        showToast("Task already claimed!", false);
+
+      // Verify ad status and cooldowns
+      const adStat = getTaskAdStatus(task);
+      if (adStat.disabled) {
+        showToast(adStat.buttonLabel.includes('Wait') ? 'Anti-Spam: Please wait 20 seconds between ads!' : 'Task is locked under cooldown.', false);
         return;
       }
 
       const giveTaskReward = async () => {
         try {
           const result = await transactUser(telegramUser.id, record => {
-            if (taskIsComplete(task, record.completedTaskIds)) return false;
             const reward = Number(task.rewardTon);
             if (!Number.isFinite(reward) || reward < 0) return false;
+
             record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(reward));
-            record.completedTaskIds ||= {};
-            record.completedTaskIds[task.id] = Date.now();
             record.ledger ||= [];
             record.ledger.unshift({ desc: `Task: ${task.title}`, ton: reward, timestamp: Date.now() });
             record.ledger = record.ledger.slice(0, 20);
+
+            // If it's an ad task, increment 0/5 count and set cooldowns
+            if (isAdTaskType(task.type)) {
+              record.adProgress ||= {};
+              const curProg = record.adProgress[task.id] || { count: 0, cooldownUntil: 0 };
+              const maxLimit = Math.max(1, Number(task.limit || appConfig.adTaskLimit || 5));
+
+              curProg.count = (Number(curProg.count) || 0) + 1;
+              if (curProg.count >= maxLimit) {
+                const cdHours = Math.max(1, Number(appConfig.adCooldownHours) || 5);
+                curProg.cooldownUntil = Date.now() + (cdHours * 3600000);
+              }
+              record.adProgress[task.id] = curProg;
+              record.lastGlobalAdAt = Date.now(); // Starts 20s countdown for all ads
+            } else {
+              record.completedTaskIds ||= {};
+              record.completedTaskIds[task.id] = Date.now();
+            }
           });
+
           renderDynamicTasks();
-          if (!result.changed) return showToast('Task already claimed!', false);
+          if (!result.changed) return showToast('Task reward could not be recorded.', false);
           SFX.victory();
           showToast(`Reward Credited: +${Number(task.rewardTon).toFixed(5)} TON!`, true);
         } catch (err) {
@@ -1534,9 +1577,7 @@
       }
       // 3. OnClicka Ad Network Task
       else if (taskType === 'onclicka') {
-        if (task.link) {
-          window.open(task.link, '_blank', 'noopener,noreferrer');
-        }
+        if (task.link) window.open(task.link, '_blank', 'noopener,noreferrer');
         await giveTaskReward();
       }
       // 4. Telegram Channel Join Task
@@ -2223,23 +2264,48 @@
       loadPersistedState();
       syncUserWithFirebase();
 
-      // Periodic Live Cloud Sync
+      // Periodic Live Cloud Sync & Anti-Spam Timer ticker (every 1 second)
       setInterval(() => {
         syncUserWithFirebase();
       }, 30000);
+
       setInterval(() => {
+        // Update Energy timer
         const el = document.getElementById('energyRegenCountdown');
-        if (!el) return;
-        if (state.energy >= state.maxEnergy) {
-          el.textContent = 'Energy full • Watch Ad when needed';
-        } else {
-          const periodMs = Math.max(1, Number(appConfig.energyRegenMinutes) || 30) * 60000;
-          const remaining = Math.max(0, periodMs - (Date.now() - state.lastEnergyAt));
-          const minutes = Math.floor(remaining / 60000);
-          const seconds = Math.floor((remaining % 60000) / 1000);
-          el.textContent = `+1 Energy in ${minutes}:${String(seconds).padStart(2, '0')} or Watch Ad`;
-          recoverEnergyIfDue();
+        if (el) {
+          if (state.energy >= state.maxEnergy) {
+            el.textContent = 'Energy full • Watch Ad when needed';
+          } else {
+            const periodMs = Math.max(1, Number(appConfig.energyRegenMinutes) || 30) * 60000;
+            const remaining = Math.max(0, periodMs - (Date.now() - state.lastEnergyAt));
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            el.textContent = `+1 Energy in ${minutes}:${String(seconds).padStart(2, '0')} or Watch Ad`;
+            recoverEnergyIfDue();
+          }
         }
+
+        // Live update Recharge button 20s anti-spam timer
+        const intervalSec = Math.max(1, Number(appConfig.adIntervalSeconds) || 20);
+        const sinceLastAdSec = Math.floor((Date.now() - (Number(state.lastGlobalAdAt) || 0)) / 1000);
+        const remainingInterval = Math.max(0, intervalSec - sinceLastAdSec);
+        const rechargeBtn = document.getElementById('btnRechargeEnergyAd');
+        const rechargeLabel = document.getElementById('labelRechargeAdBtn');
+
+        if (rechargeBtn && rechargeLabel) {
+          if (remainingInterval > 0) {
+            rechargeBtn.disabled = true;
+            rechargeBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            rechargeLabel.textContent = `Wait (${remainingInterval}s)`;
+          } else {
+            rechargeBtn.disabled = false;
+            rechargeBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            rechargeLabel.textContent = 'Watch (+1 E)';
+          }
+        }
+
+        // Ticker to re-render dynamic task cooldown countdowns live every second
+        renderDynamicTasks();
       }, 1000);
 
       document.getElementById('dynamicTasksContainer').addEventListener('click', event => {
@@ -2341,12 +2407,19 @@
         }
       });
 
-      // Energy Recharge via Adsgram Ad (Block ID: 56729)
+      // Energy Recharge via Adsgram Ad (Block ID: 56729) with Anti-Spam protection
       document.getElementById('btnRechargeEnergyAd').addEventListener('click', () => {
         if (state.energy >= state.maxEnergy) {
           showToast("Energy is already full (3/3).", false);
           return;
         }
+        const intervalSec = Math.max(1, Number(appConfig.adIntervalSeconds) || 20);
+        const sinceLastAdSec = Math.floor((Date.now() - (Number(state.lastGlobalAdAt) || 0)) / 1000);
+        if (sinceLastAdSec < intervalSec) {
+          showToast(`Anti-Spam: Please wait ${intervalSec - sinceLastAdSec}s before watching another ad!`, false);
+          return;
+        }
+
         triggerAdsgramAd(appConfig.adsgramBlockId || '56729', async () => {
           try {
             const charged = await transactUser(telegramUser.id, record => {
@@ -2355,6 +2428,7 @@
               if (record.energy >= maximum) return false;
               record.energy = Math.min(maximum, record.energy + 1);
               if (record.energy === maximum) record.lastEnergyAt = Date.now();
+              record.lastGlobalAdAt = Date.now(); // starts 20s cooldown
             });
             showToast(charged.changed ? 'Recharged +1 Energy!' : 'Energy is already full.', charged.changed);
           } catch (e) { showToast('Energy recharge could not sync.', false); }
@@ -2378,6 +2452,7 @@
               if (record.energy >= (Number(record.maxEnergy) || 3)) return false;
               record.energy = Math.min(Number(record.maxEnergy) || 3, record.energy + 1);
               if (record.energy >= (Number(record.maxEnergy) || 3)) record.lastEnergyAt = Date.now();
+              record.lastGlobalAdAt = Date.now();
             });
             if (recharged.changed) {
               document.getElementById('gameOverFailedOverlay').classList.add('hidden');
@@ -2407,6 +2482,7 @@
               record.ledger ||= [];
               record.ledger.unshift({ desc: 'Survival 60s Extra Ad Bonus', ton: bonus, timestamp: Date.now() });
               record.ledger = record.ledger.slice(0, 20);
+              record.lastGlobalAdAt = Date.now();
             });
             if (!result.changed) return showToast('Bonus already claimed for this game.', false);
             document.getElementById('gameVictoryModal').classList.add('hidden');
