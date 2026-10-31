@@ -5,16 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>TON Surge - Web3 Protocol & Yield</title>
 
-  <!-- RichAds SDK -->
-          <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-          <script>
-            window.TelegramAdsController = new TelegramAdsController();
-            window.TelegramAdsController.initialize({
-              pubId: "996843",
-              appId: "9512",
-            });
-          </script>
-
   <!-- Official Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -1466,11 +1456,17 @@
 
     /* Dynamic Tasks Rendering from Admin Setup */
     let lastTaskStructure = null;
-    function isNonRewardedAdFormat(task) {
+    function taskRewardMessage(task) {
+      const amount = Number(task.rewardTon);
+      if (!Number.isFinite(amount) || amount <= 0) return 'No TON bonus assigned';
+      const type = String(task.type || '').toLowerCase();
       const block = String(task.blockId || task.adId || appConfig.adsgramBlockId || '');
-      const adFormat = String(task.adFormat || task.format || task.monetagType || '');
-      return (String(task.type).toLowerCase() === 'adsgram' && /^int-\d+$/.test(block)) ||
-        (String(task.type).toLowerCase() === 'monetag' && adFormat === 'inApp');
+      const format = String(task.adFormat || task.format || task.monetagType || 'end');
+      if (type === 'adsgram' && /^int-\d+$/.test(block))
+        return `+${amount.toFixed(5)} TON after interstitial closes`;
+      if (type === 'monetag' && format === 'inApp')
+        return `+${amount.toFixed(5)} TON via rewarded ad`;
+      return `+${amount.toFixed(5)} TON`;
     }
 
     function updateTaskButtonStatuses(container) {
@@ -1537,7 +1533,7 @@
                   <h4 class="text-xs font-bold text-white">${escapeHtml(task.title)}</h4>
                   ${adStat.isAd ? `<span data-ad-count class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-ton/20 text-sky-300 font-bold border border-ton/30">${adStat.badge}</span>` : ''}
                 </div>
-                <p class="text-[10px] text-slate-400">${escapeHtml(task.desc || 'Protocol Task')} • <span class="${isGold ? 'text-amber-400' : 'text-emerald-400'} font-mono-num font-bold">${isNonRewardedAdFormat(task) ? 'Non-rewarded format' : `+${Number(task.rewardTon).toFixed(5)} TON`}</span></p>
+                <p class="text-[10px] text-slate-400">${escapeHtml(task.desc || 'Protocol Task')} • <span class="${isGold ? 'text-amber-400' : 'text-emerald-400'} font-mono-num font-bold">${escapeHtml(taskRewardMessage(task))}</span></p>
               </div>
             </div>
             <button data-task-id="${escapeHtml(task.id)}" ${adStat.disabled ? 'disabled' : ''} class="btn-3d ${btnClass} px-3 py-1.5 rounded-xl text-[10px] min-w-[70px] text-center">
@@ -1574,16 +1570,19 @@
         const AdController = window.Adsgram.init({ blockId: String(bId) });
         AdController.show()
           .then(async (result) => {
-            if (isInterstitial) {
-              if (onInterstitialComplete) await onInterstitialComplete();
-              else showToast('Interstitial finished. No rewarded credit for this ad format.', false);
-              return;
-            }
             if (!result || result.done !== true || result.error) {
-              showToast('Ad was not completed. No reward credited.', false);
+              showToast('Sponsor ad was not completed. No bonus credited.', false);
               return;
             }
-            showToast('Ad completed! Saving verified reward...', true);
+            if (isInterstitial) {
+              // Adsgram interstitial `done` also covers a user closing the ad.
+              // This is an app-funded task-completion bonus, not a verified
+              // full-length rewarded-video view or paid impression receipt.
+              showToast('Sponsor interstitial closed. Saving completion bonus...', true);
+              if (onInterstitialComplete) await onInterstitialComplete();
+              return;
+            }
+            showToast('Ad completed! Saving reward...', true);
             if (onComplete) await onComplete();
           })
           .catch((result) => {
@@ -1700,12 +1699,18 @@
       if (taskType === 'adsgram') {
         const blockId = task.blockId || task.adId || appConfig.adsgramBlockId;
         triggerAdsgramAd(blockId, () => giveTaskReward(true),
-          () => giveTaskReward(false));
+          () => giveTaskReward(true));
       }
       // 2. Monetag Network Task
       else if (taskType === 'monetag') {
-        triggerMonetagAd(task.id, giveTaskReward,
-          task.adFormat || task.format || task.monetagType || 'end');
+        const selectedFormat = task.adFormat || task.format || task.monetagType || 'end';
+        // Monetag inApp schedules ads but exposes no per-impression frontend
+        // reward callback. A TON-rewarded Watch task must use the verifiable
+        // rewarded interstitial instead; true automatic inApp rewards need
+        // server-side Monetag postbacks.
+        const rewardableFormat = selectedFormat === 'inApp' && Number(task.rewardTon) > 0
+          ? 'end' : selectedFormat;
+        triggerMonetagAd(task.id, giveTaskReward, rewardableFormat);
       }
       // 3. OnClicka Ad Network Task
       else if (taskType === 'onclicka') {
