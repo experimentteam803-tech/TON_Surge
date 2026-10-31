@@ -120,6 +120,58 @@
       box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.75);
     }
 
+    /* Native Adsgram Task: advertiser avatar and title are owned by Adsgram. */
+    .ton-adsgram-native-task {
+      display: block;
+      width: 100%;
+      color: #f1f5f9;
+      --adsgram-task-font-size: 13px;
+      --adsgram-task-icon-size: 42px;
+      --adsgram-task-icon-title-gap: 12px;
+      --adsgram-task-icon-border-radius: 12px;
+      --adsgram-task-button-width: 88px;
+    }
+    .ton-native-task-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 70px;
+      border-radius: 10px;
+      padding: 9px 11px;
+      background: linear-gradient(135deg, #03b2fc, #007ad2);
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .ton-native-task-reward {
+      display: inline-block;
+      margin-top: 5px;
+      border: 1px solid rgba(52, 211, 153, .55);
+      border-radius: 9px;
+      padding: 5px 9px;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, .14);
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 0 14px rgba(52, 211, 153, .12);
+    }
+    .ton-native-task-lock {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background: rgba(6, 13, 25, .90);
+      color: #bfe8ff;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .ton-native-task-wrapper[data-locked="true"] .ton-native-task-lock { display: flex; }
+    .ton-native-task-wrapper[data-locked="true"] .ton-adsgram-native-task { pointer-events: none; opacity: .25; }
+
     .glass-ton-premium {
       background: linear-gradient(135deg, rgba(0, 152, 234, 0.28) 0%, rgba(8, 13, 22, 0.95) 80%);
       backdrop-filter: blur(16px);
@@ -1369,7 +1421,7 @@
        ======================================================= */
     function isAdTaskType(type) {
       const t = String(type || '').toLowerCase();
-      return t === 'adsgram' || t === 'monetag' || t === 'onclicka';
+      return t === 'adsgram' || t === 'adsgramtask' || t === 'monetag' || t === 'onclicka';
     }
 
     function getTaskAdStatus(task) {
@@ -1448,8 +1500,8 @@
 
     function updateTaskButtonStatuses(container) {
       const buttons = container.querySelectorAll('button[data-task-id]');
-      buttons.forEach((button, index) => {
-        const task = dynamicTasks[index];
+      buttons.forEach(button => {
+        const task = dynamicTasks.find(item => String(item.id) === button.dataset.taskId);
         if (!task) return;
         const status = getTaskAdStatus(task);
         const buttonClass = status.disabled
@@ -1460,6 +1512,16 @@
         if (button.textContent.trim() !== status.buttonLabel) button.textContent = status.buttonLabel;
         const badge = button.parentElement.querySelector('[data-ad-count]');
         if (badge && badge.textContent !== status.badge) badge.textContent = status.badge || '';
+      });
+      container.querySelectorAll('.ton-native-task-wrapper[data-admin-task-id]').forEach(wrapper => {
+        const task = dynamicTasks.find(item => String(item.id) === wrapper.dataset.adminTaskId);
+        if (!task) return;
+        const status = getTaskAdStatus(task);
+        wrapper.dataset.locked = status.disabled ? 'true' : 'false';
+        const counter = wrapper.querySelector('[data-native-ad-count]');
+        if (counter) counter.textContent = status.badge || '';
+        const lock = wrapper.querySelector('.ton-native-task-lock');
+        if (lock) lock.textContent = status.disabled ? status.buttonLabel : '';
       });
     }
 
@@ -1483,6 +1545,27 @@
       const markup = dynamicTasks.map(task => {
         const adStat = getTaskAdStatus(task);
         const isGold = task.theme === 'gold';
+
+        // Adsgram's Task ad is a native feed, not a static advertiser card.
+        // Its SDK automatically fills the current advertiser's logo and name.
+        if (String(task.type).toLowerCase() === 'adsgramtask') {
+          const blockId = String(task.blockId || 'task-57012');
+          if (!/^task-\d+$/.test(blockId)) return '';
+          return `
+            <div class="ton-native-task-wrapper glass-elite-card p-3 rounded-2xl border border-sky-500/25 relative overflow-hidden" data-admin-task-id="${escapeHtml(task.id)}" data-locked="${adStat.disabled ? 'true' : 'false'}">
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="text-[10px] text-sky-300 font-black uppercase tracking-wider">Adsgram Live Tasks</span>
+                <span data-native-ad-count class="text-[10px] rounded-lg border border-sky-500/30 bg-sky-500/10 text-sky-300 px-2 py-0.5 font-bold">${escapeHtml(adStat.badge || '')}</span>
+              </div>
+              <adsgram-task class="ton-adsgram-native-task" data-block-id="${escapeHtml(blockId)}" data-native-task-id="${escapeHtml(task.id)}">
+                <span slot="reward" class="ton-native-task-reward">${escapeHtml(taskRewardMessage(task))}</span>
+                <span slot="button" class="ton-native-task-action">Join / Open</span>
+                <span slot="claim" class="ton-native-task-action">Claim Reward</span>
+                <span slot="done" class="ton-native-task-action" style="background:linear-gradient(135deg,#059669,#047857)">Completed ✓</span>
+              </adsgram-task>
+              <div class="ton-native-task-lock" aria-live="polite">${escapeHtml(adStat.disabled ? adStat.buttonLabel : '')}</div>
+            </div>`;
+        }
         
         let iconClass = task.icon;
         if (!iconClass || !/^(fa-solid|fa-regular|fa-brands) fa-[a-z0-9-]+$/.test(iconClass)) {
@@ -1527,6 +1610,19 @@
       }).join('');
       container.innerHTML = markup;
       lastTaskStructure = structure;
+      container.querySelectorAll('adsgram-task[data-native-task-id]').forEach(widget => {
+        widget.addEventListener('reward', event => {
+          const task = dynamicTasks.find(item => String(item.id) === widget.dataset.nativeTaskId);
+          if (!task || String(event.detail) !== String(widget.dataset.blockId)) return;
+          grantNativeAdsgramTaskReward(task).catch(err => {
+            console.warn('Native Adsgram task reward:', err);
+            showToast('Could not save the native task reward. Please retry.', false);
+          });
+        });
+        widget.addEventListener('onError', event => {
+          console.warn('Native Adsgram task error:', event.detail);
+        });
+      });
       updateTaskButtonStatuses(container);
     }
 
@@ -1587,6 +1683,68 @@
        MULTI-NETWORK DYNAMIC TASK HANDLER WITH 20s SPACING
        ======================================================= */
     const activeTaskRewardClaims = new Set();
+
+    // The native Adsgram <adsgram-task> element fires `reward` after its own
+    // task-completion flow. Its event only exposes the block ID, not a unique
+    // advertiser/campaign claim ID. Apply the same per-task rate limits as
+    // other admin ads and keep the balance update atomic in Firebase.
+    async function grantNativeAdsgramTaskReward(task) {
+      if (!telegramUser.id) return showToast('Open TON Surge inside Telegram to claim rewards.', false);
+      const liveTask = dynamicTasks.find(item => String(item.id) === String(task.id));
+      if (!liveTask || String(liveTask.type).toLowerCase() !== 'adsgramtask') return;
+      const claimId = String(liveTask.id);
+      if (activeTaskRewardClaims.has(claimId)) return;
+      activeTaskRewardClaims.add(claimId);
+      const completedAt = Date.now();
+      try {
+        const result = await transactUser(telegramUser.id, record => {
+          const reward = Number(liveTask.rewardTon);
+          if (!Number.isFinite(reward) || reward < 0) return false;
+          record.adProgress ||= {};
+          const progress = { ...(record.adProgress[claimId] || {}) };
+          const maxLimit = Math.max(1, Number(liveTask.limit || appConfig.adTaskLimit || 5));
+          const intervalMs = Math.max(1, Number(appConfig.adIntervalSeconds) || 20) * 1000;
+          if (Number(progress.cooldownUntil) > completedAt) return false;
+          if (completedAt - (Number(progress.lastAdAt) || 0) < intervalMs) return false;
+          if (Number(progress.cooldownUntil) && completedAt >= Number(progress.cooldownUntil)) {
+            progress.count = 0;
+            progress.cooldownUntil = 0;
+          }
+          if ((Number(progress.count) || 0) >= maxLimit) return false;
+          if (reward > 0) {
+            record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(reward));
+            record.ledger ||= [];
+            record.ledger.unshift({
+              desc: `Adsgram Native Task: ${claimId}`,
+              ton: fromNanoTon(toNanoTon(reward)),
+              timestamp: completedAt
+            });
+            record.ledger = record.ledger.slice(0, 20);
+          }
+          progress.count = (Number(progress.count) || 0) + 1;
+          progress.lastAdAt = completedAt;
+          if (progress.count >= maxLimit) {
+            progress.cooldownUntil = completedAt + Math.max(1, Number(appConfig.adCooldownHours) || 5) * 3600000;
+          }
+          record.adProgress[claimId] = progress;
+        });
+        if (!result.changed) {
+          showToast('Native task bonus is under cooldown or already counted.', false);
+          return;
+        }
+        if (Number(liveTask.rewardTon) > 0) {
+          SFX.victory();
+          showToast(`Reward Credited: ${taskRewardMessage(liveTask)}!`, true);
+        } else showToast('Adsgram native task completed.', true);
+      } catch (err) {
+        console.warn('Native task Firebase reward failed:', err);
+        showToast('Task completed, but TON could not be saved. Contact support.', false);
+      } finally {
+        activeTaskRewardClaims.delete(claimId);
+        renderDynamicTasks();
+      }
+    }
+
     async function handleExecuteTask(task) {
       const activeTask = dynamicTasks.find(item => String(item.id) === String(task.id));
       if (!telegramUser.id || !activeTask) {
