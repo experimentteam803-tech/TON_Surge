@@ -404,22 +404,6 @@
           </button>
         </div>
 
-        <!-- CUSTOMER SUPPORT TILE -->
-        <div class="glass-elite-card p-3 rounded-2xl border border-sky-500/30 flex items-center justify-between bg-sky-500/5">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
-              <i class="fa-solid fa-comments text-base"></i>
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-white">24/7 Official Support Desk</h4>
-              <p class="text-[10px] text-slate-400">Telegram Direct Support: <span id="supportHandleLabel" class="text-sky-300 font-bold font-mono-num">@PayZoteam</span></p>
-            </div>
-          </div>
-          <button id="btnChatSupportTile" class="btn-3d btn-3d-ton px-3 py-1.5 rounded-xl text-[10px] font-black text-white">
-            Chat
-          </button>
-        </div>
-
         <!-- DYNAMIC SPONSORED TASKS (WITH 0/5 LIMIT & 20s SAFETY COOLDOWN) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between px-1">
@@ -1363,7 +1347,6 @@
       if (!gameActive && !gameVictorySaved) {
         document.getElementById('btnVictoryAdClaim').innerHTML = '<i class="fa-solid fa-video text-xs mr-1"></i> Watch Ad To Double Reward (2×)';
       }
-      document.getElementById('supportHandleLabel').innerText = appConfig.supportHandle;
       document.getElementById('supportNoticeHandle').innerText = appConfig.supportHandle;
 
       const banner = document.getElementById('remoteAnnouncementBanner');
@@ -1458,15 +1441,9 @@
     let lastTaskStructure = null;
     function taskRewardMessage(task) {
       const amount = Number(task.rewardTon);
-      if (!Number.isFinite(amount) || amount <= 0) return 'No TON bonus assigned';
-      const type = String(task.type || '').toLowerCase();
-      const block = String(task.blockId || task.adId || appConfig.adsgramBlockId || '');
-      const format = String(task.adFormat || task.format || task.monetagType || 'end');
-      if (type === 'adsgram' && /^int-\d+$/.test(block))
-        return `+${amount.toFixed(5)} TON after interstitial closes`;
-      if (type === 'monetag' && format === 'inApp')
-        return `+${amount.toFixed(5)} TON via rewarded ad`;
-      return `+${amount.toFixed(5)} TON`;
+      if (!Number.isFinite(amount) || amount <= 0) return 'No TON reward';
+      const preciseAmount = amount.toFixed(9).replace(/0+$/, '').replace(/\.$/, '');
+      return `+${preciseAmount} TON`;
     }
 
     function updateTaskButtonStatuses(container) {
@@ -1523,20 +1500,26 @@
           : (isGold ? 'btn-3d-gold text-slate-950 font-black' : 'btn-3d-ton text-white font-black');
 
         return `
-          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between border border-white/10">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-xl ${iconColor} border flex items-center justify-center text-sm">
+          <div class="glass-elite-card p-3 rounded-2xl flex items-center justify-between gap-2 border border-white/10">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+              <div class="w-9 h-9 shrink-0 rounded-xl ${iconColor} border flex items-center justify-center text-sm">
                 <i class="${iconClass}"></i>
               </div>
-              <div>
-                <div class="flex items-center gap-1.5">
-                  <h4 class="text-xs font-bold text-white">${escapeHtml(task.title)}</h4>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <h4 class="text-xs font-black text-white leading-snug break-words">${escapeHtml(task.title)}</h4>
                   ${adStat.isAd ? `<span data-ad-count class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-ton/20 text-sky-300 font-bold border border-ton/30">${adStat.badge}</span>` : ''}
                 </div>
-                <p class="text-[10px] text-slate-400">${escapeHtml(task.desc || 'Protocol Task')} • <span class="${isGold ? 'text-amber-400' : 'text-emerald-400'} font-mono-num font-bold">${escapeHtml(taskRewardMessage(task))}</span></p>
+                <p class="text-[10px] text-slate-400 leading-snug mt-1 break-words">${escapeHtml(task.desc || 'Protocol Task')}</p>
+                ${Number(task.rewardTon) > 0 ? `
+                <div class="mt-2 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 rounded-xl border ${isGold ? 'border-amber-400/60 bg-amber-400/15' : 'border-emerald-400/60 bg-emerald-400/15'}" style="box-shadow:0 0 16px ${isGold ? 'rgba(251,191,36,.14)' : 'rgba(52,211,153,.14)'}">
+                  <i class="fa-solid fa-coins text-[11px] ${isGold ? 'text-amber-300' : 'text-emerald-300'}" aria-hidden="true"></i>
+                  <span class="text-[9px] font-black tracking-wider ${isGold ? 'text-amber-200' : 'text-emerald-200'}">EARN</span>
+                  <strong class="text-[15px] font-black font-mono-num tracking-tight whitespace-nowrap ${isGold ? 'text-amber-300' : 'text-emerald-300'}">${escapeHtml(taskRewardMessage(task))}</strong>
+                </div>` : `<p class="text-[10px] text-slate-500 mt-1.5">No TON reward</p>`}
               </div>
             </div>
-            <button data-task-id="${escapeHtml(task.id)}" ${adStat.disabled ? 'disabled' : ''} class="btn-3d ${btnClass} px-3 py-1.5 rounded-xl text-[10px] min-w-[70px] text-center">
+            <button data-task-id="${escapeHtml(task.id)}" ${adStat.disabled ? 'disabled' : ''} class="btn-3d ${btnClass} shrink-0 px-3 py-1.5 rounded-xl text-[10px] min-w-[70px] text-center">
               ${escapeHtml(adStat.buttonLabel)}
             </button>
           </div>
@@ -2675,7 +2658,6 @@
         window.open(`https://t.me/${handle}`, '_blank');
       };
       document.getElementById('btnCustomerSupport').addEventListener('click', openSupport);
-      document.getElementById('btnChatSupportTile').addEventListener('click', openSupport);
       document.getElementById('btnProfileSupport').addEventListener('click', openSupport);
 
       // Daily Gift Claim
