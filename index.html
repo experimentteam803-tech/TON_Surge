@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>TON Surge - Web3 Protocol & Yield</title>
-  <!-- Monetage SDK -->
-  <script src='//libtl.com/sdk.js' data-zone='12158899' data-sdk='show_12158899'></script>
 
   <!-- Official Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -20,7 +18,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
   <!-- Monetag Official SDK -->
-  <script src="//libtl.com/sdk.js" data-zone="9969043" data-sdk="show_9969043"></script>
+  <script src="//libtl.com/sdk.js" data-zone="12158899" data-sdk="show_12158899"></script>
 
   <!-- Official Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
@@ -173,6 +171,9 @@
     }
     .ton-native-task-wrapper[data-locked="true"] .ton-native-task-lock { display: flex; }
     .ton-native-task-wrapper[data-locked="true"] .ton-adsgram-native-task { pointer-events: none; opacity: .25; }
+    /* Native advertiser tasks do not expose the ordinary 1/5 ad-counter UI. */
+    .ton-native-task-wrapper [data-native-ad-count] { display: none !important; }
+    .ton-native-task-wrapper[data-native-hidden="true"] { display: none !important; }
 
     .glass-ton-premium {
       background: linear-gradient(135deg, rgba(0, 152, 234, 0.28) 0%, rgba(8, 13, 22, 0.95) 80%);
@@ -948,6 +949,7 @@
     const FIREBASE_DB_URL = "https://gift-code-wellcome-default-rtdb.firebaseio.com";
     // Dedicated rewarded block for GAME ENERGY only. Admin task blocks remain configurable.
     const ENERGY_ADSGRAM_REWARD_BLOCK_ID = '56729';
+    const MONETAG_SDK_ZONE_ID = '12158899';
 
     // Application Parameters (Live Controlled by Admin Panel)
     let appConfig = {
@@ -963,7 +965,7 @@
       energyRegenMinutes: 30,
       supportHandle: "@PayZoteam",
       announcement: "",
-      monetagZoneId: "9969043",
+      monetagZoneId: MONETAG_SDK_ZONE_ID,
       adsgramBlockId: "int-56794",
       adTaskLimit: 5,        // Max ads per cycle (e.g. 0/5)
       adCooldownHours: 5,    // Cooldown in hours once 5/5 is reached
@@ -1314,9 +1316,16 @@
               if (Number.isFinite(value) && value >= 0) appConfig[key] = value;
             }
           }
-          ['supportHandle', 'announcement', 'monetagZoneId', 'adsgramBlockId'].forEach(key => {
+          ['supportHandle', 'announcement', 'adsgramBlockId'].forEach(key => {
             if (remote[key] !== undefined) appConfig[key] = String(remote[key]);
           });
+          // Existing Firebase settings may still contain the previous owner's
+          // SDK zone. Migrate that stale value without touching other settings.
+          if (remote.monetagZoneId !== undefined) {
+            const remoteZone = String(remote.monetagZoneId).trim();
+            appConfig.monetagZoneId = remoteZone === '9969043'
+              ? MONETAG_SDK_ZONE_ID : remoteZone;
+          }
         }
         if (tasksResult.status === 'fulfilled') {
           const remoteTasks = tasksResult.value;
@@ -1493,6 +1502,66 @@
 
     /* Dynamic Tasks Rendering from Admin Setup */
     let lastTaskStructure = null;
+    // The Adsgram SDK owns advertiser identity and eligibility. Refresh its
+    // native element after a confirmed reward and hide it when no offer exists.
+    const nativeAdsgramLifecycle = new Map();
+    const NATIVE_ADSGRAM_RETRY_MS = 90000;
+
+    function rememberNativeAdsgramPhase(taskId, phase, retryAt = 0) {
+      nativeAdsgramLifecycle.set(String(taskId), { phase, retryAt });
+    }
+
+    function bindNativeAdsgramWidget(widget) {
+      const taskId = String(widget.dataset.nativeTaskId || '');
+      const wrapper = widget.closest('.ton-native-task-wrapper');
+      widget.addEventListener('reward', event => {
+        if (!widget.isConnected || String(event.detail) !== String(widget.dataset.blockId)) return;
+        const task = dynamicTasks.find(item => String(item.id) === taskId);
+        if (!task || String(task.type).toLowerCase() !== 'adsgramtask') return;
+        if (nativeAdsgramLifecycle.get(taskId)?.phase === 'claiming') return;
+        rememberNativeAdsgramPhase(taskId, 'claiming');
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
+        // Only Adsgram's verified reward event can trigger the TON claim.
+        // Replacing the completed web component requests another offer; Adsgram
+        // decides which campaigns this Telegram user has not yet completed.
+        grantNativeAdsgramTaskReward(task).catch(err => {
+          console.warn('Native Adsgram task reward:', err);
+          showToast('Could not save the native task reward. Please retry.', false);
+        }).finally(() => {
+          if (!wrapper || !wrapper.isConnected) return;
+          rememberNativeAdsgramPhase(taskId, 'waiting', Date.now() + 1000);
+          updateTaskButtonStatuses(wrapper.parentElement);
+        });
+      });
+      widget.addEventListener('onBannerNotFound', () => {
+        if (!widget.isConnected) return;
+        rememberNativeAdsgramPhase(taskId, 'empty', Date.now() + NATIVE_ADSGRAM_RETRY_MS);
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
+      });
+      widget.addEventListener('onError', event => {
+        if (!widget.isConnected) return;
+        console.warn('Native Adsgram task error:', event.detail);
+        rememberNativeAdsgramPhase(taskId, 'empty', Date.now() + NATIVE_ADSGRAM_RETRY_MS);
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
+      });
+      widget.addEventListener('onTooLongSession', () => {
+        if (!widget.isConnected) return;
+        rememberNativeAdsgramPhase(taskId, 'expired');
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
+        showToast('Adsgram task session expired. Reopen the Mini App to see new tasks.', false);
+      });
+    }
+
+    function refreshNativeAdsgramWidget(wrapper, taskId) {
+      const oldWidget = wrapper.querySelector('adsgram-task[data-native-task-id]');
+      if (!oldWidget) return;
+      const freshWidget = oldWidget.cloneNode(true);
+      rememberNativeAdsgramPhase(taskId, 'loading', Date.now() + 1800);
+      wrapper.dataset.nativeHidden = 'true';
+      oldWidget.replaceWith(freshWidget);
+      bindNativeAdsgramWidget(freshWidget);
+    }
+
     function taskRewardMessage(task) {
       const amount = Number(task.rewardTon);
       if (!Number.isFinite(amount) || amount <= 0) return 'No TON reward';
@@ -1519,11 +1588,23 @@
         const task = dynamicTasks.find(item => String(item.id) === wrapper.dataset.adminTaskId);
         if (!task) return;
         const status = getTaskAdStatus(task);
+        const taskId = String(task.id);
+        const flow = nativeAdsgramLifecycle.get(taskId);
         wrapper.dataset.locked = status.disabled ? 'true' : 'false';
-        const counter = wrapper.querySelector('[data-native-ad-count]');
-        if (counter) counter.textContent = status.badge || '';
         const lock = wrapper.querySelector('.ton-native-task-lock');
         if (lock) lock.textContent = status.disabled ? status.buttonLabel : '';
+        if (status.disabled) {
+          if (!flow) rememberNativeAdsgramPhase(taskId, 'waiting', Date.now() + 1000);
+          wrapper.dataset.nativeHidden = 'true';
+        } else if (flow && (flow.phase === 'waiting' || flow.phase === 'empty')
+            && Date.now() >= flow.retryAt && !document.hidden) {
+          refreshNativeAdsgramWidget(wrapper, taskId);
+        } else if (flow && flow.phase === 'loading' && Date.now() >= flow.retryAt) {
+          flow.phase = 'visible';
+          wrapper.dataset.nativeHidden = 'false';
+        } else {
+          wrapper.dataset.nativeHidden = (!flow || flow.phase === 'visible') ? 'false' : 'true';
+        }
       });
     }
 
@@ -1557,7 +1638,6 @@
             <div class="ton-native-task-wrapper glass-elite-card p-3 rounded-2xl border border-sky-500/25 relative overflow-hidden" data-admin-task-id="${escapeHtml(task.id)}" data-locked="${adStat.disabled ? 'true' : 'false'}">
               <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="text-[10px] text-sky-300 font-black uppercase tracking-wider">Adsgram Live Tasks</span>
-                <span data-native-ad-count class="text-[10px] rounded-lg border border-sky-500/30 bg-sky-500/10 text-sky-300 px-2 py-0.5 font-bold">${escapeHtml(adStat.badge || '')}</span>
               </div>
               <adsgram-task class="ton-adsgram-native-task" data-block-id="${escapeHtml(blockId)}" data-native-task-id="${escapeHtml(task.id)}">
                 <span slot="reward" class="ton-native-task-reward">${escapeHtml(taskRewardMessage(task))}</span>
@@ -1612,19 +1692,7 @@
       }).join('');
       container.innerHTML = markup;
       lastTaskStructure = structure;
-      container.querySelectorAll('adsgram-task[data-native-task-id]').forEach(widget => {
-        widget.addEventListener('reward', event => {
-          const task = dynamicTasks.find(item => String(item.id) === widget.dataset.nativeTaskId);
-          if (!task || String(event.detail) !== String(widget.dataset.blockId)) return;
-          grantNativeAdsgramTaskReward(task).catch(err => {
-            console.warn('Native Adsgram task reward:', err);
-            showToast('Could not save the native task reward. Please retry.', false);
-          });
-        });
-        widget.addEventListener('onError', event => {
-          console.warn('Native Adsgram task error:', event.detail);
-        });
-      });
+      container.querySelectorAll('adsgram-task[data-native-task-id]').forEach(bindNativeAdsgramWidget);
       updateTaskButtonStatuses(container);
     }
 
@@ -2155,7 +2223,7 @@
     function triggerMonetagAd(placementTag, onComplete, requestedFormat = 'end') {
       if (adInProgress) return showToast('A sponsor stream is already running.', false);
       SFX.tap();
-      const fnName = `show_${appConfig.monetagZoneId || '9969043'}`;
+      const fnName = `show_${appConfig.monetagZoneId || MONETAG_SDK_ZONE_ID}`;
       const loadedZone = document.querySelector('script[data-zone][data-sdk]')?.dataset.zone;
       if (String(loadedZone) !== String(appConfig.monetagZoneId)) {
         return showToast('Sponsor zone changed. App SDK must be updated.', false);
