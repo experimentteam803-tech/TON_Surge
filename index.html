@@ -3042,13 +3042,17 @@
         if (!gameVictorySaved) return showToast('Wait until the game reward is saved.', false);
         if (roundedTon(roundTonEarned) <= 0) return showToast('Collect at least one diamond to unlock 2×.', false);
         const rewardedGameId = currentGameId;
-        triggerMonetagAd('game_victory', async () => {
+        
+        // SWITCHED TO ADSGRAM REWARDED VIDEO (Block ID: 56729 ya admin config)
+        const adsgramRewardBlock = ENERGY_ADSGRAM_REWARD_BLOCK_ID || '56729';
+
+        triggerAdsgramAd(adsgramRewardBlock, async () => {
           try {
             const result = await transactUser(telegramUser.id, record => {
               record.victoryAdClaimedGames ||= {};
               if (record.victoryAdClaimedGames[rewardedGameId]) return false;
               if (!record.creditedGameIds?.[rewardedGameId]) return false;
-              // Credit exactly the previously saved base run reward, not an admin-set flat bonus.
+              // Credit exactly the previously saved base run reward
               const bonus = Number(record.gameRewardAmounts?.[rewardedGameId]);
               if (!Number.isFinite(bonus) || bonus <= 0) return false;
               record.victoryAdClaimedGames[rewardedGameId] = Date.now();
