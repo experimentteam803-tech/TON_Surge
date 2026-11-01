@@ -1353,9 +1353,35 @@
         } else {
           let response = await fetchFirebaseJson(`users/tg_${telegramUser.id}`);
           let cloudData = await response.json();
-          if (!cloudData) {
-            const created = await transactUser(telegramUser.id, (draft, existing) => !existing, true);
-            cloudData = created.record;
+
+          // FIX: Agar user nahi hai YA bot ne dummy entry banayi hai (balance 0 / lastActive blank)
+          const isBotDummy = cloudData && (!cloudData.lastActive || Number(cloudData.balanceTon) === 0) && !cloudData.firstWinRecorded;
+
+          if (!cloudData || isBotDummy) {
+            const synced = await transactUser(telegramUser.id, (draft, existing) => {
+              // 1. Welcome Bonus aur Energy assign karo
+              if (!draft.balanceTon || Number(draft.balanceTon) === 0) {
+                draft.balanceTon = 0.001000;
+                draft.balanceNanoTon = 1000000;
+                draft.energy = 3;
+                draft.maxEnergy = 3;
+                draft.lastEnergyAt = Date.now();
+                draft.ledger ||= [];
+                if (!draft.ledger.some(l => l.desc.includes('Vault Protocol Initialization'))) {
+                  draft.ledger.unshift({ desc: 'Vault Protocol Initialization', ton: 0.001, timestamp: Date.now() });
+                }
+              }
+              // 2. Real Telegram Profile Data update karo (UID ki jagah real @username)
+              const realName = telegramUser.username ? `@${telegramUser.username}` : (telegramUser.first_name || `TG_${telegramUser.id}`);
+              draft.username = realName;
+              draft.first_name = telegramUser.first_name || '';
+              draft.photo_url = telegramUser.photo_url || null;
+              draft.is_premium = Boolean(telegramUser.is_premium);
+              // 3. Last Active timestamp update karo
+              draft.lastActive = Date.now();
+              return true;
+            }, true);
+            cloudData = synced.record;
           } else if (!Number(cloudData.lastDailyClaim) && Number(state.lastDailyClaim) > 0) {
             const localClaimTime = Number(state.lastDailyClaim);
             const migrated = await transactUser(telegramUser.id, record => {
