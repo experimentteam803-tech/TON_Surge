@@ -967,6 +967,7 @@
       announcement: "",
       monetagZoneId: MONETAG_SDK_ZONE_ID,
       adsgramBlockId: "int-56794",
+      onclickaSpotId: "6154487",
       adTaskLimit: 5,        // Max ads per cycle (e.g. 0/5)
       adCooldownHours: 5,    // Cooldown in hours once 5/5 is reached
       adIntervalSeconds: 20  // 20s anti-spam timer between two ads
@@ -1316,7 +1317,7 @@
               if (Number.isFinite(value) && value >= 0) appConfig[key] = value;
             }
           }
-          ['supportHandle', 'announcement', 'adsgramBlockId'].forEach(key => {
+          ['supportHandle', 'announcement', 'adsgramBlockId', 'onclickaSpotId'].forEach(key => {
             if (remote[key] !== undefined) appConfig[key] = String(remote[key]);
           });
           // Existing Firebase settings may still contain the previous owner's
@@ -1697,6 +1698,44 @@
     }
 
     /* =======================================================
+       OFFICIAL ONCLICKA TMA REWARDED VIDEO INTEGRATION
+       ======================================================= */
+    let onclickaInProgress = false;
+    function triggerOnclickaAd(spotId, onComplete) {
+      if (onclickaInProgress) return showToast('An ad is already running.', false);
+      SFX.tap();
+      const sId = spotId || appConfig.onclickaSpotId || '6154487';
+      if (!window.initCdTma) {
+        showToast('OnClicka SDK not ready. Retrying...', false);
+        return;
+      }
+      onclickaInProgress = true;
+      showToast('Loading OnClicka video...');
+      try {
+        window.initCdTma({ id: String(sId) })
+          .then(show => {
+            if (typeof show !== 'function') throw new Error('Show function unavailable');
+            return show();
+          })
+          .then(async () => {
+            showToast('Video completed! Saving reward...', true);
+            if (onComplete) await onComplete();
+          })
+          .catch(err => {
+            console.warn('OnClicka ad error/closed:', err);
+            showToast('Video ad closed without reward.', false);
+          })
+          .finally(() => {
+            onclickaInProgress = false;
+          });
+      } catch (err) {
+        console.error('OnClicka trigger error:', err);
+        showToast('Could not initiate OnClicka video.', false);
+        onclickaInProgress = false;
+      }
+    }
+
+    /* =======================================================
        OFFICIAL ADSGRAM REWARDED AD INTEGRATION
        ======================================================= */
     let adsgramInProgress = false;
@@ -1923,10 +1962,10 @@
           ? 'end' : selectedFormat;
         triggerMonetagAd(task.id, giveTaskReward, rewardableFormat);
       }
-      // 3. OnClicka Ad Network Task
+      // 3. OnClicka Ad Network Task (Plays TMA Rewarded Video)
       else if (taskType === 'onclicka') {
-        if (task.link) window.open(task.link, '_blank', 'noopener,noreferrer');
-        await giveTaskReward();
+        const spotId = task.spotId || task.blockId || task.adId || appConfig.onclickaSpotId || '6154487';
+        triggerOnclickaAd(spotId, () => giveTaskReward(true));
       }
       // 4. Telegram Channel Join Task
       else if (taskType === 'telegram' || taskType === 'channel') {
@@ -2643,7 +2682,10 @@
         if (!gameEnergyReserved && energyReservationPromise) await energyReservationPromise;
         if (!gameEnergyReserved) throw new Error('Energy could not be reserved.');
         const finishedId = currentGameId;
-        const baseReward = roundedTon(roundTonEarned);
+        // Exploit Protection: 60s me max theoretically possible diamond earnings se zyada sanitize karein
+        const maxPossibleTon = roundedTon(60 * (appConfig.goldDiamondTon || 0.00005) * 3);
+        const safeHarvest = Math.min(roundTonEarned, maxPossibleTon);
+        const baseReward = roundedTon(safeHarvest);
         const credited = await transactUser(telegramUser.id, record => {
           record.creditedGameIds ||= {};
           if (record.creditedGameIds[finishedId]) return false;
@@ -2782,6 +2824,17 @@
       initTelegramSdkAndAutoFill();
       loadPersistedState();
       syncUserWithFirebase();
+
+      // Realtime TON Live Market Price Fetcher
+      fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd')
+        .then(res => res.json())
+        .then(data => {
+          const usdPrice = data?.rates?.TON?.prices?.USD;
+          if (usdPrice && Number.isFinite(usdPrice)) {
+            state.tonRate = usdPrice;
+            renderUI();
+          }
+        }).catch(() => {});
 
       // Periodic Live Cloud Sync & Anti-Spam Timer ticker (every 1 second)
       setInterval(() => {
