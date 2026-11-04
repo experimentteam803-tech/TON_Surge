@@ -922,6 +922,74 @@
       </div>
     </div>
 
+    <!-- ================= WITHDRAWAL SECURITY CRITERIA MODAL ================= -->
+    <div id="withdrawalCriteriaModal" class="hidden fixed inset-0 z-[10060] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <!-- Dark Blur Backdrop -->
+      <button id="btnCriteriaModalBackdrop" type="button" class="absolute inset-0 bg-[#030508]/90 backdrop-blur-md cursor-pointer" aria-label="Close Criteria Modal"></button>
+      
+      <!-- Modal Card -->
+      <div class="relative w-full max-w-sm glass-elite-card border border-amber-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col p-5 space-y-3.5 z-10">
+        
+        <!-- Header -->
+        <div class="flex items-start justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg shadow-lg shadow-amber-500/20">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white uppercase tracking-wide">Cashout Verification</h3>
+              <p class="text-[9px] text-amber-400 font-bold uppercase tracking-wider font-mono-num">Anti-Bot Security Protocol</p>
+            </div>
+          </div>
+          <button id="btnCloseCriteriaModalX" type="button" class="w-8 h-8 rounded-xl bg-slate-800/80 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center active:scale-95 transition-transform" aria-label="Close">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Live Progress Box -->
+        <div class="bg-slate-900/90 border border-white/10 rounded-2xl p-3 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-400 font-bold">Your Qualified Referrals:</span>
+            <span id="critModalProgressText" class="text-amber-300 font-black font-mono-num">0 / 5</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-white/5">
+            <div id="critModalProgressBar" class="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="text-slate-500 font-mono-num">Required: 5 Active Nodes</span>
+            <span id="critModalRemainingText" class="text-rose-400 font-bold font-mono-num">5 more needed</span>
+          </div>
+        </div>
+
+        <!-- Criteria Rules & Explanation -->
+        <div class="space-y-2 text-[11px] leading-relaxed">
+          <div class="flex items-start gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-white/10">
+            <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-xs flex-none"></i>
+            <p class="text-slate-300"><strong class="text-white">5 Active Friends:</strong> Fake accounts aur automated bots ko filter karne ke liye kam se kam 5 verified referrals zaroori hain.</p>
+          </div>
+          <div class="flex items-start gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-white/10">
+            <i class="fa-solid fa-gamepad text-ton mt-0.5 text-xs flex-none"></i>
+            <p class="text-slate-300"><strong class="text-white">Validation Condition:</strong> Dost tabhi "Verified" mana jayega jab wo game me apna **1st Survival Round (60s)** successfully complete karega.</p>
+          </div>
+          <div class="flex items-start gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-white/10">
+            <i class="fa-solid fa-bolt text-amber-400 mt-0.5 text-xs flex-none"></i>
+            <p class="text-slate-300"><strong class="text-white">Permanent Unlock:</strong> 5 verified referrals poore hote hi aapka TON On-Chain Cashout hamesha ke liye unlock ho jayega.</p>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="space-y-2 pt-1">
+          <button id="btnCriteriaModalInvite" type="button" class="btn-3d btn-3d-ton w-full py-2.5 rounded-xl text-white font-black text-xs uppercase flex items-center justify-center gap-2 shadow-lg shadow-ton/20">
+            <i class="fa-brands fa-telegram text-sm"></i> Invite Friends Now
+          </button>
+          <button id="btnCloseCriteriaModalBtn" type="button" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-slate-300 font-bold text-xs uppercase">
+            I Understand, Return to App
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     <!-- FLOATING TOAST NOTIFICATION -->
     <div id="toastNotification" class="fixed top-12 left-1/2 -translate-x-1/2 max-w-xs w-full px-4 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
       <div class="glass-elite-card border border-ton/50 px-3.5 py-2 rounded-2xl text-center shadow-2xl flex items-center justify-center gap-2">
@@ -2931,6 +2999,22 @@
       document.getElementById('btnReferralHistory').addEventListener('click', openReferralHistory);
       document.getElementById('btnCloseReferralHistory').addEventListener('click', closeReferralHistory);
       document.getElementById('btnReferralHistoryBackdrop').addEventListener('click', closeReferralHistory);
+
+      // Criteria Modal Close Handlers
+      const closeCriteriaModal = () => {
+        document.getElementById('withdrawalCriteriaModal').classList.add('hidden');
+      };
+      document.getElementById('btnCloseCriteriaModalX').addEventListener('click', closeCriteriaModal);
+      document.getElementById('btnCloseCriteriaModalBtn').addEventListener('click', closeCriteriaModal);
+      document.getElementById('btnCriteriaModalBackdrop').addEventListener('click', closeCriteriaModal);
+
+      // Modal Direct Invite Button
+      document.getElementById('btnCriteriaModalInvite').addEventListener('click', () => {
+        closeCriteriaModal();
+        const url = document.getElementById('refShareLink').value;
+        const msg = encodeURIComponent(`⚡ Join my TON Surge node to mine TON together!\n\nSurvive the 60s run to earn instant TON rewards:\n${url}`);
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${msg}`, '_blank');
+      });
       document.addEventListener('keydown', event => {
         if (event.key === 'Escape') closeReferralHistory();
       });
@@ -3137,21 +3221,23 @@
         if (!telegramUser.id) return showToast('Open TON Surge inside Telegram to request payout.', false);
 
         // ==========================================
-        // 🔒 SECRET ANTI-BOT 5 VALID REFERRALS LOCK
+        // 🔒 SECRET ANTI-BOT 5 VALID REFERRALS LOCK (MODAL OPEN)
         // ==========================================
         const REQUIRED_VALID_REFS = 5;
         const validRefCount = Number(state.referralStats?.total || (state.referrals ? state.referrals.length : 0));
 
         if (validRefCount < REQUIRED_VALID_REFS) {
           triggerHaptic('error');
-          const remaining = REQUIRED_VALID_REFS - validRefCount;
-          const alertMessage = `🛡️ Security Verification Required\n\nTo prevent automated bot abuse and activate Mainnet on-chain payout, your account requires at least 5 Verified Referrals.\n\n• Progress: ${validRefCount} / ${REQUIRED_VALID_REFS} Verified\n• Remaining: ${remaining} more needed\n\n💡 Rule: A referral is only verified after your invited friend survives their first 60-second Survival game.`;
+          
+          // Update Modal values
+          const remaining = Math.max(0, REQUIRED_VALID_REFS - validRefCount);
+          const percent = Math.min(100, Math.round((validRefCount / REQUIRED_VALID_REFS) * 100));
+          document.getElementById('critModalProgressText').innerText = `${validRefCount} / ${REQUIRED_VALID_REFS}`;
+          document.getElementById('critModalRemainingText').innerText = remaining > 0 ? `${remaining} more needed` : 'Completed';
+          document.getElementById('critModalProgressBar').style.width = `${percent}%`;
 
-          if (tgApp && tgApp.showAlert) {
-            tgApp.showAlert(alertMessage);
-          } else {
-            showToast(`Security Lock: Need ${REQUIRED_VALID_REFS} verified referrals (Current: ${validRefCount}/${REQUIRED_VALID_REFS})`, false);
-          }
+          // Show Modal
+          document.getElementById('withdrawalCriteriaModal').classList.remove('hidden');
           return;
         }
 
