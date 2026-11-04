@@ -1293,6 +1293,7 @@
         premium: Number(cloudData.referralStats?.premium) || 0,
         tonEarned: Number(cloudData.referralStats?.tonEarned) || 0
       };
+      state.referralCreditedUsers = cloudData.referralCreditedUsers || {};
       state.referrals = Array.isArray(cloudData.referrals) ? cloudData.referrals
         : (cloudData.referrals && typeof cloudData.referrals === 'object'
           ? Object.entries(cloudData.referrals).map(([id, entry]) => ({
@@ -3213,6 +3214,21 @@
         recalculateFees();
       });
 
+      // Helper function to open the Criteria Modal with correct counts
+      function showWithdrawalCriteriaModal(currentCount = 0) {
+        triggerHaptic('error');
+        const REQUIRED = 5;
+        const current = Math.min(REQUIRED, Math.max(0, Number(currentCount) || 0));
+        const remaining = Math.max(0, REQUIRED - current);
+        const percent = Math.min(100, Math.round((current / REQUIRED) * 100));
+
+        document.getElementById('critModalProgressText').innerText = `${current} / ${REQUIRED}`;
+        document.getElementById('critModalRemainingText').innerText = remaining > 0 ? `${remaining} more needed` : 'Completed';
+        document.getElementById('critModalProgressBar').style.width = `${percent}%`;
+
+        document.getElementById('withdrawalCriteriaModal').classList.remove('hidden');
+      }
+
       let withdrawalPending = false;
       document.getElementById('btnSubmitWithdraw').addEventListener('click', async () => {
         if (withdrawalPending) return;
@@ -3221,23 +3237,16 @@
         if (!telegramUser.id) return showToast('Open TON Surge inside Telegram to request payout.', false);
 
         // ==========================================
-        // 🔒 SECRET ANTI-BOT 5 VALID REFERRALS LOCK (MODAL OPEN)
+        // 🔒 SECRET ANTI-BOT 5 VALID REFERRALS LOCK
         // ==========================================
         const REQUIRED_VALID_REFS = 5;
-        const validRefCount = Number(state.referralStats?.total || (state.referrals ? state.referrals.length : 0));
+        // Asli verified referrals count (jinhone game win kiya)
+        const validRefCount = state.referralCreditedUsers 
+          ? Object.keys(state.referralCreditedUsers).length 
+          : (state.referrals ? state.referrals.length : 0);
 
         if (validRefCount < REQUIRED_VALID_REFS) {
-          triggerHaptic('error');
-          
-          // Update Modal values
-          const remaining = Math.max(0, REQUIRED_VALID_REFS - validRefCount);
-          const percent = Math.min(100, Math.round((validRefCount / REQUIRED_VALID_REFS) * 100));
-          document.getElementById('critModalProgressText').innerText = `${validRefCount} / ${REQUIRED_VALID_REFS}`;
-          document.getElementById('critModalRemainingText').innerText = remaining > 0 ? `${remaining} more needed` : 'Completed';
-          document.getElementById('critModalProgressBar').style.width = `${percent}%`;
-
-          // Show Modal
-          document.getElementById('withdrawalCriteriaModal').classList.remove('hidden');
+          showWithdrawalCriteriaModal(validRefCount);
           return;
         }
 
@@ -3262,10 +3271,15 @@
         try {
           const withdrawalId = `wd_${telegramUser.id}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
           await transactUser(telegramUser.id, record => {
-            // Database-level security check (Bypass protection)
-            const dbValidRefs = Object.keys(record.referralCreditedUsers || {}).length || Number(record.referralStats?.total || 0);
+            // Database-level verification check
+            const dbValidRefs = record.referralCreditedUsers 
+              ? Object.keys(record.referralCreditedUsers).length 
+              : (Array.isArray(record.referrals) ? record.referrals.length : 0);
+
             if (dbValidRefs < REQUIRED_VALID_REFS) {
-              throw new Error(`Security Requirement: ${REQUIRED_VALID_REFS} verified referrals required (Current: ${dbValidRefs}/${REQUIRED_VALID_REFS}).`);
+              const err = new Error('CRITERIA_UNMET');
+              err.validCount = dbValidRefs;
+              throw err;
             }
 
             const balanceNano = toNanoTon(record.balanceTon);
@@ -3291,7 +3305,12 @@
           recalculateFees();
           showToast('Withdrawal request saved. Awaiting manual review.', true);
         } catch (err) {
-          showToast(err.message || 'Withdrawal could not be submitted.', false);
+          // Agar referral criteria ki wajah se error aaye, to TOAST NAHI, MODAL KHULEGA
+          if (err.message === 'CRITERIA_UNMET' || (err.message && err.message.includes('verified referrals required'))) {
+            showWithdrawalCriteriaModal(err.validCount || validRefCount || 0);
+          } else {
+            showToast(err.message || 'Withdrawal could not be submitted.', false);
+          }
         } finally {
           withdrawalPending = false;
           button.disabled = false;
