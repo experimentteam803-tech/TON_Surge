@@ -965,15 +965,15 @@
         <div class="space-y-2 text-[11px] leading-relaxed">
           <div class="flex items-start gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-white/10">
             <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-xs flex-none"></i>
-            <p class="text-slate-300"><strong class="text-white">5 Active Referrals:</strong> To prevent automated bot abuse and verify network activity, a minimum of 5 verified referrals is required.</p>
+            <p class="text-slate-300"><strong class="text-white">5 Active Friends:</strong> Fake accounts aur automated bots ko filter karne ke liye kam se kam 5 verified referrals zaroori hain.</p>
           </div>
           <div class="flex items-start gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-white/10">
             <i class="fa-solid fa-gamepad text-ton mt-0.5 text-xs flex-none"></i>
-            <p class="text-slate-300"><strong class="text-white">Verification Rule:</strong> A referral is considered "Verified" only after your friend completes their first 60-second Survival Run.</p>
+            <p class="text-slate-300"><strong class="text-white">Validation Condition:</strong> Dost tabhi "Verified" mana jayega jab wo game me apna **1st Survival Round (60s)** successfully complete karega.</p>
           </div>
           <div class="flex items-start gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-white/10">
             <i class="fa-solid fa-bolt text-amber-400 mt-0.5 text-xs flex-none"></i>
-            <p class="text-slate-300"><strong class="text-white">Permanent Unlock:</strong> Once 5 verified referrals are completed, TON Mainnet cashouts are unlocked permanently for your account.</p>
+            <p class="text-slate-300"><strong class="text-white">Permanent Unlock:</strong> 5 verified referrals poore hote hi aapka TON On-Chain Cashout hamesha ke liye unlock ho jayega.</p>
           </div>
         </div>
 
@@ -1626,37 +1626,38 @@
         if (!widget.isConnected || String(event.detail) !== String(widget.dataset.blockId)) return;
         const task = dynamicTasks.find(item => String(item.id) === taskId);
         if (!task || String(task.type).toLowerCase() !== 'adsgramtask') return;
-        if (nativeAdsgramLifecycle.get(taskId)?.phase === 'claiming') return;
-        rememberNativeAdsgramPhase(taskId, 'claiming');
-        if (wrapper) wrapper.dataset.nativeHidden = 'true';
-        // Only Adsgram's verified reward event can trigger the TON claim.
-        // Replacing the completed web component requests another offer; Adsgram
-        // decides which campaigns this Telegram user has not yet completed.
+        
+        // 🔒 SAFEGUARD: 45 Seconds Cooldown Lock
+        rememberNativeAdsgramPhase(taskId, 'cooldown', Date.now() + 45000);
+        if (wrapper) wrapper.dataset.locked = 'true';
+
         grantNativeAdsgramTaskReward(task).catch(err => {
           console.warn('Native Adsgram task reward:', err);
           showToast('Could not save the native task reward. Please retry.', false);
         }).finally(() => {
           if (!wrapper || !wrapper.isConnected) return;
-          rememberNativeAdsgramPhase(taskId, 'waiting', Date.now() + 1000);
           updateTaskButtonStatuses(wrapper.parentElement);
         });
       });
+
+      // Agar user ke liye aur task nahi hai, to card ko chupao mat, "Completed" dikhao
       widget.addEventListener('onBannerNotFound', () => {
         if (!widget.isConnected) return;
-        rememberNativeAdsgramPhase(taskId, 'empty', Date.now() + NATIVE_ADSGRAM_RETRY_MS);
-        if (wrapper) wrapper.dataset.nativeHidden = 'true';
+        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 60000);
+        if (wrapper) wrapper.dataset.locked = 'true';
       });
+
       widget.addEventListener('onError', event => {
         if (!widget.isConnected) return;
         console.warn('Native Adsgram task error:', event.detail);
-        rememberNativeAdsgramPhase(taskId, 'empty', Date.now() + NATIVE_ADSGRAM_RETRY_MS);
-        if (wrapper) wrapper.dataset.nativeHidden = 'true';
+        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 60000);
+        if (wrapper) wrapper.dataset.locked = 'true';
       });
+
       widget.addEventListener('onTooLongSession', () => {
         if (!widget.isConnected) return;
-        rememberNativeAdsgramPhase(taskId, 'expired');
-        if (wrapper) wrapper.dataset.nativeHidden = 'true';
-        showToast('Adsgram task session expired. Reopen the Mini App to see new tasks.', false);
+        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 120000);
+        if (wrapper) wrapper.dataset.locked = 'true';
       });
     }
 
@@ -1664,8 +1665,8 @@
       const oldWidget = wrapper.querySelector('adsgram-task[data-native-task-id]');
       if (!oldWidget) return;
       const freshWidget = oldWidget.cloneNode(true);
-      rememberNativeAdsgramPhase(taskId, 'loading', Date.now() + 1800);
-      wrapper.dataset.nativeHidden = 'true';
+      rememberNativeAdsgramPhase(taskId, 'loading', Date.now() + 2500);
+      wrapper.dataset.locked = 'true';
       oldWidget.replaceWith(freshWidget);
       bindNativeAdsgramWidget(freshWidget);
     }
@@ -1695,23 +1696,62 @@
       container.querySelectorAll('.ton-native-task-wrapper[data-admin-task-id]').forEach(wrapper => {
         const task = dynamicTasks.find(item => String(item.id) === wrapper.dataset.adminTaskId);
         if (!task) return;
-        const status = getTaskAdStatus(task);
         const taskId = String(task.id);
         const flow = nativeAdsgramLifecycle.get(taskId);
-        wrapper.dataset.locked = status.disabled ? 'true' : 'false';
         const lock = wrapper.querySelector('.ton-native-task-lock');
-        if (lock) lock.textContent = status.disabled ? status.buttonLabel : '';
-        if (status.disabled) {
-          if (!flow) rememberNativeAdsgramPhase(taskId, 'waiting', Date.now() + 1000);
-          wrapper.dataset.nativeHidden = 'true';
-        } else if (flow && (flow.phase === 'waiting' || flow.phase === 'empty')
-            && Date.now() >= flow.retryAt && !document.hidden) {
-          refreshNativeAdsgramWidget(wrapper, taskId);
-        } else if (flow && flow.phase === 'loading' && Date.now() >= flow.retryAt) {
-          flow.phase = 'visible';
-          wrapper.dataset.nativeHidden = 'false';
-        } else {
-          wrapper.dataset.nativeHidden = (!flow || flow.phase === 'visible') ? 'false' : 'true';
+        wrapper.dataset.nativeHidden = 'false'; // Task hamesha visible rahega, gayab nahi hoga
+
+        // 1. Ready State: Button enabled aur naya task open karne ke liye tayyar
+        if (!flow || flow.phase === 'ready') {
+          wrapper.dataset.locked = 'false';
+        } 
+        // 2. Cooldown State: Task complete ho gaya, 45 second ka live countdown
+        else if (flow.phase === 'cooldown') {
+          wrapper.dataset.locked = 'true';
+          const remainingSec = Math.max(0, Math.ceil((flow.retryAt - Date.now()) / 1000));
+          if (lock) {
+            lock.innerHTML = `
+              <div class="space-y-1">
+                <span class="text-emerald-400 font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i> Completed ✓</span>
+                <span class="text-slate-400 text-[10px] block">Next task in ${remainingSec}s...</span>
+              </div>
+            `;
+          }
+          // 45s khatam hone par naya task dhoondo
+          if (remainingSec <= 0 && !document.hidden) {
+            refreshNativeAdsgramWidget(wrapper, taskId);
+          }
+        } 
+        // 3. Loading State: Naya task check ho raha hai
+        else if (flow.phase === 'loading') {
+          wrapper.dataset.locked = 'true';
+          if (lock) {
+            lock.innerHTML = `
+              <div class="space-y-1">
+                <span class="text-sky-300 font-bold text-xs"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Checking next task...</span>
+              </div>
+            `;
+          }
+          if (Date.now() >= flow.retryAt) {
+            flow.phase = 'ready';
+            wrapper.dataset.locked = 'false';
+          }
+        } 
+        // 4. No Tasks State: Agar Adsgram ke paas naya task nahi hai
+        else if (flow.phase === 'no_tasks') {
+          wrapper.dataset.locked = 'true';
+          if (lock) {
+            lock.innerHTML = `
+              <div class="space-y-0.5">
+                <span class="text-emerald-400 font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i> Completed ✓</span>
+                <span class="text-slate-400 text-[10px] block">No more tasks available right now</span>
+              </div>
+            `;
+          }
+          // 1 minute baad background me check karega
+          if (Date.now() >= flow.retryAt && !document.hidden) {
+            refreshNativeAdsgramWidget(wrapper, taskId);
+          }
         }
       });
     }
