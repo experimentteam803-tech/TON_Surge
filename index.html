@@ -975,7 +975,7 @@
       dailyBonusTon: 0.001,
       victoryAdBonusTon: 0.00010,
       energyRegenMinutes: 30,
-      supportHandle: "@Ton_Surge_help",
+      supportHandle: "@PayZoteam",
       announcement: "",
       monetagZoneId: MONETAG_SDK_ZONE_ID,
       adsgramBlockId: "int-56794",
@@ -3133,10 +3133,31 @@
       document.getElementById('btnSubmitWithdraw').addEventListener('click', async () => {
         if (withdrawalPending) return;
         SFX.tap();
+
+        if (!telegramUser.id) return showToast('Open TON Surge inside Telegram to request payout.', false);
+
+        // ==========================================
+        // 🔒 SECRET ANTI-BOT 5 VALID REFERRALS LOCK
+        // ==========================================
+        const REQUIRED_VALID_REFS = 5;
+        const validRefCount = Number(state.referralStats?.total || (state.referrals ? state.referrals.length : 0));
+
+        if (validRefCount < REQUIRED_VALID_REFS) {
+          triggerHaptic('error');
+          const remaining = REQUIRED_VALID_REFS - validRefCount;
+          const alertMessage = `🛡️ Security Verification Required\n\nTo prevent automated bot abuse and activate Mainnet on-chain payout, your account requires at least 5 Verified Referrals.\n\n• Progress: ${validRefCount} / ${REQUIRED_VALID_REFS} Verified\n• Remaining: ${remaining} more needed\n\n💡 Rule: A referral is only verified after your invited friend survives their first 60-second Survival game.`;
+
+          if (tgApp && tgApp.showAlert) {
+            tgApp.showAlert(alertMessage);
+          } else {
+            showToast(`Security Lock: Need ${REQUIRED_VALID_REFS} verified referrals (Current: ${validRefCount}/${REQUIRED_VALID_REFS})`, false);
+          }
+          return;
+        }
+
         const address = document.getElementById('withdrawAddressInput').value.trim();
         const amt = parseFloat(amountInput.value);
 
-        if (!telegramUser.id) return showToast('Open TON Surge inside Telegram to request payout.', false);
         if (!validTonAddress(address)) {
           showToast('Please enter a valid TON address.', false);
           return;
@@ -3155,6 +3176,12 @@
         try {
           const withdrawalId = `wd_${telegramUser.id}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
           await transactUser(telegramUser.id, record => {
+            // Database-level security check (Bypass protection)
+            const dbValidRefs = Object.keys(record.referralCreditedUsers || {}).length || Number(record.referralStats?.total || 0);
+            if (dbValidRefs < REQUIRED_VALID_REFS) {
+              throw new Error(`Security Requirement: ${REQUIRED_VALID_REFS} verified referrals required (Current: ${dbValidRefs}/${REQUIRED_VALID_REFS}).`);
+            }
+
             const balanceNano = toNanoTon(record.balanceTon);
             if (fees.grossNano > balanceNano) throw new Error('Insufficient TON in Vault balance.');
             record.balanceTon = fromNanoTon(balanceNano - fees.grossNano);
