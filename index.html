@@ -1619,17 +1619,44 @@
       nativeAdsgramLifecycle.set(String(taskId), { phase, retryAt });
     }
 
+    // Helper to read Adsgram task title to prevent duplicate re-shows
+    function getAdsgramTaskTitle(widget) {
+      if (!widget) return '';
+      try {
+        const root = widget.shadowRoot || widget;
+        return (root.textContent || '').replace(/\s+/g, ' ').trim();
+      } catch (e) {
+        return '';
+      }
+    }
+
     function bindNativeAdsgramWidget(widget) {
       const taskId = String(widget.dataset.nativeTaskId || '');
       const wrapper = widget.closest('.ton-native-task-wrapper');
+
       widget.addEventListener('reward', event => {
         if (!widget.isConnected || String(event.detail) !== String(widget.dataset.blockId)) return;
         const task = dynamicTasks.find(item => String(item.id) === taskId);
         if (!task || String(task.type).toLowerCase() !== 'adsgramtask') return;
+
+        // 1. Save completed campaign title to prevent showing the exact same task again
+        const completedText = getAdsgramTaskTitle(widget);
+        if (completedText) {
+          try {
+            const completedList = JSON.parse(localStorage.getItem('ADSGRAM_DONE_TITLES') || '[]');
+            if (!completedList.includes(completedText)) {
+              completedList.push(completedText);
+              if (completedList.length > 20) completedList.shift();
+              localStorage.setItem('ADSGRAM_DONE_TITLES', JSON.stringify(completedList));
+            }
+          } catch(e) {}
+        }
+
+        // 2. Hide immediately — NO timer shown on screen!
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
         
-        // 🔒 SAFEGUARD: 45 Seconds Cooldown Lock
-        rememberNativeAdsgramPhase(taskId, 'cooldown', Date.now() + 45000);
-        if (wrapper) wrapper.dataset.locked = 'true';
+        // 3. Silent 45-second background cooldown
+        rememberNativeAdsgramPhase(taskId, 'bg_cooldown', Date.now() + 45000);
 
         grantNativeAdsgramTaskReward(task).catch(err => {
           console.warn('Native Adsgram task reward:', err);
@@ -1640,24 +1667,23 @@
         });
       });
 
-      // Agar user ke liye aur task nahi hai, to card ko chupao mat, "Completed" dikhao
+      // Agar Adsgram ke paas koi task nahi hai, to card ko HIDE hi rakho
       widget.addEventListener('onBannerNotFound', () => {
         if (!widget.isConnected) return;
-        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 60000);
-        if (wrapper) wrapper.dataset.locked = 'true';
+        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 90000);
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
       });
 
       widget.addEventListener('onError', event => {
         if (!widget.isConnected) return;
-        console.warn('Native Adsgram task error:', event.detail);
-        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 60000);
-        if (wrapper) wrapper.dataset.locked = 'true';
+        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 90000);
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
       });
 
       widget.addEventListener('onTooLongSession', () => {
         if (!widget.isConnected) return;
-        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 120000);
-        if (wrapper) wrapper.dataset.locked = 'true';
+        rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 180000);
+        if (wrapper) wrapper.dataset.nativeHidden = 'true';
       });
     }
 
@@ -1665,8 +1691,9 @@
       const oldWidget = wrapper.querySelector('adsgram-task[data-native-task-id]');
       if (!oldWidget) return;
       const freshWidget = oldWidget.cloneNode(true);
-      rememberNativeAdsgramPhase(taskId, 'loading', Date.now() + 2500);
-      wrapper.dataset.locked = 'true';
+      // Background me load karega, user ko nahi dikhega
+      rememberNativeAdsgramPhase(taskId, 'bg_checking', Date.now() + 3000);
+      wrapper.dataset.nativeHidden = 'true';
       oldWidget.replaceWith(freshWidget);
       bindNativeAdsgramWidget(freshWidget);
     }
@@ -1698,57 +1725,52 @@
         if (!task) return;
         const taskId = String(task.id);
         const flow = nativeAdsgramLifecycle.get(taskId);
-        const lock = wrapper.querySelector('.ton-native-task-lock');
-        wrapper.dataset.nativeHidden = 'false'; // Task hamesha visible rahega, gayab nahi hoga
 
-        // 1. Ready State: Button enabled aur naya task open karne ke liye tayyar
+        // 1. Ready State: Naya task available hai aur visible hona chahiye
         if (!flow || flow.phase === 'ready') {
+          wrapper.dataset.nativeHidden = 'false';
           wrapper.dataset.locked = 'false';
         } 
-        // 2. Cooldown State: Task complete ho gaya, 45 second ka live countdown
-        else if (flow.phase === 'cooldown') {
-          wrapper.dataset.locked = 'true';
-          const remainingSec = Math.max(0, Math.ceil((flow.retryAt - Date.now()) / 1000));
-          if (lock) {
-            lock.innerHTML = `
-              <div class="space-y-1">
-                <span class="text-emerald-400 font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i> Completed ✓</span>
-                <span class="text-slate-400 text-[10px] block">Next task in ${remainingSec}s...</span>
-              </div>
-            `;
-          }
-          // 45s khatam hone par naya task dhoondo
-          if (remainingSec <= 0 && !document.hidden) {
+        // 2. Background Cooldown: 45s ka timer background me chalega (User ko bilkul nahi dikhega, card hidden rahega)
+        else if (flow.phase === 'bg_cooldown') {
+          wrapper.dataset.nativeHidden = 'true';
+          if (Date.now() >= flow.retryAt && !document.hidden) {
+            // 45s complete hone par silent background check shuru
             refreshNativeAdsgramWidget(wrapper, taskId);
           }
         } 
-        // 3. Loading State: Naya task check ho raha hai
-        else if (flow.phase === 'loading') {
-          wrapper.dataset.locked = 'true';
-          if (lock) {
-            lock.innerHTML = `
-              <div class="space-y-1">
-                <span class="text-sky-300 font-bold text-xs"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Checking next task...</span>
-              </div>
-            `;
-          }
+        // 3. Silent Checking: Adsgram se response check ho raha hai
+        else if (flow.phase === 'bg_checking') {
+          wrapper.dataset.nativeHidden = 'true';
           if (Date.now() >= flow.retryAt) {
-            flow.phase = 'ready';
-            wrapper.dataset.locked = 'false';
+            const widget = wrapper.querySelector('adsgram-task[data-native-task-id]');
+            const newTitle = getAdsgramTaskTitle(widget);
+            let doneTitles = [];
+            try { doneTitles = JSON.parse(localStorage.getItem('ADSGRAM_DONE_TITLES') || '[]'); } catch(e){}
+
+            // Smart Duplicate Check: Kya Adsgram ne wahi purana completed task wapas bhej diya?
+            const isDuplicate = newTitle && doneTitles.some(t => newTitle.includes(t) || t.includes(newTitle));
+
+            if (isDuplicate) {
+              // Same task wapas aaya hai ➔ Card ko HIDE hi rakho (User ko duplicate task nahi dikhega)
+              rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 120000);
+              wrapper.dataset.nativeHidden = 'true';
+            } else if (newTitle && newTitle.length > 3) {
+              // NAYA Task mila hai! ➔ Card ko show karo aur button enable karo
+              flow.phase = 'ready';
+              wrapper.dataset.nativeHidden = 'false';
+              wrapper.dataset.locked = 'false';
+            } else {
+              // Task load nahi hua ya empty hai ➔ Hide rakho
+              rememberNativeAdsgramPhase(taskId, 'no_tasks', Date.now() + 90000);
+              wrapper.dataset.nativeHidden = 'true';
+            }
           }
         } 
-        // 4. No Tasks State: Agar Adsgram ke paas naya task nahi hai
+        // 4. No Tasks State: Adsgram ke paas koi naya task nahi hai ➔ Card HIDE rahega
         else if (flow.phase === 'no_tasks') {
-          wrapper.dataset.locked = 'true';
-          if (lock) {
-            lock.innerHTML = `
-              <div class="space-y-0.5">
-                <span class="text-emerald-400 font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i> Completed ✓</span>
-                <span class="text-slate-400 text-[10px] block">No more tasks available right now</span>
-              </div>
-            `;
-          }
-          // 1 minute baad background me check karega
+          wrapper.dataset.nativeHidden = 'true';
+          // 2 minute baad dubara background me silent check karega
           if (Date.now() >= flow.retryAt && !document.hidden) {
             refreshNativeAdsgramWidget(wrapper, taskId);
           }
