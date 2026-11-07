@@ -922,6 +922,56 @@
       </div>
     </div>
 
+    <!-- ================= REFERRAL SIGNUP BONUS & WITHDRAWAL POPUP ================= -->
+    <div id="referralSignupBonusModal" class="hidden fixed inset-0 z-[10070] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <button id="btnRefBonusBackdrop" type="button" class="absolute inset-0 bg-[#030508]/90 backdrop-blur-md cursor-pointer" aria-label="Close"></button>
+      <div class="relative w-full max-w-sm glass-elite-card border border-amber-400/50 rounded-3xl shadow-2xl p-5 space-y-3.5 z-10 text-center overflow-hidden">
+        
+        <div class="w-14 h-14 rounded-2xl bg-amber-400/15 border border-amber-400/40 flex items-center justify-center mx-auto text-amber-400 text-2xl shadow-lg shadow-amber-400/20 animate-diamond-pulse">
+          <i class="fa-solid fa-gift"></i>
+        </div>
+
+        <div>
+          <span class="bg-amber-400/20 text-amber-300 text-[9px] font-black px-2 py-0.5 rounded-full border border-amber-400/40 uppercase tracking-wider font-mono-num">
+            Referral Welcome Reward
+          </span>
+          <h3 class="text-base font-black text-white mt-1.5">Welcome to TON Surge!</h3>
+          <p class="text-[11px] text-slate-300 mt-1">
+            Invited by <strong id="refBonusInviterName" class="text-ton font-mono-num">Sponsor</strong>
+          </p>
+        </div>
+
+        <!-- Bonus Display Card -->
+        <div class="glass-ton-premium rounded-2xl p-3 border border-ton/40 shadow-inner space-y-1">
+          <span class="text-[9px] text-slate-300 uppercase font-bold tracking-wider">Signup Bonus Credited</span>
+          <p class="text-2xl font-black text-cyan-glow font-mono-num">+0.100000 TON</p>
+          <p class="text-[10px] text-emerald-400 font-bold flex items-center justify-center gap-1">
+            <i class="fa-solid fa-circle-check text-[9px]"></i> Deposited Directly into Your Vault
+          </p>
+        </div>
+
+        <!-- English Withdrawal Notice -->
+        <div class="bg-slate-900/90 rounded-xl p-2.5 border border-white/10 text-left space-y-1 text-[10px] text-slate-300 leading-relaxed">
+          <div class="flex items-center gap-1.5 text-amber-300 font-bold">
+            <i class="fa-solid fa-shield-halved text-[10px]"></i>
+            <span>Mainnet Settlement & Cashout Notice</span>
+          </div>
+          <p>
+            Your welcome bonus is ready for withdrawal! You can cash out your TON directly to your non-custodial wallet (Tonkeeper / Telegram Wallet) anytime from the Cashout tab.
+          </p>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <button id="btnRefBonusGoWithdraw" type="button" class="btn-3d btn-3d-gold w-full py-2.5 rounded-xl text-slate-950 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-lg shadow-amber-400/20">
+            <i class="fa-solid fa-wallet text-xs"></i> Go to Cashout (Withdraw)
+          </button>
+          <button id="btnRefBonusClose" type="button" class="btn-3d btn-3d-dark w-full py-2 rounded-xl text-slate-300 font-bold text-xs uppercase">
+            Collect & Start Mining
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= WITHDRAWAL SECURITY CRITERIA MODAL ================= -->
     <div id="withdrawalCriteriaModal" class="hidden fixed inset-0 z-[10060] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <!-- Dark Blur Backdrop -->
@@ -1246,19 +1296,22 @@
 
     function initialUserRecord(uid) {
       const now = Date.now();
+      const hasRef = Boolean(pendingReferrerId && /^\d+$/.test(String(pendingReferrerId)) && String(pendingReferrerId) !== String(uid));
+      const startingTon = hasRef ? 0.100000 : 0.001000;
       return {
         id: String(uid),
         username: telegramUser.username ? `@${telegramUser.username}` : (telegramUser.first_name || 'Member'),
         first_name: telegramUser.first_name || '',
         photo_url: telegramUser.photo_url || null,
         is_premium: Boolean(telegramUser.is_premium),
-        balanceTon: 0.001,
-        balanceNanoTon: 1000000,
+        balanceTon: startingTon,
+        balanceNanoTon: toNanoTon(startingTon),
         energy: 3,
         maxEnergy: 3,
         lastEnergyAt: now,
         lastDailyClaim: 0,
-        referredBy: pendingReferrerId || null,
+        referredBy: hasRef ? String(pendingReferrerId) : null,
+        referralBonusAwarded: hasRef,
         firstWinRecorded: false,
         referralRewardClaimed: false,
         completedTaskIds: {},
@@ -1268,7 +1321,7 @@
         referralStats: { total: 0, premium: 0, tonEarned: 0 },
         referrals: [],
         withdrawals: [],
-        ledger: [{ desc: 'Vault Protocol Initialization', ton: 0.001, timestamp: now }],
+        ledger: [{ desc: hasRef ? 'Referral Welcome Signup Bonus' : 'Vault Protocol Initialization', ton: startingTon, timestamp: now }],
         createdAt: now,
         lastActive: now
       };
@@ -1428,16 +1481,20 @@
 
           if (!cloudData || isBotDummy) {
             const synced = await transactUser(telegramUser.id, (draft, existing) => {
-              // 1. Welcome Bonus aur Energy assign karo
+              // 1. Welcome Bonus aur Energy assign karo (0.1 TON if referred)
               if (!draft.balanceTon || Number(draft.balanceTon) === 0) {
-                draft.balanceTon = 0.001000;
-                draft.balanceNanoTon = 1000000;
+                const hasRef = Boolean(draft.referredBy || pendingReferrerId);
+                const startBonus = hasRef ? 0.100000 : 0.001000;
+                draft.balanceTon = startBonus;
+                draft.balanceNanoTon = toNanoTon(startBonus);
                 draft.energy = 3;
                 draft.maxEnergy = 3;
                 draft.lastEnergyAt = Date.now();
+                if (hasRef) draft.referralBonusAwarded = true;
                 draft.ledger ||= [];
-                if (!draft.ledger.some(l => l.desc.includes('Vault Protocol Initialization'))) {
-                  draft.ledger.unshift({ desc: 'Vault Protocol Initialization', ton: 0.001, timestamp: Date.now() });
+                const desc = hasRef ? 'Referral Welcome Signup Bonus' : 'Vault Protocol Initialization';
+                if (!draft.ledger.some(l => l.desc.includes('Initialization') || l.desc.includes('Signup Bonus'))) {
+                  draft.ledger.unshift({ desc, ton: startBonus, timestamp: Date.now() });
                 }
               }
               // 2. Real Telegram Profile Data update karo (UID ki jagah real @username)
@@ -3378,6 +3435,56 @@
           button.disabled = false;
         }
       });
+
+      // Referral Signup Bonus Pop-up Trigger with Referrer Name
+      async function checkAndShowReferralBonusPopup() {
+        if (!telegramUser.id) return;
+        const refId = state.referredBy || pendingReferrerId;
+        if (!refId || String(refId) === String(telegramUser.id)) return;
+
+        const popupStorageKey = `TON_SURGE_REF_BONUS_SEEN_${telegramUser.id}`;
+        if (localStorage.getItem(popupStorageKey)) return;
+
+        // Fetch Referrer's real name from Firebase
+        let inviterName = `User #${refId}`;
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}/users/tg_${refId}.json`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data) {
+              inviterName = data.username ? data.username : (data.first_name || `User #${refId}`);
+            }
+          }
+        } catch (e) {}
+
+        const inviterEl = document.getElementById('refBonusInviterName');
+        if (inviterEl) inviterEl.innerText = inviterName;
+
+        const modal = document.getElementById('referralSignupBonusModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          SFX.victory();
+          triggerHaptic('success');
+        }
+      }
+
+      const closeRefBonusModal = () => {
+        const modal = document.getElementById('referralSignupBonusModal');
+        if (modal) modal.classList.add('hidden');
+        if (telegramUser.id) {
+          localStorage.setItem(`TON_SURGE_REF_BONUS_SEEN_${telegramUser.id}`, 'true');
+        }
+      };
+
+      document.getElementById('btnRefBonusClose').addEventListener('click', closeRefBonusModal);
+      document.getElementById('btnRefBonusBackdrop').addEventListener('click', closeRefBonusModal);
+      document.getElementById('btnRefBonusGoWithdraw').addEventListener('click', () => {
+        closeRefBonusModal();
+        switchTab('wallet');
+      });
+
+      // Show Popup after state syncs
+      setTimeout(checkAndShowReferralBonusPopup, 1200);
 
       initTonConnect();
       renderUI();
