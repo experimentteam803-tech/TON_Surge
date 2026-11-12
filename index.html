@@ -501,9 +501,9 @@
               <div class="w-7 h-7 rounded-lg bg-ton/15 flex items-center justify-center text-ton">
                 <i class="fa-solid fa-stopwatch text-xs"></i>
               </div>
-              <div>
+              <<div>
                 <p class="text-[8px] text-slate-400 uppercase font-bold">Survive</p>
-                <p id="gameTimerDisplay" class="text-sm font-black text-white font-mono-num">60s</p>
+                <p id="gameTimerDisplay" class="text-sm font-black text-white font-mono-num">30s</p>
               </div>
             </div>
             <div class="text-center">
@@ -522,7 +522,7 @@
                 <span class="rounded-lg bg-ton/20 border border-ton/30 px-2 py-1 text-[10px] font-black text-sky-200 font-mono-num" id="gameLevelNumber">LEVEL 1 / 5</span>
                 <span class="text-[10px] font-bold text-white" id="gameLevelName">VERY EASY</span>
               </div>
-              <span class="text-[9px] text-slate-300 font-bold font-mono-num" id="gameStageTime">00:00 / 01:00</span>
+              <span class="text-[9px] text-slate-300 font-bold font-mono-num" id="gameStageTime">00:00 / 00:30</span>
             </div>
             <div class="survival-progress-track"><div id="gameLevelProgressBar"></div></div>
             <div class="flex justify-between text-[8px] font-extrabold tracking-wider text-slate-500"><span>EASY</span><span>MEDIUM</span><span>HARD</span><span>ELITE</span></div>
@@ -540,7 +540,7 @@
                     class="w-full h-full object-contain filter drop-shadow-[0_0_14px_rgba(0,152,234,0.95)]" 
                   />
                 </div>
-                <h3 class="text-base font-black text-white">60s TON Diamond Survival</h3>
+                <h3 class="text-base font-black text-white">30s TON Diamond Survival</h3>
                 <p class="text-[11px] text-slate-300 mt-1 max-w-xs leading-relaxed">
                   Catch falling diamonds to harvest direct TON!
                   <br/><span class="text-ton font-bold">Blue Diamond (+<span id="labelBlueDiamondTon">0.00002</span> TON)</span> 
@@ -551,7 +551,7 @@
                   <p class="font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Precision Rules:</p>
                   <p>• Missing <strong>1 Diamond</strong> = Instant Game Over!</p>
                   <p>• Tapping a <strong>Bomb</strong> = Instant Game Over (Zero TON)!</p>
-                  <p>• Survive full 60 seconds to credit all harvested TON to Vault.</p>
+                  <p>• Survive full 30 seconds to credit all harvested TON to Vault.</p>
                 </div>
 
                 <p class="text-xs font-mono-num text-slate-300 mb-3">
@@ -589,7 +589,7 @@
                 <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl mb-2 shadow-lg shadow-emerald-500/30">
                   <i class="fa-solid fa-trophy"></i>
                 </div>
-                <h3 class="text-sm font-black text-white">60s SURVIVAL COMPLETED!</h3>
+                <h3 class="text-sm font-black text-white">30s SURVIVAL COMPLETED!</h3>
                 <p class="text-[10px] text-slate-300">You survived all hazard waves and salvaged genuine TON crystals.</p>
 
                 <div class="glass-elite-card border border-ton/30 rounded-xl p-2.5 my-2.5 w-full">
@@ -2535,7 +2535,7 @@
 
     let gameActive = false;
     let roundTonEarned = 0;
-    let timeRemaining = 60;
+    let timeRemaining = 30; // 30s Game Duration
     let lastFrameTime = performance.now();
     let gameElapsedSeconds = 0;
     let gamePaused = false;
@@ -2690,30 +2690,35 @@
       }
     }
 
+    // 30 Seconds ke hisaab se 5 Difficulty Levels
     function getDifficultyParameters(timeSec) {
-      const elapsed = 60 - timeSec;
-      if (elapsed < 10) return { label: 'VERY EASY', speed: 1.0, interval: 0.85 };
-      if (elapsed < 25) return { label: 'EASY', speed: 1.25, interval: 0.70 };
-      if (elapsed < 40) return { label: 'MEDIUM', speed: 1.55, interval: 0.55 };
-      if (elapsed < 50) return { label: 'HARD', speed: 1.90, interval: 0.42 };
-      return { label: 'ELITE', speed: 2.25, interval: 0.34 };
+      const elapsed = 30 - timeSec;
+      if (elapsed < 5) return { label: 'VERY EASY', speed: 1.0, interval: 0.85 };    // 0s - 5s
+      if (elapsed < 12) return { label: 'EASY', speed: 1.25, interval: 0.70 };       // 5s - 12s
+      if (elapsed < 20) return { label: 'MEDIUM', speed: 1.55, interval: 0.55 };     // 12s - 20s
+      if (elapsed < 25) return { label: 'HARD', speed: 1.90, interval: 0.42 };       // 20s - 25s
+      return { label: 'ELITE', speed: 2.25, interval: 0.34 };                        // 25s - 30s
     }
 
     let lastDisplayedGameSecond = -1;
     function updateGameProgress(force = false) {
-      const wholeElapsed = Math.min(60, Math.floor(gameElapsedSeconds));
+      const wholeElapsed = Math.min(30, Math.floor(gameElapsedSeconds));
       if (!force && wholeElapsed === lastDisplayedGameSecond) return;
       lastDisplayedGameSecond = wholeElapsed;
-      timeRemaining = Math.max(0, Math.ceil(60 - gameElapsedSeconds));
-      const level = wholeElapsed >= 50 ? 5 : wholeElapsed >= 40 ? 4 : wholeElapsed >= 25 ? 3 : wholeElapsed >= 10 ? 2 : 1;
+      timeRemaining = Math.max(0, Math.ceil(30 - gameElapsedSeconds));
+      
+      // 5 Levels Progress
+      const level = wholeElapsed >= 25 ? 5 : wholeElapsed >= 20 ? 4 : wholeElapsed >= 12 ? 3 : wholeElapsed >= 5 ? 2 : 1;
       const difficulty = getDifficultyParameters(timeRemaining);
+      
       document.getElementById('gameTimerDisplay').textContent = `${timeRemaining}s`;
       document.getElementById('gameDifficultyLabel').textContent = difficulty.label;
       document.getElementById('gameLevelNumber').textContent = `LEVEL ${level} / 5`;
       document.getElementById('gameLevelName').textContent = difficulty.label;
+      
       const elapsedLabel = `${String(Math.floor(wholeElapsed / 60)).padStart(2, '0')}:${String(wholeElapsed % 60).padStart(2, '0')}`;
-      document.getElementById('gameStageTime').textContent = `${elapsedLabel} / 01:00`;
-      document.getElementById('gameLevelProgressBar').style.width = `${Math.min(100, gameElapsedSeconds / 60 * 100)}%`;
+      document.getElementById('gameStageTime').textContent = `${elapsedLabel} / 00:30`;
+      document.getElementById('gameLevelProgressBar').style.width = `${Math.min(100, (gameElapsedSeconds / 30) * 100)}%`;
     }
 
     async function startSurvivalRun() {
@@ -2734,7 +2739,7 @@
       particles = [];
       floatingTexts = [];
       roundTonEarned = 0;
-      timeRemaining = 60;
+      timeRemaining = 30; // 30s Countdown
       gameElapsedSeconds = 0;
       lastDisplayedGameSecond = -1;
       spawnTimer = 0;
@@ -2776,9 +2781,9 @@
       if (!gameActive || gamePaused || token !== gameLoopToken) return;
       const dt = Math.max(0, Math.min((now - lastFrameTime) / 1000, 0.1));
       lastFrameTime = now;
-      gameElapsedSeconds = Math.min(60, gameElapsedSeconds + dt);
+      gameElapsedSeconds = Math.min(30, gameElapsedSeconds + dt);
       updateGameProgress();
-      if (gameElapsedSeconds >= 60) {
+      if (gameElapsedSeconds >= 30) {
         triggerGameVictory();
         return;
       }
@@ -2908,8 +2913,8 @@
         if (!gameEnergyReserved && energyReservationPromise) await energyReservationPromise;
         if (!gameEnergyReserved) throw new Error('Energy could not be reserved.');
         const finishedId = currentGameId;
-        // Exploit Protection: 60s me max theoretically possible diamond earnings se zyada sanitize karein
-        const maxPossibleTon = roundedTon(60 * (appConfig.goldDiamondTon || 0.00005) * 3);
+        // Exploit Protection: 30s me max theoretically possible diamond earnings se sanitize karein
+        const maxPossibleTon = roundedTon(30 * (appConfig.goldDiamondTon || 0.00005) * 3);
         const safeHarvest = Math.min(roundTonEarned, maxPossibleTon);
         const baseReward = roundedTon(safeHarvest);
         const credited = await transactUser(telegramUser.id, record => {
@@ -2926,7 +2931,7 @@
           record.gameRewardAmounts[finishedId] = baseReward;
           record.balanceTon = fromNanoTon(toNanoTon(record.balanceTon) + toNanoTon(baseReward));
           record.ledger ||= [];
-          record.ledger.unshift({ desc: '60s Survival Run Cleared', ton: baseReward, timestamp: Date.now() });
+          record.ledger.unshift({ desc: '30s Survival Run Cleared', ton: baseReward, timestamp: Date.now() });
           record.ledger = record.ledger.slice(0, 20);
           record.firstWinRecorded = true;
         });
